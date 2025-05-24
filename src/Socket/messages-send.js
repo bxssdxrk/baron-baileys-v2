@@ -641,7 +641,7 @@ const makeMessagesSocket = (config) => {
             //     logger.debug({ jid }, 'adding business node');
             // }
                    if (!isNewsletter && buttonType) {
-                            const buttonsNode = getButtonArgs(messages)
+                            const buttonsNode = getButtonArgs(message)
                             
                             const resultFilteredButtons = WABinary_1.getBinaryFilteredButtons(additionalNodes ? additionalNodes : [])
                             
