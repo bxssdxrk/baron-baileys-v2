@@ -1124,7 +1124,7 @@ const makeMessagesSocket = (config) => {
                 const additionalNodes = [];
                 
                // required for delete
-                            if (isDelete) {
+                            if (isDeleteMsg) {
                     // if the chat is a group, and I am not the author, then delete the message as an admin
                     if (WABinary_1.isJidGroup(content.delete?.remoteJid) && !content.delete?.fromMe || WABinary_1.isJidNewsletter(jid)) {
                         additionalAttributes.edit = '8'
