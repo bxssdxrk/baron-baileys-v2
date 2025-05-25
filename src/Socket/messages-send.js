@@ -1124,15 +1124,17 @@ const makeMessagesSocket = (config) => {
                 const additionalNodes = [];
                 
                // required for delete
-                              if (isDeleteMsg) {
-                                  // if the chat is a group, and I am not the author, then delete the message as an admin
-                    if (((0, WABinary_1.isJidGroup)((_a = content.delete) === null || _a === void 0 ? void 0 : _a.remoteJid) && !((_b = content.delete) === null || _b === void 0 ? void 0 : _b.fromMe)) || (0, WABinary_1.isJidNewsletter)(jid)) {
-                        additionalAttributes.edit = '8';
+                            if (isDelete) {
+                    // if the chat is a group, and I am not the author, then delete the message as an admin
+                    if (WABinary_1.isJidGroup(content.delete?.remoteJid) && !content.delete?.fromMe || WABinary_1.isJidNewsletter(jid)) {
+                        additionalAttributes.edit = '8'
                     }
+                    
                     else {
-                        additionalAttributes.edit = '7';
+                        additionalAttributes.edit = '7'
                     }
-                              }
+                }
+                
                               else if (isEditMsg) {
                                  additionalAttributes.edit = (0, WABinary_1.isJidNewsletter)(jid) ? '3' : '1';
                               }
