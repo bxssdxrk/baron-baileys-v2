@@ -1296,7 +1296,8 @@ const normalizeMessageContent = (content) => {
             || (message === null || message === void 0 ? void 0 : message.groupStatusMentionMessage) 
             || (message === null || message === void 0 ? void 0 : message.viewOnceMessageV2Extension)            
             || (message === null || message === void 0 ? void 0 : message.documentWithCaptionMessage)
-            || (message === null || message === void 0 ? void 0 : message.pollCreationOptionImageMessage))
+            || (message === null || message === void 0 ? void 0 : message.pollCreationOptionImageMessage)
+			|| (message === null || message === void 0 ? void 0 : message.questionMessage))
     }
 }
 

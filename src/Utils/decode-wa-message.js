@@ -37,7 +37,7 @@ function decodeMessageNode(stanza, meId, meLid) {
     let author
     const msgId = stanza.attrs.id
     const from = stanza.attrs.from
-    const participant = stanza.attrs.participant
+    const participant = stanza.attrs.participant_pn || stanza.attrs.participant
     const recipient = stanza.attrs.recipient
     const isMe = (jid) => WABinary_1.areJidsSameUser(jid, meId)
     const isMeLid = (jid) => WABinary_1.areJidsSameUser(jid, meLid)
