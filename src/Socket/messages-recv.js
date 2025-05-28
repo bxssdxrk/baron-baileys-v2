@@ -290,6 +290,10 @@ const makeMessagesRecvSocket = (config) => {
                         author: participant
                     }])
                 break
+                case 'delete':
+                msg.messageStubType = Types_1.WAMessageStubType.COMMUNITY_PARENT_GROUP_DELETED
+                msg.messageStubParameters = [participantJid, 'delete']
+                break
             case 'ephemeral':
             case 'not_ephemeral':
                 msg.message = {
@@ -309,7 +313,10 @@ const makeMessagesRecvSocket = (config) => {
             case 'remove':
             case 'add':
             case 'leave':
-                const stubType = `GROUP_PARTICIPANT_${child.tag.toUpperCase()}`
+                    let stubType = `GROUP_PARTICIPANT_${child.tag.toUpperCase()}`
+                if (child.attrs?.reason === 'linked_group_join') {
+                	stubType = GROUP_PARTICIPANT_LINKED_GROUP_JOIN
+                }
                 msg.messageStubType = Types_1.WAMessageStubType[stubType]
                 const participants = WABinary_1.getBinaryNodeChildren(child, 'participant').map(p => p.attrs.jid)
                 if (participants.length === 1 &&
@@ -366,6 +373,41 @@ const makeMessagesRecvSocket = (config) => {
                 const isDenied = WABinary_1.areJidsSameUser(participantJid, participant)
                 msg.messageStubType = Types_1.WAMessageStubType.GROUP_MEMBERSHIP_JOIN_APPROVAL_REQUEST_NON_ADMIN_ADD
                 msg.messageStubParameters = [participantJid, isDenied ? 'revoked' : 'rejected']
+                break
+                            case 'link':
+            case 'unlink':
+                const type = child.attrs?.unlink_type || child.attrs?.link_type
+                const stubMap = {
+                	parent_group: Types_1.WAMessageStubType[`COMMUNITY_${child.tag.toUpperCase()}_PARENT_GROUP`],
+                    sibling_group: Types_1.WAMessageStubType[`COMMUNITY_${child.tag.toUpperCase()}_SIBLING_GROUP`],
+                    sub_group: Types_1.WAMessageStubType[`COMMUNITY_${child.tag.toUpperCase()}_SUB_GROUP`]
+                }
+                const groups = WABinary_1.getBinaryNodeChildren(child, 'group')
+                    .map(g => g.attrs?.jid || g.attrs?.subject || '')
+                    .filter(x => x)
+                msg.messageStubType = stubMap?.[type] || Types_1.WAMessageStubType[`COMMUNITY_${child.tag.toUpperCase()}_PARENT_GROUP`]
+                msg.messageStubParameters = [participantJid, child.tag, groups]
+                break
+            case 'linked_group_promote':
+            case 'linked_group_demote':
+                const stubtype = `COMMUNITY_PARTICIPANT_${child.tag.split('_')[2].toUpperCase()}`
+                const participantS = WABinary_1.getBinaryNodeChildren(child, 'participant').map(p => p.attrs.jid)
+                msg.messageStubType = Types_1.WAMessageStubType[stubtype]
+                msg.messageStubParameters = participantS
+                break
+            case 'created_sub_group_suggestion':    
+                msg.messageStubType = Types_1.WAMessageStubType.SUGGESTED_SUBGROUP_ANNOUNCE
+                msg.messageStubParameters = [participantJid, 'add']
+                break
+            case 'revoked_sub_group_suggestions':
+                const res = WABinary_1.getBinaryNodeChildren(child, 'sub_group_suggestions')
+                const reason = res.attrs?.reason 
+                if (reason === 'approved') msg.messageStubType = Types_1.WAMessageStubType.GROUP_CREATE
+                else msg.messageStubType = Types_1.WAMessageStubType.GENERIC_NOTIFICATION
+                msg.messageStubParameters = [participantJid, reason]
+                break
+            default:
+                logger.warn(child.tag, 'Unhandled group node') 
                 break
         }
     }
@@ -904,7 +946,9 @@ const makeMessagesRecvSocket = (config) => {
                             await sendReceipt(jid, undefined, [msg.key.id], 'hist_sync')
                         }
                     }
-                    
+                        if (node?.attrs?.addressing_mode === 'lid' && node?.attrs?.participant_pn) {
+                    	msg.key.remoteJid = WABinary_1.jidNormalizedUser(node.attrs.participant_pn) 
+                    }
                     Utils_1.cleanMessage(msg, authState.creds.me.id)
                     await sendMessageAck(node)
                     await upsertMessage(msg, node.attrs.offline ? 'append' : 'notify')
