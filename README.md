@@ -1,3 +1,4 @@
+
 # <div align='center'>Baileys - Typescript/Javascript WhatsApp Web API</div>
 
 <div align='center'>
@@ -11,27 +12,14 @@
 
 </div>
 
-### Important Note
-
-This library was originally a project for **CS-2362 at Ashoka University** and is in no way affiliated with or endorsed by WhatsApp. Use at your own discretion. Do not spam people with this. We discourage any stalkerware, bulk or automated messaging usage. 
-
 #### Liability and License Notice
-Baileys and its maintainers cannot be held liable for misuse of this application, as stated in the [MIT license](https://github.com/Barons-Team/baron-baileys-v2/blob/main/LICENSE).
+Baileys and its maintainers cannot be held liable for misuse of this application, as stated in the [MIT license](https://github.com/Barons-Team/baron-baileys-v2/LICENSE).
 The maintainers of Baileys do not in any way condone the use of this application in practices that violate the Terms of Service of WhatsApp. The maintainers of this application call upon the personal responsibility of its users to use this application in a fair way, as it is intended to be used.
 ##
 
 - Baileys does not require Selenium or any other browser to be interface with WhatsApp Web, it does so directly using a **WebSocket**. 
 - Not running Selenium or Chromimum saves you like **half a gig** of ram :/ 
 - Baileys supports interacting with the multi-device & web versions of WhatsApp.
-
-## Example
-
-Do check out & run [example.ts](Example/example.ts) to see an example usage of the library.
-The script covers most common use cases.
-To run the example script, download or clone the repo and then type the following in a terminal:
-1. ``` cd path/to/Baileys ```
-2. ``` yarn ```
-3. ``` yarn example ```
 
 ## Install
 
@@ -49,7 +37,6 @@ Then import your code using:
 ```ts 
 import makeWASocket from 'baron-baileys-v2'
 ```
-
 
 # Index
 
@@ -77,22 +64,44 @@ import makeWASocket from 'baron-baileys-v2'
         - [Mention User](#mention-user-works-with-most-types)
         - [Forward Messages](#forward-messages)
         - [Location Message](#location-message)
+        - [Live Location Message](#live-location-message) 
         - [Contact Message](#contact-message)
         - [Reaction Message](#reaction-message)
         - [Pin Message](#pin-message)
+        - [Keep Message](#keep-message) 
         - [Poll Message](#poll-message)
+        - [Poll Result Message](#poll-result-message) 
+        - [Call Message](#call-message) 
+        - [Event Message](#event-message) 
+        - [Order Message](#order-message) 
+        - [Product Message](#product-message)
+        - [Payment Message](#payment-message) 
+        - [Payment Invite Message](#payment-invite-message) 
+        - [Admin Invite Message](#invite-admin-message) 
+        - [Group Invite Message](#group-invite-message)
+        - [Share Phone Number Message](#share-phone-number-message) 
+        - [Request Phone Number Message](#request-phone-number-message) 
+        - [Buttons Reply Message](#buttons-reply-message) 
+        - [Buttons Message](#buttons-message)
+        - [Buttons List Message](#buttons-list-message) 
+        - [Buttons Product List Message](#buttons-product-list-message) 
+        - [Buttons Cards Message](#buttons-cards-message) 
+        - [Buttons Template Message](#buttons-template-message) 
+        - [Buttons Interactive Message](#buttons-interactive-message) 
+        - [Buttons Interactive Message PIX](#buttons-interactive-message-pix) 
+        - [Buttons Interactive Message PAY](#buttons-interactive-message-PAY) 
+        - [Status Mentions Message](#status-mentions-message) 
+        - [Send Album Message](#send-album-message) 
+        - [Shop Message](#shop-message) 
+        - [Collection Message](#collection-message) 
     - [Sending with Link Preview](#sending-messages-with-link-previews)
     - [Media Messages](#media-messages)
         - [Gif Message](#gif-message)
         - [Video Message](#video-message)
         - [Audio Message](#audio-message)
         - [Image Message](#image-message)
+        - [Ptv Video Message](#ptv-video-message) 
         - [ViewOnce Message](#view-once-message)
-        - [Buttons Message](#buttons-message)
-        - [Send Album Message](#send-album-message) 
-        - [Status Mentions Message](#status-mentions-message) 
-        - [Shop Message](#shop-message) 
-        - [Collection Message](#collection-message) 
 - [Modify Messages](#modify-messages)
     - [Delete Messages (for everyone)](#deleting-messages-for-everyone)
     - [Edit Messages](#editing-messages)
@@ -101,7 +110,6 @@ import makeWASocket from 'baron-baileys-v2'
     - [Downloading Media Messages](#downloading-media-messages)
     - [Re-upload Media Message to Whatsapp](#re-upload-media-message-to-whatsapp)
 - [Reject Call](#reject-call)
-- [Offer Call](#offer-call)
 - [Send States in Chat](#send-states-in-chat)
     - [Reading Messages](#reading-messages)
     - [Update Presence](#update-presence)
@@ -113,6 +121,7 @@ import makeWASocket from 'baron-baileys-v2'
     - [Delete a Chat](#delete-a-chat)
     - [Star/Unstar a Message](#starunstar-a-message)
     - [Disappearing Messages](#disappearing-messages)
+    - [Clear Messages](#clear-messages) 
 - [User Querys](#user-querys)
     - [Check If ID Exists in Whatsapp](#check-if-id-exists-in-whatsapp)
     - [Query Chat History (groups too)](#query-chat-history-groups-too)
@@ -154,25 +163,6 @@ import makeWASocket from 'baron-baileys-v2'
     - [Update Read Receipts Privacy](#update-read-receipts-privacy)
     - [Update Groups Add Privacy](#update-groups-add-privacy)
     - [Update Default Disappearing Mode](#update-default-disappearing-mode)
-- [Community](#community)
-    - [Create a community](#create-a-community2)
-    - [Add/Remove or Demote/Promote](#addremove-or-demotepromote2)
-    - [Change Subject (name)](#change-subject-name2)
-    - [Change Description](#change-description2)
-    - [Change Settings](#change-settings2)
-    - [Leave a community](#leave-a-community2)
-    - [Get Invite Code](#get-invite-code2)
-    - [Revoke Invite Code](#revoke-invite-code2)
-    - [Join Using Invitation Code](#join-using-invitation-code2)
-    - [Get community Info by Invite Code](#get-community-info-by-invite-code2)
-    - [Query Metadata (participants, name, description...)](#query-metadata-participants-name-description2)
-    - [Join using communityInviteMessage](#join-using-communityinvitemessage2)
-    - [Get Request Join List](#get-request-join-list2)
-    - [Approve/Reject Request Join](#approvereject-request-join2)
-    - [Get All Participating communitys Metadata](#get-all-participating-communitys-metadata2)
-    - [Toggle Ephemeral](#toggle-ephemeral2)
-    - [Change Add Mode](#change-add-mode2)
-- [Channel](#channel)
 - [Broadcast Lists & Stories](#broadcast-lists--stories)
     - [Send Broadcast & Stories](#send-broadcast--stories)
     - [Query a Broadcast List's Recipients & Name](#query-a-broadcast-lists-recipients--name)
@@ -188,9 +178,16 @@ WhatsApp provides a multi-device API that allows Baileys to be authenticated as 
 > [!NOTE]
 > **[Here](#example-to-start) is a simple example of event handling**
 
+> [!TIP]
+> **You can see all supported socket configs [here](https://baileys.whiskeysockets.io/types/SocketConfig.html) (Recommended)**
+
+### Starting socket with **QR-CODE**
+
+> [!TIP]
+> You can customize browser name if you connect with **QR-CODE**, with `Browser` constant, we have some browsers config, **see [here](https://baileys.whiskeysockets.io/types/BrowsersMap.html)**
 
 ```ts
-import makeWASocket from 'baron-baileys'
+import makeWASocket from 'baron-baileys-v2'
 
 const sock = makeWASocket({
     // can provide additional config here
@@ -210,7 +207,7 @@ If the connection is successful, you will see a QR code printed on your terminal
 The phone number can't have `+` or `()` or `-`, only numbers, you must provide country code
 
 ```ts
-import makeWASocket from 'baron-baileys'
+import makeWASocket from 'baron-baileys-v2'
 
 const sock = makeWASocket({
     // can provide additional config here
@@ -219,7 +216,7 @@ const sock = makeWASocket({
 
 if (!sock.authState.creds.registered) {
     const number = 'XXXXXXXXXXX'
-    const code = await sock.requestPairingCode(number)
+    const code = await sock.requestPairingCode(number) // or await sock.requestPairingCode(number, 'CODEOTPS') custom your pairing code
     console.log(code)
 }
 ```
@@ -283,7 +280,7 @@ You obviously don't want to keep scanning the QR code every time you want to con
 
 So, you can load the credentials to log back in:
 ```ts
-import makeWASocket, { useMultiFileAuthState } from 'baron-baileys'
+import makeWASocket, { useMultiFileAuthState } from 'baron-baileys-v2'
 
 const { state, saveCreds } = await useMultiFileAuthState('auth_info_baileys')
 
@@ -323,11 +320,11 @@ sock.ev.on('messages.upsert', ({ messages }) => {
 > This example includes basic auth storage too
 
 ```ts
-import makeWASocket, { DisconnectReason, useMultiFileAuthState } from 'baron-baileys'
+import makeWASocket, { DisconnectReason, useMultiFileAuthState } from 'baron-baileys-v2'
 import { Boom } from '@hapi/boom'
 
 async function connectToWhatsApp () {
-    const { state, saveCreds } = await useMultiFileAuthState('auth_info_baileys')
+    const { state, saveCreds } = await useMultiFileAuthState('./auth_info_baileys')
     const sock = makeWASocket({
         // can provide additional config here
         auth: state,
@@ -362,33 +359,88 @@ async function connectToWhatsApp () {
 connectToWhatsApp()
 ```
 
+### For example if you use useSingleFileAuthState and useMongoFileAuthState
+```ts
+import makeWASocket, { useSingleFileAuthState, useMongoFileAuthState } from 'baron-baileys-v2'
+
+// Single Auth
+const { state, saveState } = await useSingleFileAuthState('./auth_info_baileys.json') 
+const sock = makeWASocket({
+        auth: state,
+        printQRInTerminal: true
+    })
+    
+sock.ev.on('creds.update', saveState)
+
+// Mongo Auth
+import { MongoClient } from "mongodb"
+
+const connectAuth = async() => {
+    global.client = new MongoClient('mongoURL')
+    global.client.connect(err => {
+        if (err) {
+            console.warn("Warning: MongoDB link is invalid or cannot be connected.")
+        } else {
+            console.log('Successfully Connected To MongoDB Server')
+        }
+    })
+}
+  await client.connect()
+  const collection = client.db("@Baron").collection("sessions")
+  return collection
+}
+
+const Authentication = await connectAuth()
+const { state, saveCreds } = await useMongoFileAuthState(Authentication)
+const sock = makeWASocket({
+        auth: state,
+        printQRInTerminal: true
+    })
+    
+sock.ev.on('creds.update', saveCreds)
+```
+
 > [!IMPORTANT]
 > In `messages.upsert` it's recommended to use a loop like `for (const message of event.messages)` to handle all messages in array
 
 ### Decrypt Poll Votes
 
 - By default poll votes are encrypted and handled in `messages.update`
-- That's a simple example
 ```ts
-sock.ev.on('messages.update', event => {
-    for(const { key, update } of event) {
-        if(update.pollUpdates) {
-            const pollCreation = await getMessage(key)
-            if(pollCreation) {
-                console.log(
-                    'got poll update, aggregation: ',
-                    getAggregateVotesInPollMessage({
-                        message: pollCreation,
-                        pollUpdates: update.pollUpdates,
-                    })
-                )
-            }
-        }
+import pino from "pino"
+import { makeInMemoryStore, getAggregateVotesInPollMessage } from 'baron-baileys-v2'
+
+const logger = pino({ timestamp: () => `,"time":"${new Date().toJSON()}"` }).child({ class: "@Baron" })
+logger.level = "fatal"
+const store = makeInMemoryStore({ logger })
+
+async function getMessage(key){
+    if (store) {
+        const msg = await store.loadMessage(key.remoteJid, key.id)
+        return msg?.message
     }
+    return {
+        conversation: "Baron"
+    }
+} 
+
+sock.ev.on("messages.update", async (chatUpdate) => {
+    for(const { key, update } of chatUpdate) {
+         if(update.pollUpdates && key.fromMe) {
+           const pollCreation = await getMessage(key)
+             if(pollCreation) {
+               const pollUpdate = await getAggregateVotesInPollMessage({
+                    message: pollCreation,
+                    pollUpdates: update.pollUpdates,
+                })
+               const toCmd = pollUpdate.filter(v => v.voters.length !== 0)[0]?.name
+               if (toCmd == undefined) return
+               console.log(toCmd)
+	        }
+        }
+    } 
 })
 ```
-
-- `getMessage` is a [store](#implementing-a-data-store) implementation (in your end)
 
 ### Summary of Events on First Connection
 
@@ -405,7 +457,7 @@ sock.ev.on('messages.update', event => {
 It can be used as follows:
 
 ```ts
-import makeWASocket, { makeInMemoryStore } from 'baron-baileys'
+import makeWASocket, { makeInMemoryStore } from 'baron-baileys-v2'
 // the store maintains the data of the WA connection in memory
 // can be written out to a file & read from it
 const store = makeInMemoryStore({ })
@@ -493,7 +545,7 @@ await sock.sendMessage(
 - You need to have message object, can be retrieved from [store](#implementing-a-data-store) or use a [message](https://baileys.whiskeysockets.io/types/WAMessage.html) object
 ```ts
 const msg = getMessageFromStore() // implement this on your end
-await sock.sendMessage(jid, { forward: msg }) // WA forward the message!
+await sock.sendMessage(jid, { forward: msg, force: true or number }) // WA forward the message!
 ```
 
 #### Location Message
@@ -508,20 +560,34 @@ await sock.sendMessage(
     }
 )
 ```
+
+#### Live Location Message
+```ts
+await sock.sendMessage(
+    jid, 
+    {
+        location: {
+            degreesLatitude: 24.121231,
+            degreesLongitude: 55.1121221
+        }, 
+        live: true
+    }
+)
+```
 #### Contact Message
 ```ts
 const vcard = 'BEGIN:VCARD\n' // metadata of the contact card
             + 'VERSION:3.0\n' 
             + 'FN:Jeff Singh\n' // full name
-            + 'ORG:Ashoka Uni;\n' // the organization of the contact
-            + 'TEL;type=CELL;type=VOICE;waid=911234567890:+91 12345 67890\n' // WhatsApp ID + phone number
+            + 'ORG:Ashoka Uni\n' // the organization of the contact
+            + 'TELtype=CELLtype=VOICEwaid=911234567890:+91 12345 67890\n' // WhatsApp ID + phone number
             + 'END:VCARD'
 
 await sock.sendMessage(
     id,
     { 
         contacts: { 
-            displayName: 'Jeff', 
+            displayName: 'Baron', 
             contacts: [{ vcard }] 
         }
     }
@@ -558,9 +624,22 @@ await sock.sendMessage(
     jid,
     {
         pin: {
-            type: 1, // 0 to remove
-            time: 86400
-            key: message.key
+            type: 1, // 2 to remove
+            time: 86400,
+            key: Key
+        }
+    }
+)
+```
+
+### Keep Message
+```ts
+await sock.sendMessage(
+    jid,
+    {
+        keep: {
+            key: Key,
+            type: 1 // or 2
         }
     }
 )
@@ -577,6 +656,1120 @@ await sock.sendMessage(
             selectableCount: 1,
             toAnnouncementGroup: false // or true
         }
+    }
+)
+```
+
+#### Poll Result Message
+```ts
+await sock.sendMessage(
+    jid, 
+    {
+        pollResult: {
+            name: 'Hi', 
+            values: [
+               [
+               'Option 1',
+               1000
+               ], 
+               [
+               'Option 2', 
+               2000
+               ]
+           ]
+        }
+    }
+)
+```
+
+### Call Message
+```ts
+await sock.sendMessage(
+    jid,
+    {
+        call: {
+            name: 'Hay',
+            type: 1 // 2 for video
+        }
+    }
+)
+```
+
+### Event Message
+```ts
+await sock.sendMessage(
+    jid,
+    {
+        event: {
+            isCanceled: false, // or true
+            name: 'holiday together!',
+            description: 'who wants to come along?', 
+            location: {
+                degreesLatitude: 24.121231,
+                degreesLongitude: 55.1121221,
+                name: 'name'
+            },
+           startTime: number, 
+           endTime: number, 
+           extraGuestsAllowed: true // or false
+        }
+    }
+)
+```
+
+### Order Message
+```ts
+await sock.sendMessage(
+    jid,
+    {
+        order: {
+            orderId: '574xxx',
+            thumbnail: 'your_thumbnail', 
+            itemCount: 'your_count',
+            status: 'your_status', // INQUIRY || ACCEPTED || DECLINED
+            surface: 'CATALOG',
+            message: 'your_caption',
+            orderTitle: "your_title",
+            sellerJid: 'your_jid'',
+            token: 'your_token',
+            totalAmount1000: 'your_amount',
+            totalCurrencyCode: 'IDR'
+        }
+    }
+)
+```
+
+### Product Message
+```ts
+await sock.sendMessage(
+    jid,
+    {
+        product: {
+            productImage: {   // for using buffer >> productImage: your_buffer
+              url: your_url
+            },
+            productId: 'your_id', 
+            title: 'your_title',
+            description: 'your_description', 
+            currencyCode: 'IDR', 
+            priceAmount1000: 'your_amount', 
+            retailerId: 'your_reid', // optional use if needed
+            url: 'your_url', // optional use if needed
+            productImageCount: 'your_imageCount', 
+            firstImageId: 'your_image', // optional use if needed
+            salePriceAmount1000: 'your_priceSale', 
+            signedUrl: 'your_url' // optional use if needed
+        },
+       businessOwnerJid: 'your_jid' 
+    }
+)
+```
+
+### Payment Message
+```ts
+await sock.sendMessage(
+    jid,
+    {
+        payment: {
+            note: 'Hi!',
+            currency: 'IDR', // optional 
+            offset: 0, // optional
+            amount: '10000', // optional
+            expiry: 0, // optional
+            from: '628xxxx@s.whatsapp.net', // optional
+            image: { // optional
+               placeholderArgb: "your_background", // optional
+               textArgb: "your_text",  // optional
+               subtextArgb: "your_subtext" // optional
+            }
+        }
+    }
+)
+```
+
+#### Payment Invite Message
+```ts
+await sock.sendMessage(
+    id, 
+    { 
+        paymentInvite: {
+            type: number, // 1 || 2 || 3
+            expiry: 0 
+        }   
+    }
+)
+```
+
+### Admin Invite Message
+```ts
+await sock.sendMessage(
+    jid,
+    {
+        adminInvite: {
+            jid: '123xxx@newsletter',
+            name: 'newsletter_name', 
+            caption: 'Please be my channel admin',
+            expiration: 86400,
+            jpegThumbnail: Buffer // optional
+        }
+    }
+)
+```
+
+### Group Invite Message
+```ts
+await sock.sendMessage(
+    jid,
+    {
+        groupInvite: {
+            jid: '123xxx@g.us',
+            name: 'group_name', 
+            caption: 'Please Join My Whatsapp Group',
+            code: 'code_invite',
+            expiration: 86400,
+            jpegThumbnail: Buffer, // optional            
+        }
+    }
+)
+```
+
+### Share Phone Number Message
+```ts
+await sock.sendMessage(
+    jid,
+    {
+        sharePhoneNumber: {
+        }
+    }
+)
+```
+
+### Request Phone Number Message
+```ts
+await sock.sendMessage(
+    jid,
+    {
+        requestPhoneNumber: {
+        }
+    }
+)
+```
+
+### Buttons Reply Message
+```ts
+// List
+await sock.sendMessage(
+    jid,
+    {
+        buttonReply: {
+            name: 'Hii', 
+            description: 'description', 
+            rowId: 'ID'
+       }, 
+       type: 'list'
+    }
+)
+// Plain
+await sock.sendMessage(
+    jid,
+    {
+        buttonReply: {
+            displayText: 'Hii', 
+            id: 'ID'
+       }, 
+       type: 'plain'
+    }
+)
+
+// Template
+await sock.sendMessage(
+    jid,
+    {
+        buttonReply: {
+            displayText: 'Hii', 
+            id: 'ID', 
+            index: 'number'
+       }, 
+       type: 'template'
+    }
+)
+
+// Interactive
+await sock.sendMessage(
+    jid,
+    {
+        buttonReply: {
+            body: 'Hii', 
+            nativeFlows: {
+                name: 'menu_options', 
+                paramsJson: JSON.stringify({ id: 'ID', description: 'description' }) 
+                version: 1 // 2 | 3
+            }
+       }, 
+       type: 'interactive'
+    }
+)
+```
+
+### Buttons Message
+```ts
+await sock.sendMessage(
+    jid,
+    {
+        text: 'This is a button message!',  // image: buffer or // image: { url: url } If you want to use images
+        caption: 'caption', // Use this if you are using an image or video
+        footer: 'Hello World!',  
+        buttons: [{ 
+            buttonId: 'Id1', 
+            buttonText: { 
+                 displayText: 'Button 1'
+              }
+          }, 
+          { 
+            buttonId: 'Id2', 
+            buttonText: { 
+                 displayText: 'Button 2'
+              }
+          }, 
+          { 
+            buttonId: 'Id3', 
+            buttonText: { 
+                 displayText: 'Button 3'
+              }
+         }]
+    }
+)
+```
+
+### Buttons List Message
+```ts
+// Just working in a private chat
+await sock.sendMessage(
+    jid,
+    {
+        text: 'This is a list!', 
+        footer: 'Hello World!', 
+        title: 'Amazing boldfaced list title', 
+        buttonText: 'Required, text on the button to view the list', 
+        sections: [
+           {
+         	title: 'Section 1',
+         	rows: [{
+                title: 'Option 1', 
+                rowId: 'option1'
+             },
+ 	        {
+                title: 'Option 2', 
+                rowId: 'option2', 
+                description: 'This is a description'
+           }]
+       },
+       {
+       	title: 'Section 2',
+       	rows: [{
+               title: 'Option 3', 
+               rowId: 'option3'
+           },
+	       {
+               title: 'Option 4', 
+               rowId: 'option4', 
+               description: 'This is a description V2'
+           }]
+       }]
+    }
+)
+```
+
+### Buttons Product List Message
+```ts
+// Just working in a private chat
+await sock.sendMessage(
+    jid,
+    {
+        text: 'This is a list!', 
+        footer: 'Hello World!', 
+        title: 'Amazing boldfaced list title', 
+        buttonText: 'Required, text on the button to view the list', 
+        productList: [{
+            title: 'This is a title', 
+            products: [
+               {
+                  productId: '1234'
+               }, 
+               {
+                  productId: '5678'
+               }
+            ]
+        }], 
+        businessOwnerJid: '628xxx@s.whatsapp.net', 
+        thumbnail: 'https://example.jpg' // or buffer
+    }
+)
+```
+
+### Buttons Cards Message
+```ts
+await sock.sendMessage(
+    jid,
+    {
+        text: 'Body Message',
+        title: 'Title Message', 
+        subtile: 'Subtitle Message', 
+        footer: 'Footer Message',
+        cards: [
+           {
+              image: { url: 'https://example.jpg' }, // or buffer
+              title: 'Title Cards',
+              body: 'Body Cards',
+              footer: 'Footer Cards',
+              buttons: [
+                  {
+                      name: 'quick_reply',
+                      buttonParamsJson: JSON.stringify({
+                         display_text: 'Display Button',
+                         id: 'ID'
+                      })
+                  },
+                  {
+                      name: 'cta_url',
+                      buttonParamsJson: JSON.stringify({
+                         display_text: 'Display Button',
+                         url: 'https://www.example.com'
+                      })
+                  }
+              ]
+           },
+           {
+              video: { url: 'https://example.mp4' }, // or buffer
+              title: 'Title Cards',
+              body: 'Body Cards',
+              footer: 'Footer Cards',
+              buttons: [
+                  {
+                      name: 'quick_reply',
+                      buttonParamsJson: JSON.stringify({
+                         display_text: 'Display Button',
+                         id: 'ID'
+                      })
+                  },
+                  {
+                      name: 'cta_url',
+                      buttonParamsJson: JSON.stringify({
+                         display_text: 'Display Button',
+                         url: 'https://www.example.com'
+                      })
+                  }
+              ]
+           }
+        ]
+    }
+)
+```
+
+### Buttons Template Message
+```ts
+await sock.sendMessage(
+    jid,
+    {
+       text: 'This is a template message!', 
+       footer: 'Hello World!', 
+       templateButtons: [{
+           index: 1,
+           urlButton: {
+                displayText: 'Follow Me', 
+                url: 'https://whatsapp.com/channel/0029Vag9VSI2ZjCocqa2lB1y'
+             }, 
+         }, 
+         {
+            index: 2,
+            callButton: {
+                displayText: 'Call Me!', 
+                phoneNumber: '628xxx'
+            }, 
+        }, 
+        {
+           index: 3,
+           quickReplyButton: {
+                displayText: 'This is a reply, just like normal buttons!', 
+                id: 'id-like-buttons-message'
+            }, 
+       }]
+    }
+)
+```
+
+### Buttons Interactive Message
+```ts
+await sock.sendMessage(
+    jid,
+    {
+        text: 'This is an Interactive message!',
+        title: 'Hiii',
+        subtitle: 'There is a subtitle', 
+        footer: 'Hello World!',
+        interactiveButtons: [
+            {
+                name: 'quick_reply',
+                buttonParamsJson: JSON.stringify({
+                    display_text: 'Click Me!',
+                    id: 'your_id'
+                })
+            },
+            {
+                name: 'cta_url',
+                buttonParamsJson: JSON.stringify({
+                    display_text: 'Follow Me',
+                    url: 'https://whatsapp.com/channel/0029Vag9VSI2ZjCocqa2lB1y',
+                    merchant_url: 'https://whatsapp.com/channel/0029Vag9VSI2ZjCocqa2lB1y'
+                })
+            },
+            {
+                name: 'cta_copy',
+                buttonParamsJson: JSON.stringify({
+                    display_text: 'Click Me!',
+                    copy_code: 'https://whatsapp.com/channel/0029Vag9VSI2ZjCocqa2lB1y'
+                })
+            },
+            {
+                name: 'cta_call',
+                buttonParamsJson: JSON.stringify({
+                    display_text: 'Call Me!',
+                    phone_number: '628xxx'
+                })
+            },
+            {
+                name: 'cta_catalog',
+                buttonParamsJson: JSON.stringify({
+                    business_phone_number: '628xxx'
+                })
+            },
+            {
+                name: 'cta_reminder',
+                buttonParamsJson: JSON.stringify({
+                    display_text: '...'
+                })
+            },
+            {
+                name: 'cta_cancel_reminder',
+                buttonParamsJson: JSON.stringify({
+                    display_text: '...'
+                })
+            },
+            {
+                name: 'address_message',
+                buttonParamsJson: JSON.stringify({
+                    display_text: '...'
+                })
+            },
+            {
+                name: 'send_location',
+                buttonParamsJson: JSON.stringify({
+                    display_text: '...'
+                })
+            },
+            {
+                name: 'open_webview',
+                buttonParamsJson: JSON.stringify({
+                    title: 'Follow Me!',
+                    link: {
+                        in_app_webview: true, // or false
+                        url: 'https://whatsapp.com/channel/0029Vag9VSI2ZjCocqa2lB1y'
+                    }
+                })
+            },
+            {
+               name: 'mpm',
+               buttonParamsJson: JSON.stringify({
+                  product_id: '8816262248471474'
+               })
+            },
+            {
+               name: 'wa_payment_transaction_details',
+               buttonParamsJson: JSON.stringify({
+                  transaction_id: '12345848'
+               })
+            },
+            {
+               name: 'automated_greeting_message_view_catalog',
+               buttonParamsJson: JSON.stringify({
+                   business_phone_number: '628xxx', 
+                   catalog_product_id: '12345'
+               })
+            },
+            {
+                name: 'galaxy_message', 
+                buttonParamsJson: JSON.stringify({
+                	mode: 'published', 
+                    flow_message_version: '3', 
+                    flow_token: '1:1307913409923914:293680f87029f5a13d1ec5e35e718af3',
+                    flow_id: '1307913409923914',
+                    flow_cta: 'Baron >\\<', 
+                    flow_action: 'navigate', 
+                    flow_action_payload: {
+                    	screen: 'QUESTION_ONE',
+                        params: {
+                        	user_id: '123456789', 
+                            referral: 'campaign_xyz'
+                        }
+                    }, 
+                    flow_metadata: {
+                    	flow_json_version: '201', 
+                        data_api_protocol: 'v2', 
+                        flow_name: 'Lead Qualification [en]',
+                        data_api_version: 'v2', 
+                        categories: ['Lead Generation', 'Sales']
+                   }
+                }) 
+            }, 
+            {
+                name: 'single_select',
+                buttonParamsJson: JSON.stringify({
+                    title: 'Click Me!',
+                    sections: [
+                        {
+                            title: 'Title 1',
+                            highlight_label: 'Highlight label 1',
+                            rows: [
+                                {
+                                    header: 'Header 1',
+                                    title: 'Title 1',
+                                    description: 'Description 1',
+                                    id: 'Id 1'
+                                },
+                                {
+                                    header: 'Header 2',
+                                    title: 'Title 2',
+                                    description: 'Description 2',
+                                    id: 'Id 2'
+                                }
+                            ]
+                        }
+                    ]
+                })
+            }
+        ]
+    }
+)
+
+// If you want to use an image
+await sock.sendMessage(
+    jid, 
+    {
+       image: { 
+          url: 'https://example.jpg' 
+       },
+       caption: 'Body',
+       title: 'Title',
+       subtitle: 'Subtitle', 
+       footer: 'Footer',
+       interactiveButtons: [
+           {
+               name: 'quick_reply',
+               buttonParamsJson: JSON.stringify({
+                   display_text: 'DisplayText',
+                   id: 'ID1'
+               })
+           }
+       ], 
+       hasMediaAttachment: false // or true
+    }
+)
+
+// If you want to use an video
+await sock.sendMessage(
+    jid, 
+    {
+        video: { 
+          url: 'https://example.mp4' 
+       },
+       caption: 'Body',
+       title: 'Title', 
+       subtitle: 'Subtitle', 
+       footer: 'Footer',
+       interactiveButtons: [
+           {
+               name: 'quick_reply',
+               buttonParamsJson: JSON.stringify({
+                   display_text: 'DisplayText',
+                   id: 'ID1'
+               })
+           }
+       ], 
+       hasMediaAttachment: false // or true
+    }
+)
+
+// If you want to use an document
+await sock.sendMessage(
+    jid, 
+    {
+        document: { 
+          url: 'https://example.jpg' 
+       }, 
+       mimetype: 'image/jpeg', 
+       jpegThumbnail: await sock.resize('https://example.jpg', 320, 320), 
+       caption: 'Body',
+       title: 'Title',
+       subtitle: 'Subtitle', 
+       footer: 'Footer',
+       interactiveButtons: [
+           {
+               name: 'quick_reply',
+               buttonParamsJson: JSON.stringify({
+                   display_text: 'DisplayText',
+                   id: 'ID1'
+               })
+           }
+       ], 
+       hasMediaAttachment: false // or true
+    }
+)
+
+// If you want to use an location
+await sock.sendMessage(
+    jid, 
+    {
+        location: { 
+          degressLatitude: -0,
+          degressLongitude: 0,
+          name: 'Hi'
+       },
+       caption: 'Body',
+       title: 'Title', 
+       subtitle: 'Subtitle', 
+       footer: 'Footer',
+       interactiveButtons: [
+           {
+               name: 'quick_reply',
+               buttonParamsJson: JSON.stringify({
+                   display_text: 'DisplayText',
+                   id: 'ID1'
+               })
+           }
+       ], 
+       hasMediaAttachment: false // or true
+    }
+)
+
+// if you want to use an product
+await sock.sendMessage(
+    jid,
+    {
+        product: {
+            productImage: { 
+               url: 'https://example.jpg'
+            },
+            productId: '836xxx',
+            title: 'Title',
+            description: 'Description',
+            currencyCode: 'IDR',
+            priceAmount1000: '283xxx',
+            retailerId: 'Baron',
+            url: 'https://example.com',
+            productImageCount: 1
+        },
+        businessOwnerJid: '628xxx@s.whatsapp.net',
+        caption: 'Body',
+        title: 'Title', 
+        subtitle: 'Subtitle', 
+        footer: 'Footer',
+        interactiveButtons: [
+            {
+                name: 'quick_reply',
+                buttonParamsJson: JSON.stringify({
+                    display_text: 'DisplayText',
+                    id: 'ID1'
+                })
+            }
+        ], 
+        hasMediaAttachment: false // or true
+    }
+)
+```
+
+### Buttons Interactive Message PIX
+```ts
+await sock.sendMessage( 
+    jid, 
+    { 
+       text: '', // This string is required. Even it's empty. 
+       interactiveButtons: [ 
+          { 
+             name: 'payment_info', 
+             buttonParamsJson: JSON.stringify({ 
+                payment_settings: [{ 
+                   type: "pix_static_code", 
+                   pix_static_code:  { 
+                      merchant_name: 'Baron', 
+                      key: 'example@gmail.com', 
+                      key_type: 'EMAIL' // PHONE || EMAIL || CPF || EVP 
+                   } 
+               }] 
+            }) 
+         } 
+      ], 
+   } 
+)
+ ```
+
+### Buttons Interactive Message PAY
+```ts
+await sock.sendMessage( 
+    jid, 
+    { 
+       text: '', // This string is required. Even it's empty. 
+       interactiveButtons: [ 
+          { 
+             name: 'review_and_pay', 
+             buttonParamsJson: JSON.stringify({ 
+                currency: 'IDR', 
+                payment_configuration: '', 
+                payment_type: '', 
+                total_amount: {
+                    value: '999999999',
+                    offset: '100'
+                }, 
+                reference_id: '45XXXXX',
+                type: 'physical-goods',
+                payment_method: 'confirm', 
+                payment_status: 'captured', 
+                payment_timestamp: Math.floor(Date.now() / 1000),
+                order: {
+                    status: 'completed', 
+                    description: '', 
+                    subtotal: {
+                        value: '0', 
+                        offset: '100'
+                    }, 
+                    order_type: 'PAYMENT_REQUEST', 
+                    items: [{
+                        retailer_id: 'your_retailer_id', 
+                        name: 'Baron >\\\<', 
+                        amount: {
+                            value: '999999999', 
+                            offset: '100'
+                        }, 
+                        quantity: '1', 
+                    }]
+                }, 
+                additional_note: 'Baron >\\\<', 
+                native_payment_methods: [], 
+                share_payment_status: false
+            }) 
+         } 
+      ], 
+   } 
+)
+ ```
+
+### Status Mentions Message
+```ts
+await sock.sendStatusMentions(
+   jid, 
+    {
+      image: {
+       url: 'https://example.com.jpg'
+       }, 
+       caption: 'Hi'
+    }
+)
+```
+
+### Send Album Message
+```ts
+await sock.sendAlbumMessage(
+    jid,
+    [
+       {
+          image: { url: 'https://example.jpg' }, 
+          caption: 'Hello World'
+       },
+       {
+          image: Buffer, 
+          caption: 'Hello World'
+       },
+       {
+           video: { url: 'https://example.mp4' }, 
+           caption: 'Hello World'
+       }, 
+       {
+           video: Buffer, 
+           caption: 'Hello World'
+       }
+    ],
+    { 
+       quoted: message, 
+       delay: 2000 
+    }
+)
+```
+### Shop Message
+```ts
+await sock.sendMessage(
+    jid, 
+    {      
+       text: 'Body',
+       title: 'Title', 
+       subtitle: 'Subtitle', 
+       footer: 'Footer',
+       shop: {
+          surface: 1, // 2 | 3 | 4
+          id: 'https://example.com'
+       }, 
+       viewOnce: true
+    }
+)
+
+// Image
+await sock.sendMessage(
+    jid, 
+    { 
+       image: {
+          url: 'https://example.jpg'
+       },    
+       caption: 'Body',
+       title: 'Title', 
+       subtitle: 'Subtitle', 
+       footer: 'Footer',
+       shop: {
+          surface: 1, // 2 | 3 | 4
+          id: 'https://example.com'
+       }, 
+       hasMediaAttachment: false, // or true
+       viewOnce: true
+    }
+)
+
+// Video
+await sock.sendMessage(
+    jid, 
+    { 
+       video: {
+          url: 'https://example.jpg'
+       },    
+       caption: 'Body',
+       title: 'Title', 
+       subtitle: 'Subtitle', 
+       footer: 'Footer',
+       shop: {
+          surface: 1, // 2 | 3 | 4
+          id: 'https://example.com'
+       }, 
+       hasMediaAttachment: false, // or true
+       viewOnce: true
+    }
+)
+
+// Document
+await sock.sendMessage(
+    jid, 
+    {
+        document: { 
+          url: 'https://example.jpg' 
+       }, 
+       mimetype: 'image/jpeg', 
+       jpegThumbnail: await sock.resize('https://example.jpg', 320, 320), 
+       caption: 'Body',
+       title: 'Title',
+       subtitle: 'Subtitle', 
+       footer: 'Footer',
+       shop: {
+          surface: 1, // 2 | 3 | 4
+          id: 'https://example.com'
+       }, 
+       hasMediaAttachment: false, // or true, 
+       viewOnce: true
+    }
+)
+
+// Location
+await sock.sendMessage(
+    jid, 
+    { 
+       location: {
+         degressLatitude: -0, 
+         degressLongitude: 0,
+         name: 'Hi'
+       },    
+       caption: 'Body',
+       title: 'Title', 
+       subtitle: 'Subtitle', 
+       footer: 'Footer',
+       shop: {
+          surface: 1, // 2 | 3 | 4
+          id: 'https://example.com'
+       }, 
+       hasMediaAttachment: false, // or true
+       viewOnce: true
+    }
+)
+
+// Product
+await sock.sendMessage(
+    jid,
+    {
+        product: {
+            productImage: { 
+               url: 'https://example.jpg'
+            },
+            productId: '836xxx',
+            title: 'Title',
+            description: 'Description',
+            currencyCode: 'IDR',
+            priceAmount1000: '283xxx',
+            retailerId: 'Baron',
+            url: 'https://example.com',
+            productImageCount: 1
+        },
+        businessOwnerJid: '628xxx@s.whatsapp.net',
+        caption: 'Body',
+        title: 'Title', 
+        subtitle: 'Subtitle', 
+        footer: 'Footer',
+        shop: {
+          surface: 1, // 2 | 3 | 4
+          id: 'https://example.com'
+       }, 
+        hasMediaAttachment: false, // or true
+        viewOnce: true
+    }
+)
+```
+### Collection Message
+```ts
+await sock.sendMessage(
+    jid, 
+    {      
+       text: 'Body',
+       title: 'Title', 
+       subtitle: 'Subtitle', 
+       footer: 'Footer',
+       collection: {
+          bizJid: 'jid', 
+          id: 'https://example.com', 
+          version: 1
+       }, 
+       viewOnce: true
+    }
+)
+
+// Image
+await sock.sendMessage(
+    jid, 
+    { 
+       image: {
+          url: 'https://example.jpg'
+       },    
+       caption: 'Body',
+       title: 'Title', 
+       subtitle: 'Subtitle', 
+       footer: 'Footer',
+       collection: {
+          bizJid: 'jid', 
+          id: 'https://example.com', 
+          version: 1
+       }, 
+       hasMediaAttachment: false, // or true
+       viewOnce: true
+    }
+)
+
+// Video
+await sock.sendMessage(
+    jid, 
+    { 
+       video: {
+          url: 'https://example.jpg'
+       },    
+       caption: 'Body',
+       title: 'Title', 
+       subtitle: 'Subtitle', 
+       footer: 'Footer',
+       collection: {
+          bizJid: 'jid', 
+          id: 'https://example.com', 
+          version: 1
+       }, 
+       hasMediaAttachment: false, // or true
+       viewOnce: true
+    }
+)
+
+// Document
+await sock.sendMessage(
+    jid, 
+    {
+        document: { 
+          url: 'https://example.jpg' 
+       }, 
+       mimetype: 'image/jpeg', 
+       jpegThumbnail: await sock.resize('https://example.jpg', 320, 320), 
+       caption: 'Body',
+       title: 'Title',
+       subtitle: 'Subtitle', 
+       footer: 'Footer',
+       collection: {
+          bizJid: 'jid', 
+          id: 'https://example.com', 
+          version: 1
+       }, 
+       hasMediaAttachment: false, // or true, 
+       viewOnce: true
+    }
+)
+
+// Location
+await sock.sendMessage(
+    jid, 
+    { 
+       location: {
+         degressLatitude: -0, 
+         degressLongitude: 0,
+         name: 'Hi'
+       },    
+       caption: 'Body',
+       title: 'Title', 
+       subtitle: 'Subtitle', 
+       footer: 'Footer',
+       collection: {
+          bizJid: 'jid', 
+          id: 'https://example.com', 
+          version: 1
+       }, 
+       hasMediaAttachment: false, // or true
+       viewOnce: true
+    }
+)
+
+// Product
+await sock.sendMessage(
+    jid,
+    {
+        product: {
+            productImage: { 
+               url: 'https://example.jpg'
+            },
+            productId: '836xxx',
+            title: 'Title',
+            description: 'Description',
+            currencyCode: 'IDR',
+            priceAmount1000: '283xxx',
+            retailerId: 'Baron',
+            url: 'https://example.com',
+            productImageCount: 1
+        },
+        businessOwnerJid: '628xxx@s.whatsapp.net',
+        caption: 'Body',
+        title: 'Title', 
+        subtitle: 'Subtitle', 
+        footer: 'Footer',
+        collection: {
+          bizJid: 'jid', 
+          id: 'https://example.com', 
+          version: 1
+       }, 
+        hasMediaAttachment: false, // or true
+        viewOnce: true
     }
 )
 ```
@@ -603,7 +1796,7 @@ Sending media (video, stickers, images) is easier & more efficient than ever.
 > [!NOTE]
 > In media messages, you can pass `{ stream: Stream }` or `{ url: Url }` or `Buffer` directly, you can see more [here](https://baileys.whiskeysockets.io/types/WAMediaUpload.html)
 
-- When specifying a media url, Baileys never loads the entire buffer into memory; it even encrypts the media as a readable stream.
+- When specifying a media url, Baileys never loads the entire buffer into memory it even encrypts the media as a readable stream.
 
 > [!TIP]
 > It's recommended to use Stream or Url to save memory
@@ -629,8 +1822,20 @@ await sock.sendMessage(
         video: {
             url: './Media/ma_gif.mp4'
         },
-        caption: 'hello word',
-	    ptv: false // if set to true, will send as a `video note`
+        caption: 'hello word',	    
+    }
+)
+```
+
+#### Video Ptv Message
+```ts
+await sock.sendMessage(
+    id, 
+    { 
+        video: {
+            url: './Media/ma_gif.mp4'
+        },
+        ptv: true	    
     }
 )
 ```
@@ -660,7 +1865,6 @@ await sock.sendMessage(
 ```
 
 #### Image Message
-
 ```ts
 await sock.sendMessage(
     id, 
@@ -690,415 +1894,6 @@ await sock.sendMessage(
 )
 ```
 
-#### Buttons Message
-```ts
-// send a buttons message!
-const buttons = [
-  {buttonId: 'id1', buttonText: {displayText: 'Button 1'}, type: 1},
-  {buttonId: 'id2', buttonText: {displayText: 'Button 2'}, type: 1},
-  {buttonId: 'id3', buttonText: {displayText: 'Button 3'}, type: 1}
-]
-
-const buttonMessage = {
-    text: "Hi it's button message",
-    footer: 'Hello World',
-    buttons: buttons,
-    headerType: 1
-}
-
-const sendMsg = await sock.sendMessage(id, buttonMessage)
-
-//send a template message!
-const templateButtons = [
-    {index: 1, urlButton: {displayText: '⭐ Star Baileys on GitHub!', url: 'https://github.com/Barons-Team/baron-baileys-v2/'}},
-    {index: 2, callButton: {displayText: 'Call me!', phoneNumber: '+1 (234) 5678-901'}},
-    {index: 3, quickReplyButton: {displayText: 'This is a reply, just like normal buttons!', id: 'id-like-buttons-message'}},
-]
-
-const templateMessage = {
-    text: "Hi it's a template message",
-    footer: 'Hello World',
-    templateButtons: templateButtons
-}
-
-const sendMsg = await sock.sendMessage(id, templateMessage)
-
-// send a list message!
-const sections = [
-    {
-	title: "Section 1",
-	rows: [
-	    {title: "Option 1", rowId: "option1"},
-	    {title: "Option 2", rowId: "option2", description: "This is a description"}
-	]
-    },
-   {
-	title: "Section 2",
-	rows: [
-	    {title: "Option 3", rowId: "option3"},
-	    {title: "Option 4", rowId: "option4", description: "This is a description V2"}
-	]
-    },
-]
-
-const listMessage = {
-  text: "This is a list",
-  footer: "nice footer, link: https://google.com",
-  title: "Amazing boldfaced list title",
-  buttonText: "Required, text on the button to view the list",
-  sections
-}
-
-const sendMsg = await sock.sendMessage(id, listMessage)
-
-
-// send a buttons message with image header!
-const buttons = [
-  {buttonId: 'id1', buttonText: {displayText: 'Button 1'}, type: 1},
-  {buttonId: 'id2', buttonText: {displayText: 'Button 2'}, type: 1},
-  {buttonId: 'id3', buttonText: {displayText: 'Button 3'}, type: 1}
-]
-
-const buttonMessage = {
-    image: {url: 'https://example.com/image.jpeg'},
-    caption: "Hi it's button message",
-    footer: 'Hello World',
-    buttons: buttons,
-    headerType: 4
-}
-
-const sendMsg = await sock.sendMessage(id, buttonMessage)
-
-//send a template message with an image **attached**!
-const templateButtons = [
-  {index: 1, urlButton: {displayText: '⭐ Star Baileys on GitHub!', url: 'https://github.com/Barons-Team/baron-baileys-v2/'}},
-  {index: 2, callButton: {displayText: 'Call me!', phoneNumber: '+1 (234) 5678-901'}},
-  {index: 3, quickReplyButton: {displayText: 'This is a reply, just like normal buttons!', id: 'id-like-buttons-message'}},
-]
-
-const buttonMessage = {
-    text: "Hi it's a template message",
-    footer: 'Hello World',
-    templateButtons: templateButtons,
-    image: {url: 'https://example.com/image.jpeg'}
-}
-
-const sendMsg = await sock.sendMessage(id, templateMessage)
-```
-
-### Send Album Message
-
-```ts
-await conn.sendAlbumMessage(
-   jid, 
-   [{
-       type: 'image', or video
-       data: Buffer // or  data: { url:
-       caption: 'caption'
-   }]
-{ quoted? , annotations? delay? })
-
-
-```
-
-### Status Mentions Message
-```ts
-await sock.sendStatusMentions(
-    {
-      image: {
-       url: 'url.jpg'
-       }, 
-       caption: 'Hi'
-    }, 
-    '1234xxx@g.us'
-)
-
-// Use this if you want private mentions
-await sock.sendStatusMentions(
-    {
-      image: {
-       url: 'https://example.com.jpg'
-       }, 
-       caption: 'Hi'
-    }, 
-    '123xxx@s.whatsapp.net', 
-     true
-)
-```
-
-### Shop Message
-```ts
-await sock.sendMessage(
-    jid, 
-    {      
-       text: 'Body',
-       title: 'Title', 
-       subtitle: 'Subtitle', 
-       footer: 'Footer',
-       shop: {
-          surface: 1, // 2 | 3 | 4
-          id: 'https://example.com'
-       }, 
-       viewOnce: true
-    }
-);
-
-// Image
-await sock.sendMessage(
-    jid, 
-    { 
-       image: {
-          url: 'https://example.jpg'
-       },    
-       caption: 'Body',
-       title: 'Title', 
-       subtitle: 'Subtitle', 
-       footer: 'Footer',
-       shop: {
-          surface: 1, // 2 | 3 | 4
-          id: 'https://example.com'
-       }, 
-       hasMediaAttachment: false, // or true
-       viewOnce: true
-    }
-);
-
-// Video
-await sock.sendMessage(
-    jid, 
-    { 
-       video: {
-          url: 'https://example.jpg'
-       },    
-       caption: 'Body',
-       title: 'Title', 
-       subtitle: 'Subtitle', 
-       footer: 'Footer',
-       shop: {
-          surface: 1, // 2 | 3 | 4
-          id: 'https://example.com'
-       }, 
-       hasMediaAttachment: false, // or true
-       viewOnce: true
-    }
-);
-
-// Document
-await sock.sendMessage(
-    jid, 
-    {
-        document: { 
-          url: 'https://example.jpg' 
-       }, 
-       mimetype: 'image/jpeg', 
-       jpegThumbnail: await sock.resize('https://example.jpg', 320, 320), 
-       caption: 'Body',
-       title: 'Title',
-       subtitle: 'Subtitle', 
-       footer: 'Footer',
-       shop: {
-          surface: 1, // 2 | 3 | 4
-          id: 'https://example.com'
-       }, 
-       hasMediaAttachment: false, // or true, 
-       viewOnce: true
-    }
-);
-
-// Location
-await sock.sendMessage(
-    jid, 
-    { 
-       location: {
-         degressLatitude: -0, 
-         degressLongitude: 0,
-         name: 'Hi'
-       },    
-       caption: 'Body',
-       title: 'Title', 
-       subtitle: 'Subtitle', 
-       footer: 'Footer',
-       shop: {
-          surface: 1, // 2 | 3 | 4
-          id: 'https://example.com'
-       }, 
-       hasMediaAttachment: false, // or true
-       viewOnce: true
-    }
-);
-
-// Product
-await sock.sendMessage(
-    jid,
-    {
-        product: {
-            productImage: { 
-               url: 'https://example.jpg'
-            },
-            productId: '836xxx',
-            title: 'Title',
-            description: 'Description',
-            currencyCode: 'IDR',
-            priceAmount1000: '283xxx',
-            retailerId: 'Baron',
-            url: 'https://example.com',
-            productImageCount: 1
-        },
-        businessOwnerJid: '123xxx@s.whatsapp.net',
-        caption: 'Body',
-        title: 'Title', 
-        subtitle: 'Subtitle', 
-        footer: 'Footer',
-        shop: {
-          surface: 1, // 2 | 3 | 4
-          id: 'https://example.com'
-       }, 
-        hasMediaAttachment: false, // or true
-        viewOnce: true
-    }
-);
-```
-### Collection Message
-```ts
-await sock.sendMessage(
-    jid, 
-    {      
-       text: 'Body',
-       title: 'Title', 
-       subtitle: 'Subtitle', 
-       footer: 'Footer',
-       collection: {
-          bizJid: 'jid', 
-          id: 'https://example.com', 
-          version: 1
-       }, 
-       viewOnce: true
-    }
-);
-
-// Image
-await sock.sendMessage(
-    jid, 
-    { 
-       image: {
-          url: 'https://example.jpg'
-       },    
-       caption: 'Body',
-       title: 'Title', 
-       subtitle: 'Subtitle', 
-       footer: 'Footer',
-       collection: {
-          bizJid: 'jid', 
-          id: 'https://example.com', 
-          version: 1
-       }, 
-       hasMediaAttachment: false, // or true
-       viewOnce: true
-    }
-);
-
-// Video
-await sock.sendMessage(
-    jid, 
-    { 
-       video: {
-          url: 'https://example.jpg'
-       },    
-       caption: 'Body',
-       title: 'Title', 
-       subtitle: 'Subtitle', 
-       footer: 'Footer',
-       collection: {
-          bizJid: 'jid', 
-          id: 'https://example.com', 
-          version: 1
-       }, 
-       hasMediaAttachment: false, // or true
-       viewOnce: true
-    }
-);
-
-// Document
-await sock.sendMessage(
-    jid, 
-    {
-        document: { 
-          url: 'https://example.jpg' 
-       }, 
-       mimetype: 'image/jpeg', 
-       jpegThumbnail: await sock.resize('https://example.jpg', 320, 320), 
-       caption: 'Body',
-       title: 'Title',
-       subtitle: 'Subtitle', 
-       footer: 'Footer',
-       collection: {
-          bizJid: 'jid', 
-          id: 'https://example.com', 
-          version: 1
-       }, 
-       hasMediaAttachment: false, // or true, 
-       viewOnce: true
-    }
-);
-
-// Location
-await sock.sendMessage(
-    jid, 
-    { 
-       location: {
-         degressLatitude: -0, 
-         degressLongitude: 0,
-         name: 'Hi'
-       },    
-       caption: 'Body',
-       title: 'Title', 
-       subtitle: 'Subtitle', 
-       footer: 'Footer',
-       collection: {
-          bizJid: 'jid', 
-          id: 'https://example.com', 
-          version: 1
-       }, 
-       hasMediaAttachment: false, // or true
-       viewOnce: true
-    }
-);
-
-// Product
-await sock.sendMessage(
-    jid,
-    {
-        product: {
-            productImage: { 
-               url: 'https://example.jpg'
-            },
-            productId: '836xxx',
-            title: 'Title',
-            description: 'Description',
-            currencyCode: 'IDR',
-            priceAmount1000: '283xxx',
-            retailerId: 'Baron',
-            url: 'https://example.com',
-            productImageCount: 1
-        },
-        businessOwnerJid: '123xxx@s.whatsapp.net',
-        caption: 'Body',
-        title: 'Title', 
-        subtitle: 'Subtitle', 
-        footer: 'Footer',
-        collection: {
-          bizJid: 'jid', 
-          id: 'https://example.com', 
-          version: 1
-       }, 
-        hasMediaAttachment: false, // or true
-        viewOnce: true
-    }
-);
-```
-
-
-
 ## Modify Messages
 
 ### Deleting Messages (for everyone)
@@ -1117,7 +1912,7 @@ await sock.sendMessage(jid, { delete: msg.key })
 await sock.sendMessage(jid, {
       text: 'updated text goes here',
       edit: response.key,
-    });
+    })
 ```
 
 ## Manipulating Media Messages
@@ -1131,7 +1926,7 @@ await sock.sendMessage(jid, {
 If you want to save the media you received
 ```ts
 import { createWriteStream } from 'fs'
-import { downloadMediaMessage, getContentType } from 'baron-baileys'
+import { downloadMediaMessage, getContentType } from 'baron-baileys-v2'
 
 sock.ev.on('messages.upsert', async ({ [m] }) => {
     if (!m.message) return // if there is no text or media message
@@ -1171,14 +1966,6 @@ await sock.updateMediaMessage(msg)
 
 ```ts
 await sock.rejectCall(callId, callFrom)
-```
-
-## Offer Call
-
-- You can obtain `callId` and `callFrom` from `call` event
-
-```ts
-await sock.offerCall(callId, callFrom)
 ```
 
 ## Send States in Chat
@@ -1296,7 +2083,7 @@ await sock.chatModify({
                     fromMe: true // or `false`
                 }
             ],
-            star: true // - true: Star Message; false: Unstar Message
+            star: true // - true: Star Message false: Unstar Message
         }
     },
     jid
@@ -1334,6 +2121,11 @@ await sock.sendMessage(
 )
 ```
 
+### Clear Messages
+```ts
+await sock.clearMessage(jid, key, timestamps) 
+```
+
 ## User Querys
 
 ### Check If ID Exists in Whatsapp
@@ -1361,15 +2153,12 @@ const status = await sock.fetchStatus(jid)
 console.log('status: ' + status)
 ```
 
-### Fetch Profile Picture (groups too)
-- To get the display picture of some person/group
+### Fetch Profile Picture
+- To get the display picture of some person, group and channel
 ```ts
 // for low res picture
 const ppUrl = await sock.profilePictureUrl(jid)
 console.log(ppUrl)
-
-// for high res picture
-const ppUrl = await sock.profilePictureUrl(jid, 'image')
 ```
 
 ### Fetch Bussines Profile (such as description or category)
@@ -1591,159 +2380,6 @@ await sock.updateGroupsAddPrivacy(value)
 const ephemeral = 86400 
 await sock.updateDefaultDisappearingMode(ephemeral)
 ```
-## Community
-
-
-- To change community properties you need to be admin
-
-### Create a community2
-```ts
-// title & participants
-const community = await sock.communityCreate('My Fab community', ['1234@s.whatsapp.net', '4564@s.whatsapp.net'])
-console.log('created community with id: ' + community.gid)
-await sock.sendMessage(community.id, { text: 'hello there' }) // say hello to everyone on the community
-```
-### Add/Remove or Demote/Promote2
-```ts
-// id & people to add to the community (will throw error if it fails)
-await sock.communityParticipantsUpdate(
-    jid, 
-    ['abcd@s.whatsapp.net', 'efgh@s.whatsapp.net'],
-    'add' // replace this parameter with 'remove' or 'demote' or 'promote'
-)
-```
-### Change Subject (name)2
-```ts
-await sock.communityUpdateSubject(jid, 'New Subject!')
-```
-### Change Description2
-```ts
-await sock.communityUpdateDescription(jid, 'New Description!')
-```
-### Change Settings2
-```ts
-// only allow admins to send messages
-await sock.communitySettingUpdate(jid, 'announcement')
-// allow everyone to send messages
-await sock.communitySettingUpdate(jid, 'not_announcement')
-// allow everyone to modify the community's settings -- like display picture etc.
-await sock.communitySettingUpdate(jid, 'unlocked')
-// only allow admins to modify the community's settings
-await sock.communitySettingUpdate(jid, 'locked')
-```
-### Leave a community2
-```ts
-// will throw error if it fails
-await sock.communityLeave(jid)
-```
-### Get Invite Code2
-- To create link with code use `'https://chat.whatsapp.com/' + code`
-```ts
-const code = await sock.communityInviteCode(jid)
-console.log('community code: ' + code)
-```
-### Revoke Invite Code2
-```ts
-const code = await sock.communityRevokeInvite(jid)
-console.log('New community code: ' + code)
-```
-### Join Using Invitation Code2
-- Code can't have `https://chat.whatsapp.com/`, only code
-```ts
-const response = await sock.communityAcceptInvite(code)
-console.log('joined to: ' + response)
-```
-### Get community Info by Invite Code2
-```ts
-const response = await sock.communityGetInviteInfo(code)
-console.log('community information: ' + response)
-```
-### Query Metadata (participants, name, description...)2
-```ts
-const metadata = await sock.communityMetadata(jid) 
-console.log(metadata.id + ', title: ' + metadata.subject + ', description: ' + metadata.desc)
-```
-### Join using `communityInviteMessage`2
-```ts
-const response = await sock.communityAcceptInviteV4(jid, communityInviteMessage)
-console.log('joined to: ' + response)
-```
-### Get Request Join List2
-```ts
-const response = await sock.communityRequestParticipantsList(jid)
-console.log(response)
-```
-### Approve/Reject Request Join2
-```ts
-const response = await sock.communityRequestParticipantsUpdate(
-    jid, // community id
-    ['abcd@s.whatsapp.net', 'efgh@s.whatsapp.net'],
-    'approve' // or 'reject' 
-)
-console.log(response)
-```
-### Get All Participating communitys Metadata2
-```ts
-const response = await sock.communityFetchAllParticipating()
-console.log(response)
-```
-### Toggle Ephemeral2
-
-- Ephemeral can be:
-
-| Time  | Seconds        |
-|-------|----------------|
-| Remove | 0          |
-| 24h    | 86.400     |
-| 7d     | 604.800    |
-| 90d    | 7.776.000  |
-
-```ts
-await sock.communityToggleEphemeral(jid, 86400)
-```
-
-### Change Add Mode2
-```ts
-await sock.communityMemberAddMode(
-    jid,
-    'all_member_add' // or 'admin_add'
-)
-```
-
-## Channel
-- To get newsletter info from code
-    ```ts
-    // https://whatsapp.com/channel/key
-    const key = '123wedss972279'
-    const result = await sock.getNewsletterInfo(key)
-    console.log(result)
-    ```
-- To create newsletter
-    ```ts
-    const result = await sock.createNewsLetter('Name newsletter', 'Description news letter', { url: 'url profile pictur' })
-    console.log(result)
-    ```
-- To get subscribed newsletters
-    ```ts
-
-const result = await sock.getSubscribedNewsletters()
-    console.log(result)
-    ```
-- To toggle mute newsletters
-    ```ts
-    const result = await sock.toggleMuteNewsletter(jid, true) // true to mute, false to unmute
-    console.log(result)
-    ```
-- To follow newsletter
-    ```ts
-    const result = await sock.followNewsletter(jid)
-    console.log(result)
-    ```
-- To unfollow newsletter
-    ```ts
-    const result = await sock.unFollowNewsletter(jid)
-    console.log(result)
-    ```
 
 ## Broadcast Lists & Stories
 
