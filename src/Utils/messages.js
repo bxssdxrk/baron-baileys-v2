@@ -130,7 +130,7 @@ const prepareWAMessageMedia = async (message, options) => {
     const requiresAudioBackground = options.backgroundColor && mediaType === 'audio' && uploadData.ptt === true
     const requiresOriginalForSomeProcessing = requiresDurationComputation || requiresThumbnailComputation
     
-    const { mediaKey, encWriteStream, bodyPath, fileEncSha256, fileSha256, fileLength, didSaveToTmpPath, } = await (options.newsletter ? messages_media_1.prepareStream : messages_media_1.encryptedStream)(uploadData.media, options.mediaTypeOverride || mediaType, {
+    const { mediaKey, encFilePath, originalFilePath, fileEncSha256, fileSha256, fileLength } = await (options.newsletter ? messages_media_1.prepareStream : messages_media_1.encryptedStream)(uploadData.media, options.mediaTypeOverride || mediaType, {
         logger,
         saveOriginalFileIfRequired: requiresOriginalForSomeProcessing,
         opts: options.options
@@ -141,7 +141,7 @@ const prepareWAMessageMedia = async (message, options) => {
     
     const [{ mediaUrl, directPath, handle }] = await Promise.all([
         (async () => {
-            const result = await options.upload(encWriteStream, { fileEncSha256B64, mediaType, timeoutMs: options.mediaUploadTimeoutMs })
+            const result = await options.upload(encFilePath, { fileEncSha256B64, mediaType, timeoutMs: options.mediaUploadTimeoutMs })
             logger?.debug({ mediaType, cacheableKey }, 'uploaded media')
             
             return result
@@ -149,7 +149,7 @@ const prepareWAMessageMedia = async (message, options) => {
         (async () => {
             try {
                 if (requiresThumbnailComputation) {
-                    const { thumbnail, originalImageDimensions } = await messages_media_1.generateThumbnail(bodyPath, mediaType, options)
+                    const { thumbnail, originalImageDimensions } = await messages_media_1.generateThumbnail(originalFilePath, mediaType, options)
                     uploadData.jpegThumbnail = thumbnail
                     
                     if (!uploadData.width && originalImageDimensions) {
@@ -161,12 +161,12 @@ const prepareWAMessageMedia = async (message, options) => {
                 }
                 
                 if (requiresDurationComputation) {
-                    uploadData.seconds = await messages_media_1.getAudioDuration(bodyPath)
+                    uploadData.seconds = await messages_media_1.getAudioDuration(originalFilePath)
                     logger?.debug('computed audio duration')
                 }
                 
                 if (requiresWaveformProcessing) {
-                    uploadData.waveform = await messages_media_1.getAudioWaveform(bodyPath, logger)
+                    uploadData.waveform = await messages_media_1.getAudioWaveform(originalFilePath, logger)
                     logger?.debug('processed waveform')
                 }
                 
@@ -181,17 +181,17 @@ const prepareWAMessageMedia = async (message, options) => {
             }
         })(),
     ]).finally(async () => {
-        if (!Buffer.isBuffer(encWriteStream)) {
-            encWriteStream.destroy()
-        }
-        
-        // remove tmp files
-        if (didSaveToTmpPath && bodyPath) {
-            await fs_1.promises.unlink(bodyPath)
+        try {
+            await fs_1.promises.unlink(encFilePath)
+            if (originalFilePath) {
+                await fs_1.promises.unlink(originalFilePath)
+            }
             logger?.debug('removed tmp files')
         }
-    }
-)
+        catch (error) {
+            logger?.warn('failed to remove tmp file')
+        }
+    })
     const obj = Types_1.WAProto.Message.fromObject({
         [`${mediaType}Message`]: MessageTypeProto[mediaType].fromObject({
             url: handle ? undefined : mediaUrl,
@@ -424,15 +424,8 @@ const generateWAMessageContent = async (message, options) => {
     else if ('disappearingMessagesInChat' in message) {
         const exp = typeof message.disappearingMessagesInChat === 'boolean' ?
             (message.disappearingMessagesInChat ? Defaults_1.WA_DEFAULT_EPHEMERAL : 0) :
-                       message.disappearingMessagesInChat;
-        m = (0, exports.prepareDisappearingMessageSettingContent)(exp);
-    }
-    else if ('viewOnce' in message) {
-        m.viewOnceMessage = { message: message.viewOnce }
-    }
-    else if ('botInvoke' in message) {
-        m.botInvokeMessage = { message: message.botInvoke }
-            
+            message.disappearingMessagesInChat
+        m = prepareDisappearingMessageSettingContent(exp)
     }
     
     else if ('groupInvite' in message) {
@@ -1296,8 +1289,7 @@ const normalizeMessageContent = (content) => {
             || (message === null || message === void 0 ? void 0 : message.groupStatusMentionMessage) 
             || (message === null || message === void 0 ? void 0 : message.viewOnceMessageV2Extension)            
             || (message === null || message === void 0 ? void 0 : message.documentWithCaptionMessage)
-            || (message === null || message === void 0 ? void 0 : message.pollCreationOptionImageMessage)
-			|| (message === null || message === void 0 ? void 0 : message.questionMessage))
+            || (message === null || message === void 0 ? void 0 : message.pollCreationOptionImageMessage))
     }
 }
 

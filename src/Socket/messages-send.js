@@ -373,6 +373,7 @@ const makeMessagesSocket = (config) => {
     
     const relayMessage = (jid_1, message_1, _a) => __awaiter(void 0, [jid_1, message_1, _a], void 0, function* (jid, message, { messageId: msgId, participant, additionalAttributes, additionalNodes, useUserDevicesCache, cachedGroupMetadata, statusJidList }) {
         const meId = authState.creds.me.id;
+        let didPushAdditional = false
         let shouldIncludeDeviceIdentity = false;
         const { user, server } = (0, WABinary_1.jidDecode)(jid);
         const statusJid = 'status@broadcast';
@@ -641,13 +642,21 @@ const makeMessagesSocket = (config) => {
             //     logger.debug({ jid }, 'adding business node');
             // }
                    if (!isNewsletter && buttonType) {
+           	if (!stanza.content || !Array.isArray(stanza.content)) {
+                    stanza.content = []
+                }
                             const buttonsNode = getButtonArgs(message)
-                            
+                 
+                 const filteredButtons = WABinary_1.getBinaryFilteredButtons(additionalNodes ? additionalNodes : [])
                             const resultFilteredButtons = WABinary_1.getBinaryFilteredButtons(additionalNodes ? additionalNodes : [])
                             
                             if (resultFilteredButtons) {
                                stanza.content.push(additionalNodes)
                             }
+                                            if (filteredButtons) {
+                   stanza.content.push(...additionalNodes)
+                   didPushAdditional = true
+                                            }
                             
                             else {
                                 stanza.content.push(buttonsNode)
@@ -659,13 +668,31 @@ const makeMessagesSocket = (config) => {
                                 stanza.content = []
                             }
                             
-                            stanza.content.push({
+                            const botNode = [{
                                 tag: 'bot', 
                                 attrs: {
                                     biz_bot: '1'
                                 }
-                            }) 
+                            }]
+                               const filteredBizBot = WABinary_1.getBinaryFilteredBizBot(additionalNodes ? additionalNodes : []) 
+                
+                if (filteredBizBot) {
+                	stanza.content.push(...additionalNodes) 
+                    didPushAdditional = true
+                }
+                
+                else {
+                	stanza.content.push(botNode) 
+                }
                         }
+                           if (!didPushAdditional && additionalNodes && additionalNodes.length > 0) {
+                if (!stanza.content || !Array.isArray(stanza.content)) {
+                    stanza.content = []
+                }
+                
+                stanza.content.push(...additionalNodes)
+            }  
+            
             logger.debug({ msgId }, `sending message to ${participants.length} devices`);
             yield sendNode(stanza);
         }));
@@ -788,20 +815,51 @@ const makeMessagesSocket = (config) => {
                 	native_flow_name: 'order_details'
                 }
             }
-        } else if (message.interactiveMessage?.nativeFlowMessage || message.buttonsMessage) {
+        }  else if (message.interactiveMessage?.nativeFlowMessage && message.interactiveMessage.nativeFlowMessage?.buttons?.length > 0 && message.interactiveMessage.nativeFlowMessage.buttons[0].name === 'payment_info') {
+                return {
+                    tag: 'biz', 
+                    attrs: {
+                        native_flow_name: 'payment_info'
+                }
+            }
+        } else if (message.interactiveMessage?.nativeFlowMessage && message.interactiveMessage.nativeFlowMessage?.buttons?.length > 0 &&
+            ['mpm', 'cta_catalog', 'send_location', 'call_permission_request', 'wa_payment_transaction_details', 'automated_greeting_message_view_catalog']
+            .includes(message.interactiveMessage.nativeFlowMessage.buttons[0].name)) {
+            // Only works for WhatsApp, not WhatsApp Business
             return {
-            	tag: 'biz', 
+                tag: 'biz',
+                attrs: {},
+                content: [{
+                    tag: 'interactive',
+                    attrs: {
+                        type: 'native_flow',
+                        v: '1'
+                    },
+                    content: [{
+                        tag: 'native_flow',
+                        attrs: {
+                        	v: '2', 
+                            name: message.interactiveMessage.nativeFlowMessage.buttons[0].name
+                        }
+                    }]
+                }]
+            }
+        } else if (message.interactiveMessage?.nativeFlowMessage || message.buttonsMessage) {
+        	// It works for whatsapp and whatsapp business
+            return {
+                tag: 'biz', 
                 attrs: {}, 
                 content: [{
-                	tag: 'interactive', 
+                    tag: 'interactive', 
                     attrs: {
-                    	type: 'native_flow', 
+                        type: 'native_flow', 
                         v: '1'
                     }, 
                     content: [{
-                    	tag: 'native_flow', 
+                        tag: 'native_flow', 
                         attrs: {
-                        	name: 'quick_reply'
+                            v: '9', 
+                            name: 'mixed'
                         }
                     }]
                 }]
@@ -1110,7 +1168,7 @@ const makeMessagesSocket = (config) => {
                     },
                     mediaCache: config.mediaCache,
                     options: config.options,
-                
+                    // messageId: Utils_1.generateMessageID(userJid), 
                     messageId: Utils_1.generateIOSMessageID(userJid), 
                     ...options,
                 })
@@ -1124,7 +1182,7 @@ const makeMessagesSocket = (config) => {
                 const additionalNodes = [];
                 
                // required for delete
-                            if (isDeleteMsg) {
+                       if (isDeleteMsg) {
                     // if the chat is a group, and I am not the author, then delete the message as an admin
                     if (WABinary_1.isJidGroup(content.delete?.remoteJid) && !content.delete?.fromMe || WABinary_1.isJidNewsletter(jid)) {
                         additionalAttributes.edit = '8'
@@ -1135,6 +1193,7 @@ const makeMessagesSocket = (config) => {
                     }
                 }
                 
+                              
                               else if (isEditMsg) {
                                  additionalAttributes.edit = (0, WABinary_1.isJidNewsletter)(jid) ? '3' : '1';
                               }
@@ -1171,7 +1230,8 @@ const makeMessagesSocket = (config) => {
                         },
                     });
                 }
-               await relayMessage(jid, fullMsg.message, { messageId: fullMsg.key.id, useCachedGroupMetadata: options.useCachedGroupMetadata, additionalAttributes, statusJidList: options.statusJidList, additionalNodes });
+                // await relayMessage(jid, fullMsg.message, { messageId: fullMsg.key.id, useCachedGroupMetadata: options.useCachedGroupMetadata, additionalAttributes, statusJidList: options.statusJidList, additionalNodes: options.additionalNodes })
+                await relayMessage(jid, fullMsg.message, { messageId: fullMsg.key.id, useCachedGroupMetadata: options.useCachedGroupMetadata, additionalAttributes, statusJidList: options.statusJidList, additionalNodes });
                 
                 if (config.emitOwnEvents) {
                     process.nextTick(() => {

@@ -348,42 +348,72 @@ const getHttpStream = async (url, options = {}) => {
 const prepareStream = async (media, mediaType, { logger, saveOriginalFileIfRequired, opts } = {}) => {
     const { stream, type } = await getStream(media, opts)
     logger?.debug('fetched media stream')
-    let bodyPath
-    let didSaveToTmpPath = false
+
+    const encFilePath = path_1.join(os_1.tmpdir(), mediaType + generics_1.generateMessageID() + '-plain')
+    const encFileWriteStream = fs_1.createWriteStream(encFilePath)
+
+    let originalFilePath
+    let originalFileStream
+
+    if (type === 'file') {
+        originalFilePath = media.url.toString()
+    } else if (saveOriginalFileIfRequired) {
+        originalFilePath = path_1.join(os_1.tmpdir(), mediaType + generics_1.generateMessageID() + '-original')
+        originalFileStream = fs_1.createWriteStream(originalFilePath)
+    }
+
+    let fileLength = 0
+    const sha256 = Crypto.createHash('sha256')
+
     try {
-        const buffer = await toBuffer(stream)
-        if (type === 'file') {
-            bodyPath = media.url
+        for await (const data of stream) {
+            fileLength += data.length
+
+            if (type === 'remote'
+                && opts?.maxContentLength
+                && fileLength + data.length > opts.maxContentLength) {
+                throw new boom_1.Boom(`content length exceeded when preparing "${type}"`, {
+                    data: { media, type }
+                })
+            }
+
+            sha256.update(data)
+            encFileWriteStream.write(data)
+
+            if (originalFileStream && !originalFileStream.write(data)) {
+                await events_1.once(originalFileStream, 'drain')
+            }
         }
-        else if (saveOriginalFileIfRequired) {
-            bodyPath = path_1.join(os_1.tmpdir(), mediaType + generics_1.generateIOSMessageID())
-            fs_1.writeFileSync(bodyPath, buffer)
-            didSaveToTmpPath = true
-        }
-        const fileLength = buffer.length
-        const fileSha256 = Crypto.createHash('sha256').update(buffer).digest()
-        stream?.destroy()
-        logger?.debug('prepare stream data successfully')
+
+        const fileSha256 = sha256.digest()
+        encFileWriteStream.end()
+        originalFileStream?.end?.call(originalFileStream)
+        stream.destroy()
+
+        logger?.debug('prepared plain stream successfully')
+
         return {
             mediaKey: undefined,
-            encWriteStream: buffer,
-            fileLength,
-            fileSha256,
+            originalFilePath,
+            encFilePath,
+            mac: undefined,
             fileEncSha256: undefined,
-            bodyPath,
-            didSaveToTmpPath
+            fileSha256,
+            fileLength
         }
     }
     catch (error) {
-        // destroy all streams with error
+        encFileWriteStream.destroy()
+        originalFileStream?.destroy?.call(originalFileStream)
+        sha256.destroy()
         stream.destroy()
-        if (didSaveToTmpPath) {
-            try {
-                await fs_1.promises.unlink(bodyPath)
+        try {
+            await fs_1.promises.unlink(encFilePath)
+            if (originalFilePath && didSaveToTmpPath) {
+                await fs_1.promises.unlink(originalFilePath)
             }
-            catch (err) {
-                logger?.error({ err }, 'failed to save to tmp path')
-            }
+        } catch (err) {
+            logger?.error({ err }, 'failed deleting tmp files')
         }
         throw error
     }
@@ -394,83 +424,81 @@ const encryptedStream = async (media, mediaType, { logger, saveOriginalFileIfReq
     logger?.debug('fetched media stream')
     const mediaKey = Crypto.randomBytes(32)
     const { cipherKey, iv, macKey } = await getMediaKeys(mediaKey, mediaType)
-    const encWriteStream = new stream_1.Readable({ read: () => { } })
-    let bodyPath
-    let writeStream
-    let didSaveToTmpPath = false
-    if (type === 'file') {
-        bodyPath = media.url.toString()
-    }
-    else if (saveOriginalFileIfRequired) {
-        bodyPath = path_1.join(os_1.tmpdir(), mediaType + generics_1.generateIOSMessageID())
-        writeStream = fs_1.createWriteStream(bodyPath)
-        didSaveToTmpPath = true
+    const encFilePath = path_1.join(os_1.tmpdir(), mediaType + generics_1.generateMessageID() + '-enc')
+    const encFileWriteStream = fs_1.createWriteStream(encFilePath)
+    let originalFileStream
+    let originalFilePath
+    if (saveOriginalFileIfRequired) {
+        originalFilePath = path_1.join(os_1.tmpdir(), mediaType + generics_1.generateMessageID() + '-original') 
+        originalFileStream = fs_1.createWriteStream(originalFilePath)
     }
     let fileLength = 0
     const aes = Crypto.createCipheriv('aes-256-cbc', cipherKey, iv)
-    let hmac = Crypto.createHmac('sha256', macKey).update(iv)
-    let sha256Plain = Crypto.createHash('sha256')
-    let sha256Enc = Crypto.createHash('sha256')
+    const hmac = Crypto.createHmac('sha256', macKey).update(iv)
+    const sha256Plain = Crypto.createHash('sha256')
+    const sha256Enc = Crypto.createHash('sha256')
+    const onChunk = (buff) => {
+        sha256Enc.update(buff)
+        hmac.update(buff)
+        encFileWriteStream.write(buff)
+    }
     try {
         for await (const data of stream) {
             fileLength += data.length
             if (type === 'remote'
-                && (opts === null || opts === void 0 ? void 0 : opts.maxContentLength)
+                && opts?.maxContentLength
                 && fileLength + data.length > opts.maxContentLength) {
                 throw new boom_1.Boom(`content length exceeded when encrypting "${type}"`, {
                     data: { media, type }
                 })
             }
-            sha256Plain = sha256Plain.update(data)
-            if (writeStream && !writeStream.write(data)) {
-                await events_1.once(writeStream, 'drain')
+            if (originalFileStream) {
+                if (!originalFileStream.write(data)) {
+                    await events_1.once(originalFileStream, 'drain')
+                }
             }
+            sha256Plain.update(data)
             onChunk(aes.update(data))
         }
         onChunk(aes.final())
         const mac = hmac.digest().slice(0, 10)
-        sha256Enc = sha256Enc.update(mac)
+        sha256Enc.update(mac)
         const fileSha256 = sha256Plain.digest()
         const fileEncSha256 = sha256Enc.digest()
-        encWriteStream.push(mac)
-        encWriteStream.push(null)
-        writeStream?.end()
+        encFileWriteStream.write(mac)
+        encFileWriteStream.end()
+        originalFileStream?.end?.call(originalFileStream)
         stream.destroy()
         logger?.debug('encrypted data successfully')
         return {
             mediaKey,
-            encWriteStream,
-            bodyPath,
+            originalFilePath,
+            encFilePath,
             mac,
             fileEncSha256,
             fileSha256,
-            fileLength,
-            didSaveToTmpPath
+            fileLength
         }
     }
     catch (error) {
         // destroy all streams with error
-        encWriteStream.destroy()
-        writeStream?.destroy()
+        encFileWriteStream.destroy()
+        originalFileStream?.destroy?.call(originalFileStream)
         aes.destroy()
         hmac.destroy()
         sha256Plain.destroy()
         sha256Enc.destroy()
         stream.destroy()
-        if (didSaveToTmpPath) {
-            try {
-                await fs_1.promises.unlink(bodyPath)
-            }
-            catch (err) {
-                logger?.error({ err }, 'failed to save to tmp path')
+        try {
+            await fs_1.promises.unlink(encFilePath)
+            if (originalFilePath) {
+                await fs_1.promises.unlink(originalFilePath)
             }
         }
+        catch (err) {
+            logger?.error({ err }, 'failed deleting tmp files')
+        }
         throw error
-    }
-    function onChunk(buff) {
-        sha256Enc = sha256Enc.update(buff)
-        hmac = hmac.update(buff)
-        encWriteStream.push(buff)
     }
 }
 
@@ -594,34 +622,26 @@ function extensionForMediaMessage(message) {
 }
 
 const getWAUploadToServer = ({ customUploadHosts, fetchAgent, logger, options }, refreshMediaConn) => {
-    return async (stream, { mediaType, fileEncSha256B64, newsletter, timeoutMs }) => {
+    return async (filePath, { mediaType, fileEncSha256B64, newsletter, timeoutMs }) => {
         // send a query JSON to obtain the url & auth token to upload our media
         let uploadInfo = await refreshMediaConn(false)
         let urls
-        const hosts = [...customUploadHosts, ...uploadInfo.hosts]
-        const chunks = []
-        if (!Buffer.isBuffer(stream)) {
-            for await (const chunk of stream) {
-                chunks.push(chunk)
-            }
-        }
-        const reqBody = Buffer.isBuffer(stream) ? stream : Buffer.concat(chunks)
-        fileEncSha256B64 = encodeBase64EncodedStringForUpload(fileEncSha256B64)
         let media = Defaults_1.MEDIA_PATH_MAP[mediaType]
+        const hosts = [...customUploadHosts, ...uploadInfo.hosts]
+        fileEncSha256B64 = encodeBase64EncodedStringForUpload(fileEncSha256B64)
         if (newsletter) {
             media = media?.replace('/mms/', '/newsletter/newsletter-')
         }
-        for (const { hostname, maxContentLengthBytes } of hosts) {
+        for (const { hostname } of hosts) {
             logger.debug(`uploading to "${hostname}"`)
             const auth = encodeURIComponent(uploadInfo.auth) // the auth token
             const url = `https://${hostname}${media}/${fileEncSha256B64}?auth=${auth}&token=${fileEncSha256B64}`
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             let result
             try {
-                if (maxContentLengthBytes && reqBody.length > maxContentLengthBytes) {
-                    throw new boom_1.Boom(`Body too large for "${hostname}"`, { statusCode: 413 })
-                }
-                const body = await axios_1.default.post(url, reqBody, {
+                const body = await axios_1.default.post(url, fs_1.createReadStream(filePath), {
                     ...options,
+                    maxRedirects: 0,
                     headers: {
                         ...options.headers || {},
                         'Content-Type': 'application/octet-stream',
@@ -631,14 +651,13 @@ const getWAUploadToServer = ({ customUploadHosts, fetchAgent, logger, options },
                     timeout: timeoutMs,
                     responseType: 'json',
                     maxBodyLength: Infinity,
-                    maxContentLength: Infinity
+                    maxContentLength: Infinity,
                 })
                 result = body.data
-                if ((result?.url) || (result?.directPath)) {
+                if (result?.url || result?.directPath) {
                     urls = {
                         mediaUrl: result.url,
-                        directPath: result.direct_path,
-                        handle: result.handle
+                        directPath: result.direct_path
                     }
                     break
                 }

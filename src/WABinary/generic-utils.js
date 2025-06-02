@@ -78,31 +78,45 @@ const getBinaryNodeMessages = ({ content }) => {
     return msgs
 }
 
+// const getBinaryFilteredButtons = (nodeContent) => {
+// 	if (!Array.isArray(nodeContent)) {
+// 		nodeContent = [[nodeContent]]
+// 	}
+//     const filter = nodeContent.filter((item) => 
+//         !(item.tag === 'biz' && item.content &&
+//             item.content.some((tag) => 
+//                 (tag.tag === 'interactive' && tag.attrs.type === 'native_flow' && tag.attrs.v === '1') ||
+//                 (tag.tag === 'list' && tag.attrs.type === 'product_list' && tag.attrs.v === '2')
+//             )
+//         )
+//     )
+//     if (filter.length > 0) {
+//     	return true
+//     } else {
+//     	return false
+//     }
+// }
 const getBinaryFilteredButtons = (nodeContent) => {
-	if (!Array.isArray(nodeContent)) {
-		nodeContent = [[nodeContent]]
-	}
-    const filter = nodeContent.filter((item) => 
-        !(item.tag === 'biz' && item.content &&
-            item.content.some((tag) => 
-                (tag.tag === 'interactive' && tag.attrs.type === 'native_flow' && tag.attrs.v === '1') ||
-                (tag.tag === 'list' && tag.attrs.type === 'product_list' && tag.attrs.v === '2')
-            )
-        )
-    )
-    if (filter.length > 0) {
-    	return true
-    } else {
-    	return false
-    }
-}
+	if (!Array.isArray(nodeContent)) return false
 
+    return nodeContent.some(a =>
+        ['native_flow'].includes(a?.content?.[0]?.content?.[0]?.tag) ||
+        ['interactive', 'buttons', 'list'].includes(a?.content?.[0]?.tag) ||
+        ['hsm', 'biz'].includes(a?.tag)
+    )
+}
+// const getBinaryFilteredBizBot = (nodeContent) => {
+//     if (!Array.isArray(nodeContent)) return false 
+
+//     return nodeContent.some(item => item.tag === 'bot' && item.attrs?.biz_bot === '1')
+// }
 const getBinaryFilteredBizBot = (nodeContent) => {
     if (!Array.isArray(nodeContent)) return false 
 
-    return nodeContent.some(item => item.tag === 'bot' && item.attrs?.biz_bot === '1')
+    return nodeContent.some(b => 
+        ['bot'].includes(b?.tag) && b?.attrs?.biz_bot === '1'
+    ) 
 }
-
 function bufferToUInt(e, t) {
     let a = 0
     for (let i = 0; i < t; i++) {
