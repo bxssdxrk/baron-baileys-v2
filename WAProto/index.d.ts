@@ -5020,7 +5020,8 @@ export namespace proto {
         AI_DEEPLINK = 21,
         META_AI_CHAT_SHORTCUT_AI_STUDIO = 22,
         UGC_CHAT_SHORTCUT_AI_STUDIO = 23,
-        NEW_CHAT_AI_STUDIO = 24
+        NEW_CHAT_AI_STUDIO = 24,
+        AIVOICE_FAVICON_CALL_HISTORY = 25
     }
 
     /** Properties of a BotMetricsMetadata. */
@@ -8759,16 +8760,16 @@ export namespace proto {
     interface ICitation {
 
         /** Citation title */
-        title: string;
+        title?: (string|null);
 
         /** Citation subtitle */
-        subtitle: string;
+        subtitle?: (string|null);
 
         /** Citation cmsId */
-        cmsId: string;
+        cmsId?: (string|null);
 
         /** Citation imageUrl */
-        imageUrl: string;
+        imageUrl?: (string|null);
     }
 
     /** Represents a Citation. */
@@ -8781,16 +8782,16 @@ export namespace proto {
         constructor(properties?: proto.ICitation);
 
         /** Citation title. */
-        public title: string;
+        public title?: (string|null);
 
         /** Citation subtitle. */
-        public subtitle: string;
+        public subtitle?: (string|null);
 
         /** Citation cmsId. */
-        public cmsId: string;
+        public cmsId?: (string|null);
 
         /** Citation imageUrl. */
-        public imageUrl: string;
+        public imageUrl?: (string|null);
 
         /**
          * Creates a new Citation instance using the specified properties.
@@ -12312,7 +12313,7 @@ export namespace proto {
     interface IConversation {
 
         /** Conversation id */
-        id: string;
+        id?: (string|null);
 
         /** Conversation messages */
         messages?: (proto.IHistorySyncMsg[]|null);
@@ -12481,7 +12482,7 @@ export namespace proto {
         constructor(properties?: proto.IConversation);
 
         /** Conversation id. */
-        public id: string;
+        public id?: (string|null);
 
         /** Conversation messages. */
         public messages: proto.IHistorySyncMsg[];
@@ -15217,7 +15218,7 @@ export namespace proto {
     interface IGroupParticipant {
 
         /** GroupParticipant userJid */
-        userJid: string;
+        userJid?: (string|null);
 
         /** GroupParticipant rank */
         rank?: (proto.GroupParticipant.Rank|null);
@@ -15233,7 +15234,7 @@ export namespace proto {
         constructor(properties?: proto.IGroupParticipant);
 
         /** GroupParticipant userJid. */
-        public userJid: string;
+        public userJid?: (string|null);
 
         /** GroupParticipant rank. */
         public rank?: (proto.GroupParticipant.Rank|null);
@@ -15763,7 +15764,7 @@ export namespace proto {
     interface IHistorySync {
 
         /** HistorySync syncType */
-        syncType: proto.HistorySync.HistorySyncType;
+        syncType?: (proto.HistorySync.HistorySyncType|null);
 
         /** HistorySync conversations */
         conversations?: (proto.IConversation[]|null);
@@ -15824,7 +15825,7 @@ export namespace proto {
         constructor(properties?: proto.IHistorySync);
 
         /** HistorySync syncType. */
-        public syncType: proto.HistorySync.HistorySyncType;
+        public syncType?: (proto.HistorySync.HistorySyncType|null);
 
         /** HistorySync conversations. */
         public conversations: proto.IConversation[];
@@ -17138,10 +17139,10 @@ export namespace proto {
     interface ILIDMigrationMapping {
 
         /** LIDMigrationMapping pn */
-        pn: (number|Long);
+        pn?: (number|Long|null);
 
         /** LIDMigrationMapping assignedLid */
-        assignedLid: (number|Long);
+        assignedLid?: (number|Long|null);
 
         /** LIDMigrationMapping latestLid */
         latestLid?: (number|Long|null);
@@ -17157,10 +17158,10 @@ export namespace proto {
         constructor(properties?: proto.ILIDMigrationMapping);
 
         /** LIDMigrationMapping pn. */
-        public pn: (number|Long);
+        public pn?: (number|Long|null);
 
         /** LIDMigrationMapping assignedLid. */
-        public assignedLid: (number|Long);
+        public assignedLid?: (number|Long|null);
 
         /** LIDMigrationMapping latestLid. */
         public latestLid?: (number|Long|null);
@@ -20220,7 +20221,9 @@ export namespace proto {
                 BOT_FEEDBACK_NEGATIVE_NOT_RELEVANT_TO_TEXT = 9,
                 BOT_FEEDBACK_NEGATIVE_PERSONALIZED = 10,
                 BOT_FEEDBACK_NEGATIVE_CLARITY = 11,
-                BOT_FEEDBACK_NEGATIVE_DOESNT_LOOK_LIKE_THE_PERSON = 12
+                BOT_FEEDBACK_NEGATIVE_DOESNT_LOOK_LIKE_THE_PERSON = 12,
+                BOT_FEEDBACK_NEGATIVE_HALLUCINATION_INTERNAL_ONLY = 13,
+                BOT_FEEDBACK_NEGATIVE = 14
             }
 
             /** BotFeedbackKindMultipleNegative enum. */
@@ -20243,7 +20246,8 @@ export namespace proto {
 
             /** ReportKind enum. */
             enum ReportKind {
-                GENERIC = 0
+                NONE = 0,
+                GENERIC = 1
             }
         }
 
@@ -35989,6 +35993,9 @@ export namespace proto {
 
         /** MessageContextInfo limitSharingV2 */
         limitSharingV2?: (proto.ILimitSharing|null);
+
+        /** MessageContextInfo threadId */
+        threadId?: (proto.IThreadID[]|null);
     }
 
     /** Represents a MessageContextInfo. */
@@ -36041,6 +36048,9 @@ export namespace proto {
 
         /** MessageContextInfo limitSharingV2. */
         public limitSharingV2?: (proto.ILimitSharing|null);
+
+        /** MessageContextInfo threadId. */
+        public threadId: proto.IThreadID[];
 
         /**
          * Creates a new MessageContextInfo instance using the specified properties.
@@ -42862,7 +42872,7 @@ export namespace proto {
     interface IStatusPSA {
 
         /** StatusPSA campaignId */
-        campaignId: (number|Long);
+        campaignId?: (number|Long|null);
 
         /** StatusPSA campaignExpirationTimestamp */
         campaignExpirationTimestamp?: (number|Long|null);
@@ -42878,7 +42888,7 @@ export namespace proto {
         constructor(properties?: proto.IStatusPSA);
 
         /** StatusPSA campaignId. */
-        public campaignId: (number|Long);
+        public campaignId?: (number|Long|null);
 
         /** StatusPSA campaignExpirationTimestamp. */
         public campaignExpirationTimestamp?: (number|Long|null);
@@ -44696,13 +44706,13 @@ export namespace proto {
         interface ICustomPaymentMethod {
 
             /** CustomPaymentMethod credentialId */
-            credentialId: string;
+            credentialId?: (string|null);
 
             /** CustomPaymentMethod country */
-            country: string;
+            country?: (string|null);
 
             /** CustomPaymentMethod type */
-            type: string;
+            type?: (string|null);
 
             /** CustomPaymentMethod metadata */
             metadata?: (proto.SyncActionValue.ICustomPaymentMethodMetadata[]|null);
@@ -44718,13 +44728,13 @@ export namespace proto {
             constructor(properties?: proto.SyncActionValue.ICustomPaymentMethod);
 
             /** CustomPaymentMethod credentialId. */
-            public credentialId: string;
+            public credentialId?: (string|null);
 
             /** CustomPaymentMethod country. */
-            public country: string;
+            public country?: (string|null);
 
             /** CustomPaymentMethod type. */
-            public type: string;
+            public type?: (string|null);
 
             /** CustomPaymentMethod metadata. */
             public metadata: proto.SyncActionValue.ICustomPaymentMethodMetadata[];
@@ -44811,10 +44821,10 @@ export namespace proto {
         interface ICustomPaymentMethodMetadata {
 
             /** CustomPaymentMethodMetadata key */
-            key: string;
+            key?: (string|null);
 
             /** CustomPaymentMethodMetadata value */
-            value: string;
+            value?: (string|null);
         }
 
         /** Represents a CustomPaymentMethodMetadata. */
@@ -44827,10 +44837,10 @@ export namespace proto {
             constructor(properties?: proto.SyncActionValue.ICustomPaymentMethodMetadata);
 
             /** CustomPaymentMethodMetadata key. */
-            public key: string;
+            public key?: (string|null);
 
             /** CustomPaymentMethodMetadata value. */
-            public value: string;
+            public value?: (string|null);
 
             /**
              * Creates a new CustomPaymentMethodMetadata instance using the specified properties.
@@ -46703,10 +46713,10 @@ export namespace proto {
         interface IMerchantPaymentPartnerAction {
 
             /** MerchantPaymentPartnerAction status */
-            status: proto.SyncActionValue.MerchantPaymentPartnerAction.Status;
+            status?: (proto.SyncActionValue.MerchantPaymentPartnerAction.Status|null);
 
             /** MerchantPaymentPartnerAction country */
-            country: string;
+            country?: (string|null);
 
             /** MerchantPaymentPartnerAction gatewayName */
             gatewayName?: (string|null);
@@ -46725,10 +46735,10 @@ export namespace proto {
             constructor(properties?: proto.SyncActionValue.IMerchantPaymentPartnerAction);
 
             /** MerchantPaymentPartnerAction status. */
-            public status: proto.SyncActionValue.MerchantPaymentPartnerAction.Status;
+            public status?: (proto.SyncActionValue.MerchantPaymentPartnerAction.Status|null);
 
             /** MerchantPaymentPartnerAction country. */
-            public country: string;
+            public country?: (string|null);
 
             /** MerchantPaymentPartnerAction gatewayName. */
             public gatewayName?: (string|null);
@@ -47368,10 +47378,10 @@ export namespace proto {
         interface IPaymentTosAction {
 
             /** PaymentTosAction paymentNotice */
-            paymentNotice: proto.SyncActionValue.PaymentTosAction.PaymentNotice;
+            paymentNotice?: (proto.SyncActionValue.PaymentTosAction.PaymentNotice|null);
 
             /** PaymentTosAction accepted */
-            accepted: boolean;
+            accepted?: (boolean|null);
         }
 
         /** Represents a PaymentTosAction. */
@@ -47384,10 +47394,10 @@ export namespace proto {
             constructor(properties?: proto.SyncActionValue.IPaymentTosAction);
 
             /** PaymentTosAction paymentNotice. */
-            public paymentNotice: proto.SyncActionValue.PaymentTosAction.PaymentNotice;
+            public paymentNotice?: (proto.SyncActionValue.PaymentTosAction.PaymentNotice|null);
 
             /** PaymentTosAction accepted. */
-            public accepted: boolean;
+            public accepted?: (boolean|null);
 
             /**
              * Creates a new PaymentTosAction instance using the specified properties.
@@ -51256,6 +51266,118 @@ export namespace proto {
         }
     }
 
+    /** Properties of a ThreadID. */
+    interface IThreadID {
+
+        /** ThreadID threadType */
+        threadType?: (proto.ThreadID.ThreadType|null);
+
+        /** ThreadID threadKey */
+        threadKey?: (proto.IMessageKey|null);
+    }
+
+    /** Represents a ThreadID. */
+    class ThreadID implements IThreadID {
+
+        /**
+         * Constructs a new ThreadID.
+         * @param [properties] Properties to set
+         */
+        constructor(properties?: proto.IThreadID);
+
+        /** ThreadID threadType. */
+        public threadType?: (proto.ThreadID.ThreadType|null);
+
+        /** ThreadID threadKey. */
+        public threadKey?: (proto.IMessageKey|null);
+
+        /**
+         * Creates a new ThreadID instance using the specified properties.
+         * @param [properties] Properties to set
+         * @returns ThreadID instance
+         */
+        public static create(properties?: proto.IThreadID): proto.ThreadID;
+
+        /**
+         * Encodes the specified ThreadID message. Does not implicitly {@link proto.ThreadID.verify|verify} messages.
+         * @param message ThreadID message or plain object to encode
+         * @param [writer] Writer to encode to
+         * @returns Writer
+         */
+        public static encode(message: proto.IThreadID, writer?: $protobuf.Writer): $protobuf.Writer;
+
+        /**
+         * Encodes the specified ThreadID message, length delimited. Does not implicitly {@link proto.ThreadID.verify|verify} messages.
+         * @param message ThreadID message or plain object to encode
+         * @param [writer] Writer to encode to
+         * @returns Writer
+         */
+        public static encodeDelimited(message: proto.IThreadID, writer?: $protobuf.Writer): $protobuf.Writer;
+
+        /**
+         * Decodes a ThreadID message from the specified reader or buffer.
+         * @param reader Reader or buffer to decode from
+         * @param [length] Message length if known beforehand
+         * @returns ThreadID
+         * @throws {Error} If the payload is not a reader or valid buffer
+         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+         */
+        public static decode(reader: ($protobuf.Reader|Uint8Array), length?: number): proto.ThreadID;
+
+        /**
+         * Decodes a ThreadID message from the specified reader or buffer, length delimited.
+         * @param reader Reader or buffer to decode from
+         * @returns ThreadID
+         * @throws {Error} If the payload is not a reader or valid buffer
+         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+         */
+        public static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): proto.ThreadID;
+
+        /**
+         * Verifies a ThreadID message.
+         * @param message Plain object to verify
+         * @returns `null` if valid, otherwise the reason why it is not
+         */
+        public static verify(message: { [k: string]: any }): (string|null);
+
+        /**
+         * Creates a ThreadID message from a plain object. Also converts values to their respective internal types.
+         * @param object Plain object
+         * @returns ThreadID
+         */
+        public static fromObject(object: { [k: string]: any }): proto.ThreadID;
+
+        /**
+         * Creates a plain object from a ThreadID message. Also converts values to other types if specified.
+         * @param message ThreadID
+         * @param [options] Conversion options
+         * @returns Plain object
+         */
+        public static toObject(message: proto.ThreadID, options?: $protobuf.IConversionOptions): { [k: string]: any };
+
+        /**
+         * Converts this ThreadID to JSON.
+         * @returns JSON object
+         */
+        public toJSON(): { [k: string]: any };
+
+        /**
+         * Gets the default type url for ThreadID
+         * @param [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+         * @returns The default type url
+         */
+        public static getTypeUrl(typeUrlPrefix?: string): string;
+    }
+
+    namespace ThreadID {
+
+        /** ThreadType enum. */
+        enum ThreadType {
+            UNKNOWN = 0,
+            VIEW_REPLIES = 1
+        }
+    }
+
     /** Properties of an UrlTrackingMap. */
     interface IUrlTrackingMap {
 
@@ -51818,7 +51940,7 @@ export namespace proto {
     interface IUserReceipt {
 
         /** UserReceipt userJid */
-        userJid: string;
+        userJid?: (string|null);
 
         /** UserReceipt receiptTimestamp */
         receiptTimestamp?: (number|Long|null);
@@ -51846,7 +51968,7 @@ export namespace proto {
         constructor(properties?: proto.IUserReceipt);
 
         /** UserReceipt userJid. */
-        public userJid: string;
+        public userJid?: (string|null);
 
         /** UserReceipt receiptTimestamp. */
         public receiptTimestamp?: (number|Long|null);
@@ -52653,7 +52775,7 @@ export namespace proto {
     interface IWebMessageInfo {
 
         /** WebMessageInfo key */
-        key: proto.IMessageKey;
+        key?: (proto.IMessageKey|null);
 
         /** WebMessageInfo message */
         message?: (proto.IMessage|null);
@@ -52849,7 +52971,7 @@ export namespace proto {
         constructor(properties?: proto.IWebMessageInfo);
 
         /** WebMessageInfo key. */
-        public key: proto.IMessageKey;
+        public key?: (proto.IMessageKey|null);
 
         /** WebMessageInfo message. */
         public message?: (proto.IMessage|null);
