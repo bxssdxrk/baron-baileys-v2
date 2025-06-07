@@ -3,8 +3,7 @@
 
 <div align='center'>
 
-![GitHub Downloads (all assets, all releases)](https://img.shields.io/github/downloads/Barons-Team/baron-baileys-v2/total)
-![NPM Downloads](https://img.shields.io/npm/dw/%40whiskeysockets%2Fbaileys?label=npm&color=%23CB3837)
+ <img src="https://img.shields.io/npm/dw/baron-baileys-v2?label=npm&color=%23CB3837" alt="NPM Downloads"/>
 ![GitHub code size in bytes](https://img.shields.io/github/languages/code-size/Barons-Team/baron-baileys-v2)
 ![GitHub License](https://img.shields.io/github/license/Barons-Team/baron-baileys-v2)
 ![GitHub Repo stars](https://img.shields.io/github/stars/Barons-Team/baron-baileys-v2)
