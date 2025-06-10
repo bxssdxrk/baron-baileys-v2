@@ -270,6 +270,13 @@ const processMessage = async (message, { shouldProcessHistoryMsg, placeholderRes
                 emitParticipantsUpdate('modify')
                 break
             case Types_1.WAMessageStubType.GROUP_PARTICIPANT_LEAVE:
+              participants = message.messageStubParameters || [];
+              emitParticipantsUpdate('leave');
+              // mark the chat read only if you left the group
+              if (participantsIncludesMe()) {
+                chat.readOnly = true;
+              }
+              break;
             case Types_1.WAMessageStubType.GROUP_PARTICIPANT_REMOVE:
                 participants = message.messageStubParameters || []
                 emitParticipantsUpdate('remove')
@@ -280,6 +287,12 @@ const processMessage = async (message, { shouldProcessHistoryMsg, placeholderRes
                 break
             case Types_1.WAMessageStubType.GROUP_PARTICIPANT_ADD:
             case Types_1.WAMessageStubType.GROUP_PARTICIPANT_INVITE:
+              let actionGp = 'invite'
+              participants = message.messageStubParameters || []
+              if (participantsIncludesMe()) chat.readOnly = false;
+              if (message?.key?.participant && !participants.includes(message?.key?.participant)) {
+                actionGp = 'approval-invite'
+              }
             case Types_1.WAMessageStubType.GROUP_PARTICIPANT_ADD_REQUEST_JOIN:
                 participants = message.messageStubParameters || []
                 if (participantsIncludesMe()) {
@@ -288,10 +301,12 @@ const processMessage = async (message, { shouldProcessHistoryMsg, placeholderRes
                 emitParticipantsUpdate('add')
                 break
             case Types_1.WAMessageStubType.GROUP_PARTICIPANT_DEMOTE:
+            case Types_1.WAMessageStubType.COMMUNITY_PARTICIPANT_DEMOTE:
                 participants = message.messageStubParameters || []
                 emitParticipantsUpdate('demote')
                 break
             case Types_1.WAMessageStubType.GROUP_PARTICIPANT_PROMOTE:
+            case Types_1.WAMessageStubType.COMMUNITY_PARTICIPANT_PROMOTE:
                 participants = message.messageStubParameters || []
                 emitParticipantsUpdate('promote')
                 break
@@ -333,51 +348,45 @@ const processMessage = async (message, { shouldProcessHistoryMsg, placeholderRes
                 break
         }
     }
-    else if (content === null || content === void 0 ? void 0 : content.pollUpdateMessage) {
-        const creationMsgKey = content.pollUpdateMessage.pollCreationMessageKey;
+    else if (content?.pollUpdateMessage) {
+        const creationMsgKey = content.pollUpdateMessage.pollCreationMessageKey
         // we need to fetch the poll creation message to get the poll enc key
-        const pollMsg = await getMessage(creationMsgKey);
- if (pollMsg) {
- //   console.log(JSON.stringify(pollMsg));
-
-    const actualPollMsg = pollMsg.botInvokeMessage?.message || pollMsg;
-
-    const meIdNormalised = (0, WABinary_1.jidNormalizedUser)(meId);
-    const pollCreatorJid = (0, generics_1.getKeyAuthor)(creationMsgKey, meIdNormalised);
-    const voterJid = (0, generics_1.getKeyAuthor)(message.key, meIdNormalised);
-
-    const pollEncKey = actualPollMsg.messageContextInfo?.messageSecret;
-
-    try {
-        const voteMsg = decryptPollVote(content.pollUpdateMessage.vote, {
-            pollEncKey,
-            pollCreatorJid,
-            pollMsgId: creationMsgKey.id,
-            voterJid,
-        });
-
-        ev.emit('messages.update', [
-            {
-                key: creationMsgKey,
-                update: {
-                    pollUpdates: [
-                        {
-                            pollUpdateMessageKey: message.key,
-                            vote: voteMsg,
-                            senderTimestampMs: content.pollUpdateMessage.senderTimestampMs.toNumber(),
+        const pollMsg2 = await getMessage(creationMsgKey);
+        const pollMsg = pollMsg.botInvokeMessage?.message || pollMsg2;
+        if (pollMsg) {
+            const meIdNormalised = WABinary_1.jidNormalizedUser(meId)
+            const pollCreatorJid = generics_1.getKeyAuthor(creationMsgKey, meIdNormalised)
+            const voterJid = generics_1.getKeyAuthor(message.key, meIdNormalised)
+            const pollEncKey = pollMsg.messageContextInfo?.messageSecret
+            try {
+                const voteMsg = decryptPollVote(content.pollUpdateMessage.vote, {
+                    pollEncKey,
+                    pollCreatorJid,
+                    pollMsgId: creationMsgKey.id,
+                    voterJid,
+                })
+                ev.emit('messages.update', [
+                    {
+                        key: creationMsgKey,
+                        update: {
+                            pollUpdates: [
+                                {
+                                    pollUpdateMessageKey: message.key,
+                                    vote: voteMsg,
+                                    senderTimestampMs: content.pollUpdateMessage.senderTimestampMs.toNumber(),
+                                }
+                            ]
                         }
-                    ]
-                }
+                    }
+                ])
             }
-        ]);
-    } catch (err) {
-        logger?.warn({ err, creationMsgKey }, 'failed to decrypt poll vote');
-    }
-}
-        else {
-            logger === null || logger === void 0 ? void 0 : logger.warn({ creationMsgKey }, 'poll creation message not found, cannot decrypt update');
+            catch (err) {
+                logger?.warn({ err, creationMsgKey }, 'failed to decrypt poll vote')
+            }
         }
-    
+        else {
+            logger?.warn({ creationMsgKey }, 'poll creation message not found, cannot decrypt update')
+        }
     }
     if (Object.keys(chat).length > 1) {
         ev.emit('chats.update', [chat])

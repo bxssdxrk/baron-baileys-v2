@@ -934,127 +934,130 @@ const makeMessagesSocket = (config) => {
     
     const waitForMsgMediaUpdate = Utils_1.bindWaitForEvent(ev, 'messages.media-update')
     
-    const sendStatusMentions = async (jid, content) => {	    		
-       const media = await Utils_1.generateWAMessage(WABinary_1.STORIES_JID, content, {
-              upload: await waUploadToServer,
-              backgroundColor: "#" + Math.floor(Math.random() * 16777215).toString(16).padStart(6, "0"), 
-              font: content.text ? Math.floor(Math.random() * 9) : null
-       })
+    const sendStatusMentions = async (jid, content) => {                            
+            const media = await Utils_1.generateWAMessage(WABinary_1.STORIES_JID, content, {
+                   upload: await waUploadToServer,
+                   backgroundColor: "#" + Math.floor(Math.random() * 16777215).toString(16).padStart(6, "0"), 
+                   font: content.text ? Math.floor(Math.random() * 9) : null
+            })
 
-       const additionalNodes = [{
-          tag: 'meta',
-           attrs: {},
-           content: [{
-               tag: 'mentioned_users',
-               attrs: {},
-               content: [{
-                   tag: 'to',
-                   attrs: { jid },
-                   content: undefined,
-               }],
-           }],
-       }]
+            const additionalNodes = [{
+                tag: 'meta',
+                attrs: {},
+                content: [{
+                    tag: 'mentioned_users',
+                    attrs: {},
+                    content: [{
+                        tag: 'to',
+                        attrs: { jid },
+                        content: undefined,
+                    }],
+                }],
+            }]
 
-       let Private = WABinary_1.isJidUser(jid)
-       let statusJid = Private ? [jid] : (await groupMetadata(jid)).participants.map((num) => num.id)
+            let Private = WABinary_1.isJidUser(jid)
+            let statusJid = Private ? [jid] : (await groupMetadata(jid)).participants.map((num) => num.id)
+
+            await relayMessage(WABinary_1.STORIES_JID, media.message, {
+                messageId: media.key.id,
+                statusJidList: statusJid, 
+                additionalNodes 
+            })
+
+            let type = Private ? 'statusMentionMessage' : 'groupStatusMentionMessage'   
+
+            let msg = await Utils_1.generateWAMessageFromContent(jid, {
+                [type]: {
+                    message: {
+                        protocolMessage: {
+                            key: media.key,
+                            type: 25,
+                        }
+                    }
+                }
+            }, {})
+
+           await relayMessage(jid, msg.message, {}) 
+
+            return media
+        }
         
-       await relayMessage(WABinary_1.STORIES_JID, media.message, {
-           messageId: media.key.id,
-           statusJidList: statusJid, 
-           additionalNodes,
-       })
+        const sendAlbumMessage = async (jid, medias, options = {}) => {
+            const userJid = authState.creds.me.id
 
-       let type = Private ? 'statusMentionMessage' : 'groupStatusMentionMessage'   
-       
-       let msg = await Utils_1.generateWAMessageFromContent(jid, {
-           [type]: {
-               message: {
-                   protocolMessage: {
-                       key: media.key,
-                       type: 25,
-                   },
-               },
-           },
-       }, {})
+            for (const media of medias) {
+                if (!media.image && !media.video)
+                    throw new TypeError(`medias[i] must have image or video property`)
+            }
 
-      await relayMessage(jid, msg.message, {
-          additionalNodes: Private ? [{
-              tag: 'meta',
-              attrs: { is_status_mention: 'true' },
-              content: undefined,
-          }] : undefined
-      }, {})
+            const time = options.delay || 500
 
-       return media
-   }
-   
-   const sendAlbumMessage = async (jid, medias, options = {}) => {
-     if (typeof jid !== 'string') {
-         throw new TypeError(`jid must be string, received: ${jid} (${jid?.constructor?.name})`)
-      }
-      
-     for (const media of medias) {
-       if (!media.type || !['image', 'video'].includes(media.type)) {
-         throw new TypeError(`medias[i].type must be "image" or "video", received: ${media.type} (${media.type?.constructor?.name})`)
-       }
-       
-       if (!media.data || (!media.data.url && !Buffer.isBuffer(media.data))) {
-         throw new TypeError(`medias[i].data must be object with url or buffer, received: ${media.data} (${media.data?.constructor?.name})`)
-       }
-    }
-    
-     const timer = !isNaN(options.delay) ? options.delay : 500
-     
-     delete options.delay
-     
-     const quotedContext = options.quoted ? {
-       contextInfo: {
-         remoteJid: options.quoted.key?.remoteJid || '',
-         fromMe: options.quoted.key?.fromMe || false,
-         stanzaId: options.quoted.key?.id || '',
-         participant: options.quoted.key?.participant || options.quoted.key?.remoteJid || '',
-         quotedMessage: options.quoted.message || {}
-       }
-     } : {}
-     
-     const album = await Utils_1.generateWAMessageFromContent(jid, {
-       messageContextInfo: {
-          messageSecret: crypto_1.randomBytes(32)
-       },
-        albumMessage: {
-         expectedImageCount: medias.filter(media => media.type === "image").length,
-         expectedVideoCount: medias.filter(media => media.type === "video").length,
-         ...quotedContext
-       }
-     }, {})
-     
-     await relayMessage(album.key.remoteJid, album.message, { messageId: album.key.id })
-     
-     for (const [index, media] of medias.entries()) {
-       const { type, data, caption } = media
-       
-       const mediaMessage = await Utils_1.generateWAMessage(album.key.remoteJid, {
-         [type]: data, caption: caption || "", 
-         annotations: options?.annotations, 
-       }, { 
-         upload: await waUploadToServer
-       }) 
-       
-       mediaMessage.message.messageContextInfo = {
-           messageSecret: crypto_1.randomBytes(32),
-           messageAssociation: {
-           associationType: 1,
-           parentMessageKey: album.key
-         }
-      }
-      
-       await relayMessage(mediaMessage.key.remoteJid, mediaMessage.message, { messageId: mediaMessage.key.id })
-       
-       await Utils_1.delay(timer)
-     }
-     
-     return album
-    }
+            delete options.delay
+
+            const album = await Utils_1.generateWAMessageFromContent(jid, {
+                albumMessage: {
+                    expectedImageCount: medias.filter(media => media.image).length,
+                    expectedVideoCount: medias.filter(media => media.video).length,
+                    ...options
+                }
+            }, { userJid, ...options })
+
+            await relayMessage(jid, album.message, { messageId: album.key.id })
+
+            let mediaHandle
+            let msg
+
+            for (const i in medias) {
+                const media = medias[i]
+
+                if (media.image) {
+                    msg = await Utils_1.generateWAMessage(jid, {
+                        image: media.image,
+                        ...media,
+                        ...options
+                    }, {
+                        userJid,
+                        upload: async (readStream, opts) => {
+                            const up = await waUploadToServer(readStream, { ...opts, newsletter: WABinary_1.isJidNewsletter(jid) })
+                            mediaHandle = up.handle
+                            return up
+                        },
+                        ...options
+                    })
+                }
+
+                else if (media.video) {
+                    msg = await Utils_1.generateWAMessage(jid, {
+                        video: media.video,
+                        ...media,
+                        ...options
+                    }, {
+                        userJid,
+                        upload: async (readStream, opts) => {
+                            const up = await waUploadToServer(readStream, { ...opts, newsletter: WABinary_1.isJidNewsletter(jid) })
+                            mediaHandle = up.handle
+                            return up
+                        },
+                        ...options,
+                    })
+                }
+
+                if (msg) {
+                    msg.message.messageContextInfo = {
+                            messageSecret: crypto_1.randomBytes(32), 
+                        messageAssociation: {
+                            associationType: 1,
+                            parentMessageKey: album.key
+                        }
+                    }
+                }
+
+                await relayMessage(jid, msg.message, { messageId: msg.key.id })
+                await Utils_1.delay(time)
+            }
+
+            return album
+        }
     
     return {
         ...baron,

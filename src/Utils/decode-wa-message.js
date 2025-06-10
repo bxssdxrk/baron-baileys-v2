@@ -6,7 +6,7 @@ const boom_1 = require("@hapi/boom")
 const WAProto_1 = require("../../WAProto")
 const WABinary_1 = require("../WABinary")
 const generics_1 = require("./generics")
-
+const messages_1 = require("./messages") 
 const NO_MESSAGE_FOUND_ERROR_TEXT = 'Message absent from node'
 
 const MISSING_KEYS_ERROR_TEXT = 'Key used already or never filled'
@@ -117,6 +117,9 @@ function decodeMessageNode(stanza, meId, meLid) {
     }
     if (key.fromMe) {
         fullMessage.status = WAProto_1.proto.WebMessageInfo.Status.SERVER_ACK
+    }
+    if (!key.fromMe) {
+    	fullMessage.platform = messages_1.getDevice(key.id) 
     }
     return {
         fullMessage,

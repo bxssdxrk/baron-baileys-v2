@@ -4,7 +4,11 @@ Object.defineProperty(exports, "__esModule", { value: true })
 
 const boom_1 = require("@hapi/boom")
 const crypto_1 = require("crypto")
+const path_1 = require("path")
+const os_1 = require("os")
+const fs_1 = require("fs")
 const WABinary_1 = require("../WABinary")
+const generics_1 = require("./generics")
 const messages_media_1 = require("./messages-media")
 
 const parseCatalogNode = (node) => {
@@ -204,17 +208,21 @@ const uploadingNecessaryImages = async (images, waUploadToServer, timeoutMs = 30
         }
         const { stream } = await messages_media_1.getStream(img)
         const hasher = crypto_1.createHash('sha256')
-        const contentBlocks = []
+        const filePath = path_1.join(os_1.tmpdir(), 'img' + generics_1.generateMessageID())
+        const encFileWriteStream = fs_1.createWriteStream(filePath)
         for await (const block of stream) {
             hasher.update(block)
-            contentBlocks.push(block)
+            encFileWriteStream.write(block)
         }
         const sha = hasher.digest('base64')
-        const { directPath } = await waUploadToServer(messages_media_1.toReadable(Buffer.concat(contentBlocks)), {
+        const { directPath } = await waUploadToServer(filePath, {
             mediaType: 'product-catalog-image',
             fileEncSha256B64: sha,
             timeoutMs
         })
+        await fs_1.promises
+            .unlink(filePath)
+            .catch(err => console.log('Error deleting temp file ', err))
         return { url: messages_media_1.getUrlFromDirectPath(directPath) }
     }))
     return results
