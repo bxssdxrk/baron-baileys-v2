@@ -292,10 +292,15 @@ const extractGroupMetadata = (result) => {
     
     let desc
     let descId
-    
-    if (descChild) {
-        desc = WABinary_1.getBinaryNodeChildString(descChild, 'body')
-        descId = descChild.attrs.id
+    let descOwner
+	let descOwnerJid
+	let descTime
+   if (descChild) {
+        desc = (0, WABinary_1.getBinaryNodeChildString)(descChild, 'body');
+        descOwner = descChild.attrs.participant ? (0, WABinary_1.jidNormalizedUser)(descChild.attrs.participant) : undefined;
+        descOwnerJid = descChild.attrs.participant_pn ? (0, WABinary_1.jidNormalizedUser)(descChild.attrs.participant_pn) : undefined;
+        descTime = +descChild.attrs.t;
+        descId = descChild.attrs.id;
     }
     
     const groupId = group.attrs.id.includes('@') ? group.attrs.id : WABinary_1.jidEncode(group.attrs.id, 'g.us')
@@ -307,12 +312,17 @@ const extractGroupMetadata = (result) => {
         addressingMode: group.attrs.addressing_mode,
         subject: group.attrs.subject,
         subjectOwner: group.attrs.s_o,
+        subjectOwnerJid: group.attrs.s_o_pn,
         subjectTime: +group.attrs.s_t,
         size: WABinary_1.getBinaryNodeChildren(group, 'participant').length,
         creation: +group.attrs.creation,
         owner: group.attrs.creator ? WABinary_1.jidNormalizedUser(group.attrs.creator) : undefined,
+        ownerJid: group.attrs.creator_pn ? (0, WABinary_1.jidNormalizedUser)(group.attrs.creator_pn) : undefined,
         desc,
         descId,
+        descOwner,
+        descOwnerJid,
+        descTime,
         linkedParent: WABinary_1.getBinaryNodeChild(group, 'linked_parent')?.attrs.jid || undefined,
         restrict: !!WABinary_1.getBinaryNodeChild(group, 'locked'),
         announce: !!WABinary_1.getBinaryNodeChild(group, 'announcement'),
@@ -323,7 +333,7 @@ const extractGroupMetadata = (result) => {
         participants: WABinary_1.getBinaryNodeChildren(group, 'participant').map(({ attrs }) => {
             return {
                 id: attrs.jid,
-                lid: attrs.lid, 
+                jid: attrs.phone_number ? (0, WABinary_1.jidNormalizedUser)(attrs.phone_number) : undefined,
                 admin: (attrs.type || null),
             }
         }),
