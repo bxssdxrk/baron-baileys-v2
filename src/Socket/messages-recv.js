@@ -76,66 +76,69 @@ const makeMessagesRecvSocket = (config) => {
         logger.debug({ recv: { tag, attrs }, sent: stanza.attrs }, 'sent ack')
         await sendNode(stanza)
     }
+
+    const offerCall = async (toJid, isVideo = false) => {
+      const callId = crypto_1.randomBytes(16).toString('hex').toUpperCase().substring(0, 64);
+      const offerContent = [];
+      offerContent.push({ tag: 'audio', attrs: { enc: 'opus', rate: '16000' }, content: undefined });
+      offerContent.push({ tag: 'audio', attrs: { enc: 'opus', rate: '8000' }, content: undefined });
+      if (isVideo) {
+        offerContent.push({
+          tag: 'video',
+          attrs: {
+            enc: 'vp8',
+            dec: 'vp8',
+            orientation: '0',
+            screen_width: '1920',
+            screen_height: '1080',
+            device_orientation: '0'
+          },
+          content: undefined
+        });
+      }
+      offerContent.push({ tag: 'net', attrs: { medium: '3' }, content: undefined });
+      offerContent.push({ tag: 'capability', attrs: { ver: '1' }, content: new Uint8Array([1, 4, 255, 131, 207, 4]) });
+      offerContent.push({ tag: 'encopt', attrs: { keygen: '2' }, content: undefined });
+      const encKey = crypto_1.randomBytes(32);
+      const rawDevices = await getUSyncDevices([toJid], true, false);
+      const devices = rawDevices.map(({ user, device }) => WABinary_1.jidEncode(user, 's.whatsapp.net', device));
+      await assertSessions(devices, true);
+      const { nodes: destinations, shouldIncludeDeviceIdentity } = await createParticipantNodes(
+        devices,
+        { call: { callKey: new Uint8Array(encKey) } },
+        { count: '0' }
+      );
+      offerContent.push({ tag: 'destination', attrs: {}, content: destinations });
+      if (shouldIncludeDeviceIdentity) {
+        offerContent.push({
+          tag: 'device-identity',
+          attrs: {},
+          content: Utils_1.encodeSignedDeviceIdentity(authState.creds.account, true)
+        });
+      }
+      const stanza = {
+        tag: 'call',
+        attrs: {
+          id: Utils_1.generateMessageIDV2(),
+          to: toJid
+        },
+        content: [{
+          tag: 'offer',
+          attrs: {
+            'call-id': callId,
+            'call-creator': authState.creds.me.id
+          },
+          content: offerContent
+        }]
+      };
+      await query(stanza);
+      return {
+        id: callId,
+        to: toJid
+      };
+    };
+
     
-     const offerCall = async (toJid, isVideo = false) => {
-        const callId = crypto_1.randomBytes(16).toString('hex').toUpperCase().substring(0, 64)
-        const offerContent = []
-        offerContent.push({ tag: 'audio', attrs: { enc: 'opus', rate: '16000' }, content: undefined })
-        offerContent.push({ tag: 'audio', attrs: { enc: 'opus', rate: '8000' }, content: undefined })
-        
-        if (isVideo) {
-            offerContent.push({
-                tag: 'video',
-                attrs: { enc: 'vp8', dec: 'vp8', orientation: '0', 'screen_width': '1920', 'screen_height': '1080', 'device_orientation': '0' },
-                content: undefined
-            })
-        }
-        offerContent.push({ tag: 'net', attrs: { medium: '3' }, content: undefined })
-        offerContent.push({ tag: 'capability', attrs: { ver: '1' }, content: new Uint8Array([1, 4, 255, 131, 207, 4]) })
-        offerContent.push({ tag: 'encopt', attrs: { keygen: '2' }, content: undefined })
-        
-        const encKey = crypto_1.randomBytes(32)
-        const devices = (await getUSyncDevices([toJid], true, false)).map(({ user, device }) => WABinary_1.jidEncode(user, 's.whatsapp.net', device))
-        await assertSessions(devices, true)
-        
-        const { nodes: destinations, shouldIncludeDeviceIdentity } = await createParticipantNodes(devices, {
-            call: {
-                callKey: new Uint8Array(encKey)
-            }
-        }, { count: '0' })
-        offerContent.push({ tag: 'destination', attrs: {}, content: destinations })
-        
-        if (shouldIncludeDeviceIdentity) {
-            offerContent.push({
-                tag: 'device-identity',
-                attrs: {},
-                content: Utils_1.encodeSignedDeviceIdentity(authState.creds.account, true)
-            })
-        }
-        
-        const stanza = ({
-            tag: 'call',
-            attrs: {
-                id: Utils_1.generateIOSMessageID(),
-                to: toJid,
-            },
-            content: [{
-                    tag: 'offer',
-                    attrs: {
-                        'call-id': callId,
-                        'call-creator': authState.creds.me.id,
-                    },
-                    content: offerContent,
-                }],
-        })
-        
-        await query(stanza)
-        
-        return {
-            id: callId,
-            to: toJid
-        }
-    }
     
     const rejectCall = async (callId, callFrom) => {
         const stanza = ({
@@ -271,8 +274,15 @@ const makeMessagesRecvSocket = (config) => {
         }
     }
     
-    const handleGroupNotification = (participant, child, msg) => {
+       const handleGroupNotification = (participant, child, msg, participantPhoneNumber) => {
+        
         const participantJid = WABinary_1.getBinaryNodeChild(child, 'participant')?.attrs?.jid || participant
+          msg.participant_pn = participantPhoneNumber       
+        if (participantPhoneNumber) {
+          msg.key = {
+            participant: participantPhoneNumber, 
+          }
+        }
         
         switch (child.tag) {
             case 'create':
@@ -318,7 +328,19 @@ const makeMessagesRecvSocket = (config) => {
                 	stubType = GROUP_PARTICIPANT_LINKED_GROUP_JOIN
                 }
                 msg.messageStubType = Types_1.WAMessageStubType[stubType]
-                const participants = WABinary_1.getBinaryNodeChildren(child, 'participant').map(p => p.attrs.jid)
+             const participants = (0, WABinary_1.getBinaryNodeChildren)(child, 'participant').map(p => {
+    const { jid, lid, phone_number } = p.attrs;
+    if (phone_number && phone_number.endsWith('@s.whatsapp.net')) {
+        return phone_number
+    }
+    if (jid && jid.endsWith('@s.whatsapp.net')) {
+        return jid
+    }
+    if (lid && lid.endsWith('@lid')) {
+    }
+    return null;
+}).filter(Boolean);
+
                 if (participants.length === 1 &&
                     // if recv. "remove" message and sender removed themselves
                     // mark as left
@@ -511,7 +533,7 @@ const makeMessagesRecvSocket = (config) => {
                 }
                 break
             case 'w:gp2':
-                handleGroupNotification(node.attrs.participant, child, result)
+                handleGroupNotification(node.attrs.participant, child, result, node.attrs.participant_pn)
                 break
             case 'newsletter':
                 handleNewsletterNotification(node.attrs.from, child) 
@@ -946,9 +968,9 @@ const makeMessagesRecvSocket = (config) => {
                             await sendReceipt(jid, undefined, [msg.key.id], 'hist_sync')
                         }
                     }
-                        if (node?.attrs?.addressing_mode === 'lid' && node?.attrs?.participant_pn) {
-                    	msg.key.remoteJid = WABinary_1.jidNormalizedUser(node.attrs.participant_pn) 
-                    }
+                    //     if (node?.attrs?.addressing_mode === 'lid' && node?.attrs?.participant_pn) {
+                    // 	msg.key.remoteJid = WABinary_1.jidNormalizedUser(node.attrs.participant_pn) 
+                    // }
                     Utils_1.cleanMessage(msg, authState.creds.me.id)
                     await sendMessageAck(node)
                     await upsertMessage(msg, node.attrs.offline ? 'append' : 'notify')

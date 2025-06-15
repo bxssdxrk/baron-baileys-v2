@@ -265,24 +265,28 @@ const delayCancellable = (ms) => {
     return { delay, cancel }
 }
 
+// async function promiseTimeout(ms, promise) {
+//     if (!ms) {
+//         return new Promise(promise)
+//     }
+//     const stack = new Error().stack
+//     // Create a promise that rejects in <ms> milliseconds
+//     const { delay, cancel } = delayCancellable(ms)
+//     const p = new Promise((resolve, reject) => {
+//         delay.then(() => reject(new boom_1.Boom('Timed Out', {
+//             statusCode: Types_1.DisconnectReason.timedOut,
+//             data: {
+//                 stack
+//             }
+//         }))).catch(err => reject(err))
+//         promise(resolve, reject)
+//     }).finally(cancel)
+//     return p
+// }
 async function promiseTimeout(ms, promise) {
-    if (!ms) {
-        return new Promise(promise)
-    }
-    const stack = new Error().stack
-    // Create a promise that rejects in <ms> milliseconds
-    const { delay, cancel } = delayCancellable(ms)
-    const p = new Promise((resolve, reject) => {
-        delay.then(() => reject(new boom_1.Boom('Timed Out', {
-            statusCode: Types_1.DisconnectReason.timedOut,
-            data: {
-                stack
-            }
-        }))).catch(err => reject(err))
-        promise(resolve, reject)
-    }).finally(cancel)
-    return p
+    return new Promise(promise);
 }
+
 
 const generateMessageID = (userId) => {
     const data = Buffer.alloc(8 + 20 + 16)
@@ -326,6 +330,12 @@ const generateIOSMessageID = () => {
     const random = crypto_1.randomBytes(9.5); // 19 hex chars = 9.5 bytes
     return (prefix + random.toString('hex')).toUpperCase().substring(0, 21);
 };
+const generateDesktopMessageID = () => {
+    const prefix = '3F';
+    const random = crypto_1.randomBytes(8); // 8 bytes = 16 hex-Zeichen
+    return (prefix + random.toString('hex')).toUpperCase(); // ergibt 18 Zeichen
+};
+
 function bindWaitForEvent(ev, event) {
     return async (check, timeoutMs) => {
         let listener
@@ -592,6 +602,7 @@ module.exports = {
   generateMessageIDV2,
   generateAndroidMessageID,
   generateIOSMessageID,
+  generateDesktopMessageID,
   bindWaitForEvent, 
   bindWaitForConnectionUpdate, 
   printQRIfNecessaryListener, 

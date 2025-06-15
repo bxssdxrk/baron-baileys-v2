@@ -20,7 +20,7 @@ class USyncStatusProtocol {
     parser(node) {
         if (node.tag === 'status') {
             WABinary_1.assertNodeErrorFree(node)
-            let status = node?.content?.toString()  || null
+            let status =  node?.content?.toString() || null
             const setAt = new Date(+(node?.attrs?.t || 0) * 1000)
             if (!status) {
                 if (+node.attrs?.code === 401) {

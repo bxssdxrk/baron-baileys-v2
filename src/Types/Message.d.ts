@@ -18,9 +18,7 @@ export type WAContactMessage = proto.Message.IContactMessage
 
 export type WAContactsArrayMessage = proto.Message.IContactsArrayMessage
 
-export type WAMessageKey = proto.IMessageKey & {
-    newsletter_server_id?: string
-}
+export type WAMessageKey = proto.IMessageKey & { newsletter_server_id?: string; senderLid?: string; participantLid?: string; senderPn?: string }
 
 export type WATextMessage = proto.Message.IExtendedTextMessage
 

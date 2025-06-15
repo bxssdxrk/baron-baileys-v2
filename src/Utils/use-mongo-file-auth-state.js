@@ -26,7 +26,7 @@ const useMongoFileAuthState = async (collection) => {
   const readData = async (id) => {
     try {
       const data = JSON.stringify(await collection.findOne({_id: id}))
-      return JSON.parse(data, generic_1.BufferJSON.reviver)
+      return JSON.parse(data, generics_1.BufferJSON.reviver)
     } catch (err) {
       console.log(err)
     }

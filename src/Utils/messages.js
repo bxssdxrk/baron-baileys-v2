@@ -1275,13 +1275,16 @@ const normalizeMessageContent = (content) => {
             || (message === null || message === void 0 ? void 0 : message.botTaskMessage) 
             || (message === null || message === void 0 ? void 0 : message.eventCoverImage) 
             || (message === null || message === void 0 ? void 0 : message.botInvokeMessage) 
+            || (message === null || message === void 0 ? void 0 : message.questionMessage) 
             || (message === null || message === void 0 ? void 0 : message.viewOnceMessage)
             || (message === null || message === void 0 ? void 0 : message.ephemeralMessage)
             || (message === null || message === void 0 ? void 0 : message.lottieStickerMessage)
             || (message === null || message === void 0 ? void 0 : message.groupStatusMessage)  
             || (message === null || message === void 0 ? void 0 : message.limitSharingMessage)
             || (message === null || message === void 0 ? void 0 : message.viewOnceMessageV2)
+            || (message === null || message === void 0 ? void 0 : message.botForwardedMessage) 
             || (message === null || message === void 0 ? void 0 : message.statusMentionMessage)
+            || (message === null || message === void 0 ? void 0 : message.groupStatusMessageV2) 
             || (message === null || message === void 0 ? void 0 : message.pollCreationMessageV4)
             || (message === null || message === void 0 ? void 0 : message.pollCreationMessageV5)             
             || (message === null || message === void 0 ? void 0 : message.associatedChildMessage)
@@ -1298,73 +1301,62 @@ const normalizeMessageContent = (content) => {
  * Eg. extracts the inner message from a disappearing message/view once message
  */
 const extractMessageContent = (content) => {
-    let _a, _b, _c, _d, _e, _f, _g, _h, _i, _j, _k, _l, _m, _n, _o, _p
-    const extractFromTemplateMessage = (msg) => {
-        if (msg.imageMessage) {
-            return { imageMessage: msg.imageMessage }
+    const extractFromButtonsMessage = (msg) => {
+    	const header = typeof msg.header === 'object' && msg.header !== null
+    
+        if (header ? msg.header?.imageMessage : msg.imageMessage) {
+            return { imageMessage: header ? msg.header.imageMessage : msg.imageMessage }
         }
         
-        else if (msg.documentMessage) {
-            return { documentMessage: msg.documentMessage }
+        else if (header ? msg.header?.documentMessage : msg.documentMessage) {
+            return { documentMessage: header ? msg.header.documentMessage : msg.documentMessage }
         }
         
-        else if (msg.videoMessage) {
-            return { videoMessage: msg.videoMessage }
+        else if (header ? msg.header?.videoMessage : msg.videoMessage) {
+            return { videoMessage: header ? msg.header.videoMessage: msg.videoMessage }
         }
         
-        else if (msg.locationMessage) {
-            return { locationMessage: msg.locationMessage }
+        else if (header ? msg.header?.locationMessage : msg.locationMessage) {
+            return { locationMessage: header ? msg.header.locationMessage : msg.locationMessage }
+        }
+        
+        else if (header ? msg.header?.productMessage : msg.productMessage) {
+        	return { productMessage: header ? msg.header.productMessage : msg.productMessage }
         }
         
         else {
             return {
                 conversation: 'contentText' in msg
                     ? msg.contentText
-                    : ('hydratedContentText' in msg ? msg.hydratedContentText : '')
+                    : ('hydratedContentText' in msg ? msg.hydratedContentText : 'body' in msg ? msg.body.text : '')
             }
         }
     }
     
     content = normalizeMessageContent(content)
     
-    if (content === null || content === void 0 ? void 0 : content.buttonsMessage) {
-        return extractFromTemplateMessage(content.buttonsMessage)
+    if (content?.buttonsMessage) {
+        return extractFromButtonsMessage(content.buttonsMessage)
     }
     
-    if (content === null || content === void 0 ? void 0 : content.listMessage) {
-    	return extractFromTemplateMessage(content.listMessage)
+    if (content?.interactiveMessage) {
+    	return extractFromButtonsMessage(content.interactiveMessage) 
     }
     
-    if ((_a = content === null || content === void 0 ? void 0 : content.templateMessage) === null || _a === void 0 ? void 0 : _a.interactiveMessageTemplate) {
-    	return extractFromTemplateMessage((_b = content === null || content === void 0 ? void 0 : content.templateMessage) === null || _b === void 0 ? void 0 : _b.interactiveMessageTemplate)
+    if (content?.templateMessage?.interactiveMessageTemplate) {
+    	return extractFromButtonsMessage(content?.templateMessage?.interactiveMessageTemplate) 
     }
     
-    if ((_c = content === null || content === void 0 ? void 0 : content.templateMessage) === null || _c === void 0 ? void 0 : _c.hydratedFourRowTemplate) {
-        return extractFromTemplateMessage((_d = content === null || content === void 0 ? void 0 : content.templateMessage) === null || _d === void 0 ? void 0 : _d.hydratedFourRowTemplate)
+    if (content?.templateMessage?.hydratedFourRowTemplate) {
+        return extractFromButtonsMessage(content?.templateMessage?.hydratedFourRowTemplate)
     }
     
-    if ((_e = content === null || content === void 0 ? void 0 : content.templateMessage) === null || _e === void 0 ? void 0 : _e.hydratedTemplate) {
-        return extractFromTemplateMessage((_f = content === null || content === void 0 ? void 0 : content.templateMessage) === null || _f === void 0 ? void 0 : _f.hydratedTemplate)
+    if (content?.templateMessage?.hydratedTemplate) {
+        return extractFromButtonsMessage(content?.templateMessage?.hydratedTemplate)
     }
     
-    if ((_g = content === null || content === void 0 ? void 0 : content.templateMessage) === null || _g === void 0 ? void 0 : _g.fourRowTemplate) {
-        return extractFromTemplateMessage((_h = content === null || content === void 0 ? void 0 : content.templateMessage) === null || _h === void 0 ? void 0 : _h.fourRowTemplate)
-    }
-    
-    if ((_i = content === null || content === void 0 ? void 0 : content.interactiveMessage) === null || _i === void 0 ? void 0 : _i.shopStorefrontMessage) {
-    	return extractFromTemplateMessage((_j = content === null || content === void 0 ? void 0 : content.interactiveMessage) === null || _j === void 0 ? void 0 : _j.shopStorefrontMessage)
-    }
-    
-    if ((_k = content === null || content === void 0 ? void 0 : content.interactiveMessage) === null || _k === void 0 ? void 0 : _k.collectionMessage) {
-    	return extractFromTemplateMessage((_l = content === null || content === void 0 ? void 0 : content.interactiveMessage) === null || _l === void 0 ? void 0 : _l.collectionMessage)
-    }
-    
-    if ((_m = content === null || content === void 0 ? void 0 : content.interactiveMessage) === null || _m === void 0 ? void 0 : _m.nativeFlowMessage) {
-    	return extractFromTemplateMessage((_n = content === null || content === void 0 ? void 0 : content.interactiveMessage) === null || _n === void 0 ? void 0 : _n.nativeFlowMessage)
-    }
-    
-    if ((_o = content === null || content === void 0 ? void 0 : content.interactiveMessage) === null || _o === void 0 ? void 0 : _o.carouselMessage) {
-    	return extractFromTemplateMessage((_p = content === null || content === void 0 ? void 0 : content.interactiveMessage) === null || _p === void 0 ? void 0 : _p.carouselMessage)
+    if (content?.templateMessage?.fourRowTemplate) {
+        return extractFromButtonsMessage(content?.templateMessage?.fourRowTemplate)
     }
     
     return content
@@ -1377,7 +1369,7 @@ const getDevice = (id) => /^3A.{18}$/.test(id) ? 'ios' :
     /^3E.{20}$/.test(id) ? 'web' :
         /^(.{21}|.{32})$/.test(id) ? 'android' :
             /^(3F|.{18}$)/.test(id) ? 'desktop' :
-                'unknown'
+                'unknown/api/customid/baileys'
 
 /** Upserts a receipt in the message */
 const updateMessageWithReceipt = (msg, receipt) => {
