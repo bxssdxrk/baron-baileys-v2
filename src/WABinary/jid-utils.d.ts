@@ -31,13 +31,13 @@ export declare const areJidsSameUser: (jid1: string | undefined, jid2: string | 
 
 /** is the lid a user */
 export declare const isJidUser: (jid: string | undefined) => boolean | undefined
-/** is the jid Meta IA */
-export declare const isJidMetaIa: (jid: string | undefined) => boolean | undefined;
+
 /** is the jid a group */
 export declare const isLidUser: (jid: string | undefined) => boolean | undefined
 
 /** is the jid a broadcast */
 export declare const isJidBroadcast: (jid: string | undefined) => boolean | undefined
+
 /** is the jid a group */
 export declare const isJidGroup: (jid: string | undefined) => boolean | undefined
 

@@ -41,7 +41,7 @@ function makeCacheableSignalKeyStore(store, logger, _cache) {
                 }
             }
             if (idsToFetch.length) {
-               logger?.trace({ items: idsToFetch.length }, 'loading from store')
+                logger?.trace({ items: idsToFetch.length }, 'loading from store')
                 const fetched = await store.get(type, idsToFetch)
                 for (const id of idsToFetch) {
                     const item = fetched[id]
@@ -61,7 +61,7 @@ function makeCacheableSignalKeyStore(store, logger, _cache) {
                     keys += 1
                 }
             }
-            logger.trace({ keys }, 'updated cache')
+            logger?.trace({ keys }, 'updated cache')
             await store.set(data)
         },
         async clear() {

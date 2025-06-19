@@ -3,8 +3,7 @@ import { Contact } from './Contact'
 export type GroupParticipant = (Contact & {
     isAdmin?: boolean
     isSuperAdmin?: boolean
-    admin?: 'admin' | 'superadmin' | 'member' 
-    jid?: string | undefined
+    admin?: 'admin' | 'superadmin' | 'member'
 })
 
 export type ParticipantAction = 'add' | 'remove' | 'promote' | 'demote' | 'modify'
@@ -18,19 +17,15 @@ export interface GroupMetadata {
     addressingMode: string
     owner: string | undefined
     ownerCountry: string, 
-    ownerJid?: string | undefined
     subject: string
     /** group subject owner */
     subjectOwner?: string
-    subjectOwnerJid?: string
     /** group subject modification date */
     subjectTime?: number
     creation?: number
     desc?: string
     descOwner?: string
-    descOwnerJid?: string
     descId?: string
-    descTime?: number
     /** if this group is part of a community, it returns the jid of the community to which it belongs */
     linkedParent?: string
     /** is set when the group only allows admins to change group settings */

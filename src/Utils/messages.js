@@ -1219,7 +1219,7 @@ const generateWAMessageFromContent = (jid, message, options) => {
         key: {
             remoteJid: jid,
             fromMe: true,
-            id: options?.messageId || generics_1.generateIOSMessageID()
+            id: options?.messageId || generics_1.generateMessageID()
         },
         message: message,
         messageTimestamp: timestamp,
@@ -1274,9 +1274,9 @@ const normalizeMessageContent = (content) => {
             || (message === null || message === void 0 ? void 0 : message.statusAddYours) 
             || (message === null || message === void 0 ? void 0 : message.botTaskMessage) 
             || (message === null || message === void 0 ? void 0 : message.eventCoverImage) 
-            || (message === null || message === void 0 ? void 0 : message.botInvokeMessage) 
             || (message === null || message === void 0 ? void 0 : message.questionMessage) 
             || (message === null || message === void 0 ? void 0 : message.viewOnceMessage)
+            || (message === null || message === void 0 ? void 0 : message.botInvokeMessage) 
             || (message === null || message === void 0 ? void 0 : message.ephemeralMessage)
             || (message === null || message === void 0 ? void 0 : message.lottieStickerMessage)
             || (message === null || message === void 0 ? void 0 : message.groupStatusMessage)  
@@ -1302,28 +1302,28 @@ const normalizeMessageContent = (content) => {
  */
 const extractMessageContent = (content) => {
     const extractFromButtonsMessage = (msg) => {
-    	const header = typeof msg.header === 'object' && msg.header !== null
-    
+    const header = typeof msg.header === 'object' && msg.header !== null
+
         if (header ? msg.header?.imageMessage : msg.imageMessage) {
             return { imageMessage: header ? msg.header.imageMessage : msg.imageMessage }
         }
-        
+
         else if (header ? msg.header?.documentMessage : msg.documentMessage) {
             return { documentMessage: header ? msg.header.documentMessage : msg.documentMessage }
         }
-        
+
         else if (header ? msg.header?.videoMessage : msg.videoMessage) {
             return { videoMessage: header ? msg.header.videoMessage: msg.videoMessage }
         }
-        
+
         else if (header ? msg.header?.locationMessage : msg.locationMessage) {
             return { locationMessage: header ? msg.header.locationMessage : msg.locationMessage }
         }
-        
+
         else if (header ? msg.header?.productMessage : msg.productMessage) {
-        	return { productMessage: header ? msg.header.productMessage : msg.productMessage }
+            return { productMessage: header ? msg.header.productMessage : msg.productMessage }
         }
-        
+
         else {
             return {
                 conversation: 'contentText' in msg
@@ -1332,33 +1332,33 @@ const extractMessageContent = (content) => {
             }
         }
     }
-    
+
     content = normalizeMessageContent(content)
-    
+
     if (content?.buttonsMessage) {
         return extractFromButtonsMessage(content.buttonsMessage)
     }
-    
+
     if (content?.interactiveMessage) {
-    	return extractFromButtonsMessage(content.interactiveMessage) 
+        return extractFromButtonsMessage(content.interactiveMessage) 
     }
-    
+
     if (content?.templateMessage?.interactiveMessageTemplate) {
-    	return extractFromButtonsMessage(content?.templateMessage?.interactiveMessageTemplate) 
+        return extractFromButtonsMessage(content?.templateMessage?.interactiveMessageTemplate) 
     }
-    
+
     if (content?.templateMessage?.hydratedFourRowTemplate) {
         return extractFromButtonsMessage(content?.templateMessage?.hydratedFourRowTemplate)
     }
-    
+
     if (content?.templateMessage?.hydratedTemplate) {
         return extractFromButtonsMessage(content?.templateMessage?.hydratedTemplate)
     }
-    
+
     if (content?.templateMessage?.fourRowTemplate) {
         return extractFromButtonsMessage(content?.templateMessage?.fourRowTemplate)
     }
-    
+
     return content
 }
 
@@ -1369,7 +1369,7 @@ const getDevice = (id) => /^3A.{18}$/.test(id) ? 'ios' :
     /^3E.{20}$/.test(id) ? 'web' :
         /^(.{21}|.{32})$/.test(id) ? 'android' :
             /^(3F|.{18}$)/.test(id) ? 'desktop' :
-                'unknown/api/customid/baileys'
+                'baileys'
 
 /** Upserts a receipt in the message */
 const updateMessageWithReceipt = (msg, receipt) => {
@@ -1391,9 +1391,8 @@ const updateMessageWithReaction = (msg, reaction) => {
     const reactions = (msg.reactions || [])
         .filter(r => generics_1.getKeyAuthor(r.key) !== authorID)
         
-    if (reaction.text) {
-        reactions.push(reaction)
-    }
+    reaction.text = reaction.text || '';
+    reactions.push(reaction);
     
     msg.reactions = reactions
 }
@@ -1515,7 +1514,11 @@ const downloadMediaMessage = async (message, type, options, ctx) => {
         
         const contentType = getContentType(mContent)
         let mediaType = contentType?.replace('Message', '')
-        const media = mContent[contentType]
+        let media = mContent[contentType]
+        
+        if (contentType === 'productMessage') {
+        	media = mContent[contentType]?.product?.productImage
+        }
         
         if (!media || typeof media !== 'object' || (!('url' in media) && !('thumbnailDirectPath' in media))) {
             throw new boom_1.Boom(`"${contentType}" message is not a media message`)

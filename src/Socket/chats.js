@@ -152,7 +152,7 @@ const makeChatsSocket = (config) => {
 		const botNode = WABinary_1.getBinaryNodeChild(resp, 'bot')
 		
 		const botList = []
-		console.log(botList)
+		
 		for(const section of WABinary_1.getBinaryNodeChildren(botNode, 'section')) {
 		  if(section.attrs.type === 'all') {
 				for(const bot of WABinary_1.getBinaryNodeChildren(section, 'bot')) {
@@ -214,7 +214,7 @@ const makeChatsSocket = (config) => {
         }
     }
     
-
+   
 
     const fetchStatus = async (...jids) => {
         const usyncQuery = new WAUSync_1.USyncQuery().withStatusProtocol()

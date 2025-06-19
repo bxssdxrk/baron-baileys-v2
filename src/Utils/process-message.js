@@ -351,7 +351,7 @@ const processMessage = async (message, { shouldProcessHistoryMsg, placeholderRes
     else if (content?.pollUpdateMessage) {
         const creationMsgKey = content.pollUpdateMessage.pollCreationMessageKey
         // we need to fetch the poll creation message to get the poll enc key
-        const pollMsg2 = await getMessage(creationMsgKey);
+         const pollMsg2 = await getMessage(creationMsgKey);
         const pollMsg = pollMsg.botInvokeMessage?.message || pollMsg2;
         if (pollMsg) {
             const meIdNormalised = WABinary_1.jidNormalizedUser(meId)

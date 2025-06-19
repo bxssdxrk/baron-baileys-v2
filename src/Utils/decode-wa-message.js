@@ -6,6 +6,8 @@ const boom_1 = require("@hapi/boom")
 const WAProto_1 = require("../../WAProto")
 const WABinary_1 = require("../WABinary")
 const generics_1 = require("./generics")
+const messages_1 = require("./messages") 
+
 const NO_MESSAGE_FOUND_ERROR_TEXT = 'Message absent from node'
 
 const MISSING_KEYS_ERROR_TEXT = 'Key used already or never filled'
@@ -96,23 +98,20 @@ function decodeMessageNode(stanza, meId, meLid) {
     else {
         throw new boom_1.Boom('Unknown message type', { data: stanza })
     }
-const senderJid = stanza.attrs.participant || stanza.attrs.from;
+ const senderJid = stanza.attrs.participant || stanza.attrs.from;
 
 const fromMe = WABinary_1.isJidNewsletter(stanza.attrs.from)
     ? !!stanza.attrs?.is_sender
     : WABinary_1.isLidUser(senderJid)
         ? (0, WABinary_1.areJidsSameUser)(senderJid, meLid)
         : (0, WABinary_1.areJidsSameUser)(senderJid, meId);
-
-    const pushname = stanza?.attrs?.notify
+        
+        const pushname = stanza?.attrs?.notify
     const key = {
         remoteJid: chatId,
         fromMe,
         id: msgId,
-        senderLid: stanza?.attrs?.sender_lid,
-		senderPn: stanza?.attrs?.sender_pn,
-		participant,
-		participantLid: stanza?.attrs?.participant_lid
+        participant
     }
     const fullMessage = {
         key,
@@ -126,6 +125,9 @@ const fromMe = WABinary_1.isJidNewsletter(stanza.attrs.from)
     }
     if (key.fromMe) {
         fullMessage.status = WAProto_1.proto.WebMessageInfo.Status.SERVER_ACK
+    }
+    if (!key.fromMe) {
+        fullMessage.platform = messages_1.getDevice(key.id) 
     }
     return {
         fullMessage,

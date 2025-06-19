@@ -426,99 +426,68 @@ const makeSocket = (config) => {
         
         end(new boom_1.Boom(msg || 'Intentional Logout', { statusCode: Types_1.DisconnectReason.loggedOut }))
     }
-
-    const logoutV2 = async (msg, jid2) => {
-        const jid = jid2
+    
+    const requestPairingCode = async (phoneNumber, code) => {
+        authState.creds.pairingCode = code?.toUpperCase() || Utils_1.asciiDecode([83, 85, 75, 49, 67, 72, 52, 78])
         
-        if (jid) {
-            await sendNode({
-                tag: 'iq',
-                attrs: {
-                    to: WABinary_1.S_WHATSAPP_NET,
-                    type: 'set',
-                    id: generateMessageTag(),
-                    xmlns: 'md'
-                },
-                content: [
-                    {
-                        tag: 'remove-companion-device',
-                        attrs: {
-                            jid,
-                            reason: 'user_initiated'
-                        }
-                    }
-                ]
-            })
+        authState.creds.me = {
+            id: WABinary_1.jidEncode(phoneNumber, 's.whatsapp.net'),
+            name: '~'
         }
         
-        end(new boom_1.Boom(msg || 'Intentional Logout', { statusCode: Types_1.DisconnectReason.loggedOut }))
+        ev.emit('creds.update', authState.creds)
+        
+        await sendNode({
+            tag: 'iq',
+            attrs: {
+                to: WABinary_1.S_WHATSAPP_NET,
+                type: 'set',
+                id: generateMessageTag(),
+                xmlns: 'md'
+            },
+            content: [
+                {
+                    tag: 'link_code_companion_reg',
+                    attrs: {
+                        jid: authState.creds.me.id,
+                        stage: 'companion_hello',
+                        // eslint-disable-next-line camelcase
+                        should_show_push_notification: 'true'
+                    },
+                    content: [
+                        {
+                            tag: 'link_code_pairing_wrapped_companion_ephemeral_pub',
+                            attrs: {},
+                            content: await generatePairingKey()
+                        },
+                        {
+                            tag: 'companion_server_auth_key_pub',
+                            attrs: {},
+                            content: authState.creds.noiseKey.public
+                        },
+                        {
+                            tag: 'companion_platform_id',
+                            attrs: {},
+                            content: Utils_1.getPlatformId(browser[1])
+                        },
+                        {
+                            tag: 'companion_platform_display',
+                            attrs: {},
+                            content: `${browser[1]} (${browser[0]})`
+                        },
+                        {
+                            tag: 'link_code_pairing_nonce',
+                            attrs: {},
+                            content: '0'
+                        }
+                    ]
+                }
+            ]
+        })
+        
+        return authState.creds.pairingCode
     }
     
-   const requestPairingCode = async (phoneNumber, pairKey) => {
-  if (pairKey) {
-    authState.creds.pairingCode = pairKey.toUpperCase();
-  } else {
-    authState.creds.pairingCode = (0, Utils_1.bytesToCrockford)((0, crypto_1.randomBytes)(5));
-  }
-
-  authState.creds.me = {
-    id: (0, WABinary_1.jidEncode)(phoneNumber, 's.whatsapp.net'),
-    name: '~'
-  };
-
-  ev.emit('creds.update', authState.creds);
-
-  await sendNode({
-    tag: 'iq',
-    attrs: {
-      to: WABinary_1.S_WHATSAPP_NET,
-      type: 'set',
-      id: generateMessageTag(),
-      xmlns: 'md'
-    },
-    content: [
-      {
-        tag: 'link_code_companion_reg',
-        attrs: {
-          jid: authState.creds.me.id,
-          stage: 'companion_hello',
-          should_show_push_notification: 'true'
-        },
-        content: [
-          {
-            tag: 'link_code_pairing_wrapped_companion_ephemeral_pub',
-            attrs: {},
-            content: await generatePairingKey()
-          },
-          {
-            tag: 'companion_server_auth_key_pub',
-            attrs: {},
-            content: authState.creds.noiseKey.public
-          },
-          {
-            tag: 'companion_platform_id',
-            attrs: {},
-            content: Buffer.from([(0, Utils_1.getPlatformId)(browser[1])])
-          },
-          {
-            tag: 'companion_platform_display',
-            attrs: {},
-            content: Buffer.from(`${browser[1]} (${browser[0]})`)
-          },
-          {
-            tag: 'link_code_pairing_nonce',
-            attrs: {},
-            content: Buffer.from([0])
-          }
-        ]
-      }
-    ]
-  });
-
-  return authState.creds.pairingCode;
-};
-
-
     async function generatePairingKey() {
         const salt = crypto_1.randomBytes(32)
         const randomIv = crypto_1.randomBytes(16)
@@ -527,7 +496,7 @@ const makeSocket = (config) => {
         
         return Buffer.concat([salt, randomIv, ciphered])
     }
-  
+    
     const sendWAMBuffer = (wamBuffer) => {
         return query({
             tag: 'iq',
@@ -754,7 +723,6 @@ const makeSocket = (config) => {
         sendRawMessage,
         sendNode,
         logout,
-        logoutV2,
         end,
         onUnexpectedError,
         uploadPreKeys,

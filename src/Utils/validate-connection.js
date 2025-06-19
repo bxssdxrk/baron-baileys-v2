@@ -18,10 +18,8 @@ const getUserAgent = (config) => {
             secondary: config.version[1],
             tertiary: config.version[2],
         },
-       /** platform: WAProto_1.proto.ClientPayload.UserAgent.Platform.WEB, */
         platform: WAProto_1.proto.ClientPayload.UserAgent.Platform.WEB,
-        /**releaseChannel: WAProto_1.proto.ClientPayload.UserAgent.ReleaseChannel.RELEASE, */
-        releaseChannel: WAProto_1.proto.ClientPayload.UserAgent.ReleaseChannel.BETA,
+        releaseChannel: WAProto_1.proto.ClientPayload.UserAgent.ReleaseChannel.RELEASE,
         osVersion: '0.1',
         device: 'Desktop',
         osBuildNumber: '0.1',
@@ -115,9 +113,11 @@ const configureSuccessfulPairing = (stanza, { advSecretKey, signedIdentityKey, s
     }
     const bizName = businessNode?.attrs?.name
     const jid = deviceNode.attrs.jid
-    const { details, hmac } = WAProto_1.proto.ADVSignedDeviceIdentityHMAC.decode(deviceIdentityNode.content)
-    // check HMAC matches
-    const advSign = crypto_2.hmacSign(details, Buffer.from(advSecretKey, 'base64'))
+     const { details, hmac, accountType } = WAProto_1.proto.ADVSignedDeviceIdentityHMAC.decode(deviceIdentityNode.content);
+    const isHostedAccount = accountType !== undefined && accountType === WAProto_1.proto.ADVEncryptionType.HOSTED;
+    const hmacPrefix = isHostedAccount ? Buffer.from([6, 5]) : Buffer.alloc(0);
+    const advSign = (0, crypto_2.hmacSign)(Buffer.concat([hmacPrefix, details]), Buffer.from(advSecretKey, 'base64'));
+    
     if (Buffer.compare(hmac, advSign) !== 0) {
         throw new boom_1.Boom('Invalid account signature')
     }
@@ -128,8 +128,8 @@ const configureSuccessfulPairing = (stanza, { advSecretKey, signedIdentityKey, s
     if (!crypto_2.Curve.verify(accountSignatureKey, accountMsg, accountSignature)) {
         throw new boom_1.Boom('Failed to verify account signature')
     }
-    // sign the details with our identity key
-    const deviceMsg = Buffer.concat([Buffer.from([6, 1]), deviceDetails, signedIdentityKey.public, accountSignatureKey])
+    const devicePrefix = isHostedAccount ? Buffer.from([6, 6]) : Buffer.from([6, 1]);
+    const deviceMsg = Buffer.concat([devicePrefix, deviceDetails, signedIdentityKey.public, accountSignatureKey]);
     account.deviceSignature = crypto_2.Curve.sign(signedIdentityKey.private, deviceMsg)
     const identity = signal_1.createSignalIdentity(jid, accountSignatureKey)
     const accountEnc = encodeSignedDeviceIdentity(account, false)

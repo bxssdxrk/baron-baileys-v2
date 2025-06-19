@@ -18,7 +18,9 @@ export type WAContactMessage = proto.Message.IContactMessage
 
 export type WAContactsArrayMessage = proto.Message.IContactsArrayMessage
 
-export type WAMessageKey = proto.IMessageKey & { newsletter_server_id?: string; senderLid?: string; participantLid?: string; senderPn?: string }
+export type WAMessageKey = proto.IMessageKey & {
+    newsletter_server_id?: string
+}
 
 export type WATextMessage = proto.Message.IExtendedTextMessage
 
@@ -397,7 +399,7 @@ export type WAMediaUploadFunctionOpts = {
     timeoutMs?: number
 }
 
-export type WAMediaUploadFunction = (readStream: Readable | Buffer, opts: WAMediaUploadFunctionOpts) => Promise<{
+export type WAMediaUploadFunction = (encFilePath: string | Buffer, opts: WAMediaUploadFunctionOpts) => Promise<{
     mediaUrl: string
     directPath: string
     handle?: string

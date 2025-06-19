@@ -30,7 +30,7 @@ exports.PHONE_CONNECTION_CB = 'CB:Pong'
 exports.WA_DEFAULT_EPHEMERAL = 7 * 24 * 60 * 60
 
 exports.NOISE_MODE = 'Noise_XX_25519_AESGCM_SHA256\0\0\0\0'
-exports.DICT_VERSION = 2
+exports.DICT_VERSION = 3
 
 exports.KEY_BUNDLE_TYPE = Buffer.from([5])
 
@@ -54,15 +54,15 @@ exports.DEFAULT_CONNECTION_CONFIG = {
     version: baileys_version_json_1.version,
     browser: Utils_1.Browsers.iOS('Safari'),
     waWebSocketUrl: 'wss://web.whatsapp.com/ws/chat',
-    connectTimeoutMs: 30000, 
-    keepAliveIntervalMs: 15000,
+    connectTimeoutMs: 20000,
+    keepAliveIntervalMs: 30000,
     logger: logger_1.default.child({ class: 'baileys' }),
     printQRInTerminal: false,
     emitOwnEvents: true,
     defaultQueryTimeoutMs: 60000,
     customUploadHosts: [],
-    retryRequestDelayMs: 500,
-    maxMsgRetryCount: 3,
+    retryRequestDelayMs: 250,
+    maxMsgRetryCount: 5,
     fireInitQueries: true,
     auth: undefined,
     markOnlineOnConnect: true,
@@ -78,7 +78,7 @@ exports.DEFAULT_CONNECTION_CONFIG = {
         patch: false,
         snapshot: false,
     },
-    countryCode: 'DE',
+    countryCode: 'US',
     getMessage: async () => undefined,
     cachedGroupMetadata: async () => undefined,
     makeSignalRepository: libsignal_1.makeLibSignalRepository

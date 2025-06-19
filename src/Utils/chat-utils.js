@@ -669,7 +669,14 @@ const processSyncAction = (syncAction, ev, me, initialSyncOpts, logger) => {
         })
     }
     else if (action?.contactAction) {
-        ev.emit('contacts.upsert', [{ id, name: action.contactAction.fullName }])
+          ev.emit('contacts.upsert', [
+            {
+                id: id,
+                name: action.contactAction.fullName,
+                lid: action.contactAction.lidJid || undefined,
+                jid: (0, WABinary_1.isJidUser)(id) ? id : undefined
+            }
+        ]);
     }
     else if (action?.pushNameSetting) {
         const name = action?.pushNameSetting?.name

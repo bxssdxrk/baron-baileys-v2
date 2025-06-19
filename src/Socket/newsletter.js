@@ -131,7 +131,7 @@ const makeNewsletterSocket = (config) => {
         newsletterAction: async (jid, type) => {
             await newsletterWMexQuery(jid, Types_1.QueryIds[type.toUpperCase()])
         },
-        newsletterCreate: async (name, description) => {
+        newsletterCreate: async (name, description, picture) => {
             //TODO: Implement TOS system wide for Meta AI, communities, and here etc.
             /**tos query */
             await query({
@@ -155,7 +155,16 @@ const makeNewsletterSocket = (config) => {
             })
             
             const result = await newsletterWMexQuery(undefined, Types_1.QueryIds.CREATE, {
-                input: { name, description, settings: null }
+                input: { 
+                	name, 
+                    description: description || null, 
+                    picture: picture ? (await Utils_1.generateProfilePicture(picture)).img.toString('base64') : null, 
+                    settings: {
+                    	reaction_codes: {
+                    	    value: 'ALL'
+                        }
+                    }
+                }
             })
             
             return extractNewsletterMetadata(result, true)
@@ -197,7 +206,7 @@ const makeNewsletterSocket = (config) => {
         newsletterReactMessage: async (jid, serverId, code) => {
             await query({
                 tag: 'message',
-                attrs: { to: jid, ...(!code ? { edit: '7' } : {}), type: 'reaction', server_id: serverId, id: Utils_1.generateIOSMessageID() },
+                attrs: { to: jid, ...(!code ? { edit: '7' } : {}), type: 'reaction', server_id: serverId, id: Utils_1.generateMessageID() },
                 content: [{
                         tag: 'reaction',
                         attrs: code ? { code } : {}
@@ -243,7 +252,7 @@ const extractNewsletterMetadata = (node, isCreate) => {
         handle: metadataPath.thread_metadata.handle,
         picture: Utils_1.getUrlFromDirectPath(metadataPath.thread_metadata.picture?.direct_path || ''), 
         preview: Utils_1.getUrlFromDirectPath(metadataPath.thread_metadata.preview?.direct_path || ''), 
-        reaction_codes: metadataPath.thread_metadata.settings.reaction_codes.value,
+        reaction_codes: metadataPath.thread_metadata?.settings?.reaction_codes?.value,
         subscribers: +metadataPath.thread_metadata.subscribers_count,
         verification: metadataPath.thread_metadata.verification,
         viewer_metadata: metadataPath.viewer_metadata
@@ -252,5 +261,6 @@ const extractNewsletterMetadata = (node, isCreate) => {
 }
 
 module.exports = {
-  makeNewsletterSocket
+  makeNewsletterSocket, 
+  extractNewsletterMetadata
 }

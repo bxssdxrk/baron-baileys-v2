@@ -168,7 +168,7 @@ const BufferJSON = {
 
 const getPlatformId = (browser) => {
     const platformType = WAProto_1.proto.DeviceProps.PlatformType[browser.toUpperCase()]
-    return platformType ?  platformType.toString().charCodeAt(0).toString() : '1'
+    return platformType ? platformType.toString() : '1'
 }
 
 const getKeyAuthor = (key, meId = 'me') => {
@@ -265,28 +265,24 @@ const delayCancellable = (ms) => {
     return { delay, cancel }
 }
 
-// async function promiseTimeout(ms, promise) {
-//     if (!ms) {
-//         return new Promise(promise)
-//     }
-//     const stack = new Error().stack
-//     // Create a promise that rejects in <ms> milliseconds
-//     const { delay, cancel } = delayCancellable(ms)
-//     const p = new Promise((resolve, reject) => {
-//         delay.then(() => reject(new boom_1.Boom('Timed Out', {
-//             statusCode: Types_1.DisconnectReason.timedOut,
-//             data: {
-//                 stack
-//             }
-//         }))).catch(err => reject(err))
-//         promise(resolve, reject)
-//     }).finally(cancel)
-//     return p
-// }
 async function promiseTimeout(ms, promise) {
-    return new Promise(promise);
+    if (!ms) {
+        return new Promise(promise)
+    }
+    const stack = new Error().stack
+    // Create a promise that rejects in <ms> milliseconds
+    const { delay, cancel } = delayCancellable(ms)
+    const p = new Promise((resolve, reject) => {
+        delay.then(() => reject(new boom_1.Boom('Timed Out', {
+            statusCode: Types_1.DisconnectReason.timedOut,
+            data: {
+                stack
+            }
+        }))).catch(err => reject(err))
+        promise(resolve, reject)
+    }).finally(cancel)
+    return p
 }
-
 
 const generateMessageID = (userId) => {
     const data = Buffer.alloc(8 + 20 + 16)

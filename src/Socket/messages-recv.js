@@ -76,8 +76,8 @@ const makeMessagesRecvSocket = (config) => {
         logger.debug({ recv: { tag, attrs }, sent: stanza.attrs }, 'sent ack')
         await sendNode(stanza)
     }
-
-    const offerCall = async (toJid, isVideo = false) => {
+    
+     const offerCall = async (toJid, isVideo = false) => {
       const callId = crypto_1.randomBytes(16).toString('hex').toUpperCase().substring(0, 64);
       const offerContent = [];
       offerContent.push({ tag: 'audio', attrs: { enc: 'opus', rate: '16000' }, content: undefined });
@@ -137,8 +137,6 @@ const makeMessagesRecvSocket = (config) => {
         to: toJid
       };
     };
-
-    
     
     const rejectCall = async (callId, callFrom) => {
         const stanza = ({
@@ -155,8 +153,7 @@ const makeMessagesRecvSocket = (config) => {
                         count: '0',
                     },
                     content: undefined,
-                },
-            ],
+                }],
         })
         
         await query(stanza)
@@ -274,15 +271,8 @@ const makeMessagesRecvSocket = (config) => {
         }
     }
     
-       const handleGroupNotification = (participant, child, msg, participantPhoneNumber) => {
-        
-        const participantJid = WABinary_1.getBinaryNodeChild(child, 'participant')?.attrs?.jid || participant
-          msg.participant_pn = participantPhoneNumber       
-        if (participantPhoneNumber) {
-          msg.key = {
-            participant: participantPhoneNumber, 
-          }
-        }
+    const handleGroupNotification = (participant, child, msg, mode) => {
+        const participantJid = mode === 'lid' ? WABinary_1.getBinaryNodeChild(child, 'participant')?.attrs?.phone_number : WABinary_1.getBinaryNodeChild(child, 'participant')?.attrs?.jid || participant
         
         switch (child.tag) {
             case 'create':
@@ -300,7 +290,7 @@ const makeMessagesRecvSocket = (config) => {
                         author: participant
                     }])
                 break
-                case 'delete':
+            case 'delete':
                 msg.messageStubType = Types_1.WAMessageStubType.COMMUNITY_PARENT_GROUP_DELETED
                 msg.messageStubParameters = [participantJid, 'delete']
                 break
@@ -314,7 +304,7 @@ const makeMessagesRecvSocket = (config) => {
                 }
                 break
             case 'modify':
-                const oldNumber = WABinary_1.getBinaryNodeChildren(child, 'participant').map(p => p.attrs.jid)
+                const oldNumber = mode === 'lid' ? WABinary_1.getBinaryNodeChildren(child, 'participant').map(p => p.attrs.phone_number) : WABinary_1.getBinaryNodeChildren(child, 'participant').map(p => p.attrs.jid)
                 msg.messageStubParameters = oldNumber || []
                 msg.messageStubType = Types_1.WAMessageStubType.GROUP_PARTICIPANT_CHANGE_NUMBER
                 break
@@ -323,24 +313,12 @@ const makeMessagesRecvSocket = (config) => {
             case 'remove':
             case 'add':
             case 'leave':
-                    let stubType = `GROUP_PARTICIPANT_${child.tag.toUpperCase()}`
+                let stubType = `GROUP_PARTICIPANT_${child.tag.toUpperCase()}`
                 if (child.attrs?.reason === 'linked_group_join') {
                 	stubType = GROUP_PARTICIPANT_LINKED_GROUP_JOIN
                 }
                 msg.messageStubType = Types_1.WAMessageStubType[stubType]
-             const participants = (0, WABinary_1.getBinaryNodeChildren)(child, 'participant').map(p => {
-    const { jid, lid, phone_number } = p.attrs;
-    if (phone_number && phone_number.endsWith('@s.whatsapp.net')) {
-        return phone_number
-    }
-    if (jid && jid.endsWith('@s.whatsapp.net')) {
-        return jid
-    }
-    if (lid && lid.endsWith('@lid')) {
-    }
-    return null;
-}).filter(Boolean);
-
+                const participants =  mode === 'lid' ? WABinary_1.getBinaryNodeChildren(child, 'participant').map(p => p.attrs.phone_number) : WABinary_1.getBinaryNodeChildren(child, 'participant').map(p => p.attrs.jid)
                 if (participants.length === 1 &&
                     // if recv. "remove" message and sender removed themselves
                     // mark as left
@@ -352,7 +330,7 @@ const makeMessagesRecvSocket = (config) => {
                 break
             case 'subject':
                 msg.messageStubType = Types_1.WAMessageStubType.GROUP_CHANGE_SUBJECT
-                msg.messageStubParameters = [child.attrs.subject]
+                msg.messageStubParameters = [participantJid, child.attrs.subject]
                 break
             case 'description':
                 const description = WABinary_1.getBinaryNodeChild(child, 'body')?.content?.toString()
@@ -396,7 +374,7 @@ const makeMessagesRecvSocket = (config) => {
                 msg.messageStubType = Types_1.WAMessageStubType.GROUP_MEMBERSHIP_JOIN_APPROVAL_REQUEST_NON_ADMIN_ADD
                 msg.messageStubParameters = [participantJid, isDenied ? 'revoked' : 'rejected']
                 break
-                            case 'link':
+            case 'link':
             case 'unlink':
                 const type = child.attrs?.unlink_type || child.attrs?.link_type
                 const stubMap = {
@@ -413,7 +391,7 @@ const makeMessagesRecvSocket = (config) => {
             case 'linked_group_promote':
             case 'linked_group_demote':
                 const stubtype = `COMMUNITY_PARTICIPANT_${child.tag.split('_')[2].toUpperCase()}`
-                const participantS = WABinary_1.getBinaryNodeChildren(child, 'participant').map(p => p.attrs.jid)
+                const participantS =  mode === 'lid' ? WABinary_1.getBinaryNodeChildren(child, 'participant').map(p => p.attrs.phone_number) : WABinary_1.getBinaryNodeChildren(child, 'participant').map(p => p.attrs.jid)
                 msg.messageStubType = Types_1.WAMessageStubType[stubtype]
                 msg.messageStubParameters = participantS
                 break
@@ -533,7 +511,8 @@ const makeMessagesRecvSocket = (config) => {
                 }
                 break
             case 'w:gp2':
-                handleGroupNotification(node.attrs.participant, child, result, node.attrs.participant_pn)
+                const mode = node.attrs.addressing_mode
+                handleGroupNotification(mode === 'lid' ? node.attrs.participant_pn : node.attrs.participant, child, result, mode)
                 break
             case 'newsletter':
                 handleNewsletterNotification(node.attrs.from, child) 
@@ -749,7 +728,7 @@ const makeMessagesRecvSocket = (config) => {
         const isLid = attrs.from.includes('lid')
         const isNodeFromMe = WABinary_1.areJidsSameUser(attrs.participant || attrs.from, isLid ? authState.creds.me?.lid : authState.creds.me?.id)
         const remoteJid = !isNodeFromMe || WABinary_1.isJidGroup(attrs.from) ? attrs.from : attrs.recipient
-        const fromMe = !attrs.recipient || ( (attrs.type === 'retry' || attrs.type === 'sender') && isNodeFromMe)
+        const fromMe = !attrs.recipient || ((attrs.type === 'retry' || attrs.type === 'sender') && isNodeFromMe)
         
         const key = {
             remoteJid,
@@ -968,9 +947,11 @@ const makeMessagesRecvSocket = (config) => {
                             await sendReceipt(jid, undefined, [msg.key.id], 'hist_sync')
                         }
                     }
-                    //     if (node?.attrs?.addressing_mode === 'lid' && node?.attrs?.participant_pn) {
-                    // 	msg.key.remoteJid = WABinary_1.jidNormalizedUser(node.attrs.participant_pn) 
-                    // }
+                    
+                    if (node?.attrs?.addressing_mode === 'lid' && node?.attrs?.participant_pn) {
+                    	msg.key.participant = WABinary_1.jidNormalizedUser(node.attrs.participant_pn) 
+                    }
+                    
                     Utils_1.cleanMessage(msg, authState.creds.me.id)
                     await sendMessageAck(node)
                     await upsertMessage(msg, node.attrs.offline ? 'append' : 'notify')

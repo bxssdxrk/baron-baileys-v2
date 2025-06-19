@@ -95,44 +95,34 @@ const makeNoiseHandler = ({ keyPair: { private: privateKey, public: publicKey },
             await mixIntoKey(crypto_1.Curve.sharedKey(noiseKey.private, serverHello.ephemeral))
             return keyEnc
         },
-       encodeFrame: (data) => {
-            const MAX_FRAME_SIZE = 0xFFFFFF;
-            const frames = [];
-            if (isFinished) {
-                data = encrypt(data);
-            }
-            let header;
-            if (routingInfo) {
-                header = Buffer.alloc(7);
-                header.write('ED', 0, 'utf8');
-                header.writeUInt8(0, 2);
-                header.writeUInt8(1, 3);
-                header.writeUInt8(routingInfo.byteLength >> 16, 4);
-                header.writeUInt16BE(routingInfo.byteLength & 0xFFFF, 5);
-                header = Buffer.concat([header, routingInfo, NOISE_HEADER]);
-            } else {
-                header = Buffer.from(NOISE_HEADER);
-            }
-            const introSize = sentIntro ? 0 : header.length;
-            let offset = 0;
-            while (offset < data.length) {
-                const chunkSize = Math.min(MAX_FRAME_SIZE, data.length - offset);
-                const chunk = data.slice(offset, offset + chunkSize);
-                const frame = Buffer.alloc(introSize + 3 + chunk.length);
-                if (!sentIntro) {
-                    frame.set(header);
-                    sentIntro = true;
-                }
-                frame.writeUInt8((chunk.length >> 16) & 0xFF, introSize);
-                frame.writeUInt16BE(chunk.length & 0xFFFF, introSize + 1);
-                frame.set(chunk, introSize + 3);
-        
-                frames.push(frame);
-                offset += chunkSize;
-            }
-            return frames.length === 1 ? frames[0] : frames;
-        },
-
+        encodeFrame: (data) => {
+            if (isFinished) {
+                data = encrypt(data)
+            }
+            let header
+            if (routingInfo) {
+                header = Buffer.alloc(7)
+                header.write('ED', 0, 'utf8')
+                header.writeUint8(0, 2)
+                header.writeUint8(1, 3)
+                header.writeUint8(routingInfo.byteLength >> 16, 4)
+                header.writeUint16BE(routingInfo.byteLength & 65535, 5)
+                header = Buffer.concat([header, routingInfo, NOISE_HEADER])
+            }
+            else {
+                header = Buffer.from(NOISE_HEADER)
+            }
+            const introSize = sentIntro ? 0 : header.length
+            const frame = Buffer.alloc(introSize + 3 + data.byteLength)
+            if (!sentIntro) {
+                frame.set(header)
+                sentIntro = true
+            }
+            frame.writeUInt8(data.byteLength >> 16, introSize)
+            frame.writeUInt16BE(65535 & data.byteLength, introSize + 1)
+            frame.set(data, introSize + 3)
+            return frame
+        },
         decodeFrame: async (newData, onFrame) => {
             // the binary protocol uses its own framing mechanism
             // on top of the WS frames

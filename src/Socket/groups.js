@@ -70,7 +70,7 @@ const makeGroupsSocket = (config) => {
         groupQuery, 
         groupMetadata,
         groupCreate: async (subject, participants) => {
-            const key = Utils_1.generateIOSMessageID()
+            const key = Utils_1.generateMessageID()
             
             const result = await groupQuery('@g.us', 'set', [
                 {
@@ -171,7 +171,7 @@ const makeGroupsSocket = (config) => {
                 {
                     tag: 'description',
                     attrs: {
-                        ...(description ? { id: Utils_1.generateIOSMessageID() } : { delete: 'true' }),
+                        ...(description ? { id: Utils_1.generateMessageID() } : { delete: 'true' }),
                         ...(prev ? { prev } : {})
                     },
                     content: description ? [
@@ -248,7 +248,7 @@ const makeGroupsSocket = (config) => {
             await upsertMessage({
                 key: {
                     remoteJid: inviteMessage.groupJid,
-                    id: Utils_1.generateIOSMessageID(authState.creds.me?.id), 
+                    id: Utils_1.generateMessageID(authState.creds.me?.id), 
                     fromMe: false,
                     participant: key.remoteJid,
                 },
@@ -292,37 +292,29 @@ const extractGroupMetadata = (result) => {
     
     let desc
     let descId
-    let descOwner
-	let descOwnerJid
-	let descTime
-   if (descChild) {
-        desc = (0, WABinary_1.getBinaryNodeChildString)(descChild, 'body');
-        descOwner = descChild.attrs.participant ? (0, WABinary_1.jidNormalizedUser)(descChild.attrs.participant) : undefined;
-        descOwnerJid = descChild.attrs.participant_pn ? (0, WABinary_1.jidNormalizedUser)(descChild.attrs.participant_pn) : undefined;
-        descTime = +descChild.attrs.t;
-        descId = descChild.attrs.id;
+    
+    if (descChild) {
+        desc = WABinary_1.getBinaryNodeChildString(descChild, 'body')
+        descId = descChild.attrs.id
     }
     
+    const mode = group.attrs.addressing_mode
     const groupId = group.attrs.id.includes('@') ? group.attrs.id : WABinary_1.jidEncode(group.attrs.id, 'g.us')
     const eph = WABinary_1.getBinaryNodeChild(group, 'ephemeral')?.attrs.expiration
     const memberAddMode = WABinary_1.getBinaryNodeChildString(group, 'member_add_mode') === 'all_member_add'
     
     const metadata = {
         id: groupId,
-        addressingMode: group.attrs.addressing_mode,
+        addressingMode: mode, 
         subject: group.attrs.subject,
-        subjectOwner: group.attrs.s_o,
-        subjectOwnerJid: group.attrs.s_o_pn,
+        subjectOwner: mode === 'lid' ? group.attrs.s_o_pn : group.attrs.s_o,
         subjectTime: +group.attrs.s_t,
         size: WABinary_1.getBinaryNodeChildren(group, 'participant').length,
         creation: +group.attrs.creation,
-        owner: group.attrs.creator ? WABinary_1.jidNormalizedUser(group.attrs.creator) : undefined,
-        ownerJid: group.attrs.creator_pn ? (0, WABinary_1.jidNormalizedUser)(group.attrs.creator_pn) : undefined,
+        owner: group.attrs.creator ? WABinary_1.jidNormalizedUser(mode === 'lid' ? group.attrs.creator_pn : group.attrs.creator) : undefined,
+        ownerCountry: group.attrs.creator_country_code, 
         desc,
         descId,
-        descOwner,
-        descOwnerJid,
-        descTime,
         linkedParent: WABinary_1.getBinaryNodeChild(group, 'linked_parent')?.attrs.jid || undefined,
         restrict: !!WABinary_1.getBinaryNodeChild(group, 'locked'),
         announce: !!WABinary_1.getBinaryNodeChild(group, 'announcement'),
@@ -330,12 +322,13 @@ const extractGroupMetadata = (result) => {
         isCommunityAnnounce: !!WABinary_1.getBinaryNodeChild(group, 'default_sub_group'),
         joinApprovalMode: !!WABinary_1.getBinaryNodeChild(group, 'membership_approval_mode'),
         memberAddMode,
-        participants: WABinary_1.getBinaryNodeChildren(group, 'participant').map(({ attrs }) => {
+        participants: (0, WABinary_1.getBinaryNodeChildren)(group, 'participant').map(({ attrs }) => {
             return {
                 id: attrs.jid,
-                jid: attrs.phone_number ? (0, WABinary_1.jidNormalizedUser)(attrs.phone_number) : undefined,
-                admin: (attrs.type || null),
-            }
+                jid: (0, WABinary_1.isJidUser)(attrs.jid) ? attrs.jid : (0, WABinary_1.jidNormalizedUser)(attrs.phone_number),
+                lid: (0, WABinary_1.isLidUser)(attrs.jid) ? attrs.jid : attrs.lid,
+                admin: (attrs.type || null)
+            };
         }),
         ephemeralDuration: eph ? +eph : undefined, 
     }
@@ -344,6 +337,6 @@ const extractGroupMetadata = (result) => {
 }
 
 module.exports = {
-  makeGroupsSocket,
+  makeGroupsSocket, 
   extractGroupMetadata
 }

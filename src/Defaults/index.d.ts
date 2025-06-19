@@ -15,7 +15,7 @@ export declare const WA_DEFAULT_EPHEMERAL: number
 
 export declare const NOISE_MODE: "Noise_XX_25519_AESGCM_SHA256\0\0\0\0"
 
-export declare const DICT_VERSION: 2
+export declare const DICT_VERSION: 3
 
 export declare const KEY_BUNDLE_TYPE: Buffer
 export declare const NOISE_WA_HEADER: Buffer

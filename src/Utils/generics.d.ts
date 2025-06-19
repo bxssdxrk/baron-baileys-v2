@@ -51,8 +51,6 @@ export declare const delayCancellable: (ms: number) => {
 export declare function promiseTimeout<T>(ms: number | undefined, promise: (resolve: (v: T) => void, reject: (error: any) => void) => void): Promise<T>
 
 export declare const generateMessageID: (userId?: string) => string
-export declare const generateIOSMessageID: (userId?: string) => string
-export declare const generateAndroidMessageID: (userId?: string) => string
 
 export declare function bindWaitForEvent<T extends keyof BaileysEventMap>(ev: BaileysEventEmitter, event: T): (check: (u: BaileysEventMap[T]) => boolean | undefined, timeoutMs?: number) => Promise<void>
 
