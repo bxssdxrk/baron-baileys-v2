@@ -322,9 +322,9 @@ const extractGroupMetadata = (result) => {
         isCommunityAnnounce: !!WABinary_1.getBinaryNodeChild(group, 'default_sub_group'),
         joinApprovalMode: !!WABinary_1.getBinaryNodeChild(group, 'membership_approval_mode'),
         memberAddMode,
-        participants: (0, WABinary_1.getBinaryNodeChildren)(group, 'participant').map(({ attrs }) => {
+        participants: WABinary_1.getBinaryNodeChildren(group, 'participant').map(({ attrs }) => {
             return {
-                id: attrs.jid,
+                 id: attrs.jid,
                 jid: (0, WABinary_1.isJidUser)(attrs.jid) ? attrs.jid : (0, WABinary_1.jidNormalizedUser)(attrs.phone_number),
                 lid: (0, WABinary_1.isLidUser)(attrs.jid) ? attrs.jid : attrs.lid,
                 admin: (attrs.type || null)

@@ -221,21 +221,20 @@ const mediaMessageSHA256B64 = (message) => {
 
 async function getAudioDuration(buffer) {
     const musicMetadata = await Promise.resolve().then(() => __importStar(require('music-metadata')))
+    const options = {
+    	duration: true
+    }
+    
     let metadata
+    
     if (Buffer.isBuffer(buffer)) {
-        metadata = await musicMetadata.parseBuffer(buffer, undefined, { duration: true })
+        metadata = await musicMetadata.parseBuffer(buffer, undefined, options)
     }
     else if (typeof buffer === 'string') {
-        const rStream = fs_1.createReadStream(buffer)
-        try {
-            metadata = await musicMetadata.parseStream(rStream, undefined, { duration: true })
-        }
-        finally {
-            rStream.destroy()
-        }
+        metadata = await musicMetadata.parseFile(buffer, options) 
     }
     else {
-        metadata = await musicMetadata.parseStream(buffer, undefined, { duration: true })
+        metadata = await musicMetadata.parseStream(buffer, undefined, options) 
     }
     return metadata.format.duration
 }

@@ -38,7 +38,10 @@ function decodeMessageNode(stanza, meId, meLid) {
     let author
     const msgId = stanza.attrs.id
     const from = stanza.attrs.from
-    const participant = stanza.attrs.participant_pn || stanza.attrs.participant
+    let participant = stanza.attrs.participant 
+     if (participant && participant.endsWith('@lid') && stanza.attrs.participant_pn) {
+        participant = stanza.attrs.participant_pn;
+    }
     const recipient = stanza.attrs.recipient
     const isMe = (jid) => WABinary_1.areJidsSameUser(jid, meId)
     const isMeLid = (jid) => WABinary_1.areJidsSameUser(jid, meLid)
@@ -98,20 +101,22 @@ function decodeMessageNode(stanza, meId, meLid) {
     else {
         throw new boom_1.Boom('Unknown message type', { data: stanza })
     }
- const senderJid = stanza.attrs.participant || stanza.attrs.from;
+     const senderJid = stanza.attrs.participant || stanza.attrs.from;
 
 const fromMe = WABinary_1.isJidNewsletter(stanza.attrs.from)
     ? !!stanza.attrs?.is_sender
     : WABinary_1.isLidUser(senderJid)
         ? (0, WABinary_1.areJidsSameUser)(senderJid, meLid)
         : (0, WABinary_1.areJidsSameUser)(senderJid, meId);
-        
-        const pushname = stanza?.attrs?.notify
+
+    const pushname = stanza?.attrs?.notify
     const key = {
         remoteJid: chatId,
         fromMe,
         id: msgId,
-        participant
+        ...(participant !== undefined && { participant: fromMe ? meId : participant }),
+        ...(stanza.attrs.participant_pn !== undefined && { participant_pn: fromMe ? meId : stanza.attrs.participant_pn }),
+        ...(stanza.attrs.participant_lid !== undefined && { participant_lid: fromMe ? meLid : stanza.attrs.participant_lid }),
     }
     const fullMessage = {
         key,

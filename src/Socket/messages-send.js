@@ -424,7 +424,7 @@ const makeMessagesSocket = (config) => {
                 extraAttrs['mediatype'] = mediaType
             }
 
-            if (Utils_1.normalizeMessageContent(message)?.pinInChatMessage || Utils_1.normalizeMessageContent(message)?.keepInChatMessage) {
+            if (Utils_1.normalizeMessageContent(message)?.pinInChatMessage || Utils_1.normalizeMessageContent(message)?.keepInChatMessage || message?.editedMessage) {
                 extraAttrs['decrypt-fail'] = 'hide'
             } 
 
@@ -816,7 +816,7 @@ const makeMessagesSocket = (config) => {
                 return {
                     tag: 'biz', 
                     attrs: {
-                        native_flow_name: firstButtonName
+                        native_flow_name: firstButtonName === 'review_and_pay' ? 'order_details' : firstButtonName
                 }
             } 
         } else if (nativeFlow && nativeFlowSpecials.includes(firstButtonName)) {
@@ -995,8 +995,7 @@ const makeMessagesSocket = (config) => {
                     attrs: {},
                     content: [{
                         tag: 'to',
-                        attrs: { jid },
-                        content: undefined
+                        attrs: { jid }
                     }]
                 }]
             }]
@@ -1023,7 +1022,14 @@ const makeMessagesSocket = (config) => {
                 }
             }, {})
 
-           await relayMessage(jid, msg.message, {}) 
+           await relayMessage(jid, msg.message, { 
+           	additionalNodes: [{
+          	     tag: 'meta',
+                   attrs: Private ? 
+                   { is_status_mention: 'true' } : 
+                   { is_group_status_mention: 'true' },
+                 }]
+            })
 
             return media
         }, 

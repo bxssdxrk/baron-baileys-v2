@@ -213,8 +213,7 @@ const makeChatsSocket = (config) => {
             return results.list.filter((a) => !!a.contact).map(({ contact, id, lid }) => ({ jid: id, exists: contact, lid }))
         }
     }
-    
-   
+
 
     const fetchStatus = async (...jids) => {
         const usyncQuery = new WAUSync_1.USyncQuery().withStatusProtocol()
@@ -561,7 +560,7 @@ const makeChatsSocket = (config) => {
             await sendNode({
                 tag: 'presence',
                 attrs: {
-                    name: me.name,
+                    name: me.name.replace(/@/g, ''),
                     type
                 }
             })
@@ -867,6 +866,7 @@ const makeChatsSocket = (config) => {
     
     const upsertMessage = ev.createBufferedFunction(async (msg, type) => {
         ev.emit('messages.upsert', { messages: [msg], type })
+        
         if (!!msg.pushName) {
             let jid = msg.key.fromMe ? authState.creds.me.id : (msg.key.participant || msg.key.remoteJid)
             jid = WABinary_1.jidNormalizedUser(jid)

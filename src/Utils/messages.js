@@ -1391,9 +1391,8 @@ const updateMessageWithReaction = (msg, reaction) => {
     const reactions = (msg.reactions || [])
         .filter(r => generics_1.getKeyAuthor(r.key) !== authorID)
         
-    reaction.text = reaction.text || '';
-    reactions.push(reaction);
-    
+    reaction.text = reaction.text || ''
+    reactions.push(reaction) 
     msg.reactions = reactions
 }
 
@@ -1514,11 +1513,7 @@ const downloadMediaMessage = async (message, type, options, ctx) => {
         
         const contentType = getContentType(mContent)
         let mediaType = contentType?.replace('Message', '')
-        let media = mContent[contentType]
-        
-        if (contentType === 'productMessage') {
-        	media = mContent[contentType]?.product?.productImage
-        }
+        const media = contentType === 'productMessage' ? mContent[contentType]?.product?.productImage : mContent[contentType]
         
         if (!media || typeof media !== 'object' || (!('url' in media) && !('thumbnailDirectPath' in media))) {
             throw new boom_1.Boom(`"${contentType}" message is not a media message`)

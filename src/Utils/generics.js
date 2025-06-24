@@ -82,7 +82,7 @@ const PLATFORM_MAP = {
 
 const PLATFORM_VERSIONS = {
     'ubuntu': '22.04.4',
-    'darwin': '14.4.1', 
+    'darwin': '18.5', 
     'win32': '10.0.22631', 
     'android': '14.0.0',
     'freebsd': '13.2',

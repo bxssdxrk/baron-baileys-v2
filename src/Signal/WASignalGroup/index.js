@@ -3,3 +3,4 @@ module.exports.SenderKeyDistributionMessage = require('./sender_key_distribution
 module.exports.SenderKeyRecord = require('./sender_key_record')
 module.exports.SenderKeyName = require('./sender_key_name')
 module.exports.GroupCipher = require('./group_cipher')
+// signal fixed

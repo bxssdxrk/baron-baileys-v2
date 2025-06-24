@@ -9,7 +9,7 @@ const WABinary_1 = require("../WABinary")
 const crypto_1 = require("./crypto")
 const generics_1 = require("./generics")
 const history_1 = require("./history")
-
+const chats_1 = require("../Socket/chats")
 const REAL_MSG_STUB_TYPES = new Set([
     Types_1.WAMessageStubType.CALL_MISSED_GROUP_VIDEO,
     Types_1.WAMessageStubType.CALL_MISSED_GROUP_VOICE,
@@ -240,6 +240,15 @@ const processMessage = async (message, { shouldProcessHistoryMsg, placeholderRes
                     }
                 ])
                 break
+            case WAProto_1.proto.Message.ProtocolMessage.Type.LIMIT_SHARING:
+                ev.emit('limit-sharing.update', {
+                	id: protocolMsg.key.remoteJid, 
+                    author: WABinary_1.areJidsSameUser(message.key.remoteJid, protocolMsg.key.remoteJid) ? WABinary_1.jidNormalizedUser(meId) : message.key.remoteJid, 
+                    action: `${protocolMsg.limitSharing.sharingLimited ? 'on' : 'off'}`, 
+                    trigger: protocolMsg.limitSharing.trigger, 
+                    update_time: protocolMsg.limitSharing.limitSharingSettingTimestamp
+                }) 
+                break
         }
     }
     else if (content?.reactionMessage) {
@@ -254,9 +263,12 @@ const processMessage = async (message, { shouldProcessHistoryMsg, placeholderRes
     }
     else if (message.messageStubType) {
         const jid = message.key?.remoteJid
+        
         //let actor = whatsappID (message.participant)
-        let participants
-        const emitParticipantsUpdate = (action) => (ev.emit('group-participants.update', { id: jid, author: message.participant, participants, action }))
+        let participants     
+
+const jid2 = message.key.participant;   
+        const emitParticipantsUpdate = (action) => (ev.emit('group-participants.update', { id: jid, author: jid2, participants, action}))
         const emitGroupUpdate = (update) => {
             ev.emit('groups.update', [{ id: jid, ...update, author: message.participant ? message.participant : undefined }])
         }
@@ -351,7 +363,7 @@ const processMessage = async (message, { shouldProcessHistoryMsg, placeholderRes
     else if (content?.pollUpdateMessage) {
         const creationMsgKey = content.pollUpdateMessage.pollCreationMessageKey
         // we need to fetch the poll creation message to get the poll enc key
-         const pollMsg2 = await getMessage(creationMsgKey);
+        const pollMsg2 = await getMessage(creationMsgKey);
         const pollMsg = pollMsg.botInvokeMessage?.message || pollMsg2;
         if (pollMsg) {
             const meIdNormalised = WABinary_1.jidNormalizedUser(meId)

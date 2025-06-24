@@ -52,7 +52,7 @@ exports.PROCESSABLE_HISTORY_TYPES = [
 
 exports.DEFAULT_CONNECTION_CONFIG = {
     version: baileys_version_json_1.version,
-    browser: Utils_1.Browsers.iOS('Safari'),
+    browser: Utils_1.Browsers.iOS('WhatsApp'),
     waWebSocketUrl: 'wss://web.whatsapp.com/ws/chat',
     connectTimeoutMs: 20000,
     keepAliveIntervalMs: 30000,

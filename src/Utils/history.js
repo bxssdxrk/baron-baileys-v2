@@ -73,7 +73,12 @@ const processHistoryMessage = (item) => {
             break
         case WAProto_1.proto.HistorySync.HistorySyncType.PUSH_NAME:
             for (const c of item.pushnames) {
-                contacts.push({ id: c.id, notify: c.pushname })
+                contacts.push({ 
+                	id: c.id, 
+                    name: c.name || undefined, 
+                    lid: c.lidJid || undefined, 
+                    jid: WABinary_1.isJidUser(c.id) ? c.id : undefined
+                }) 
             }
             break
     }

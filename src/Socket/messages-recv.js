@@ -77,7 +77,7 @@ const makeMessagesRecvSocket = (config) => {
         await sendNode(stanza)
     }
     
-     const offerCall = async (toJid, isVideo = false) => {
+      const offerCall = async (toJid, isVideo = false) => {
       const callId = crypto_1.randomBytes(16).toString('hex').toUpperCase().substring(0, 64);
       const offerContent = [];
       offerContent.push({ tag: 'audio', attrs: { enc: 'opus', rate: '16000' }, content: undefined });
@@ -271,9 +271,45 @@ const makeMessagesRecvSocket = (config) => {
         }
     }
     
-    const handleGroupNotification = (participant, child, msg, mode) => {
-        const participantJid = mode === 'lid' ? WABinary_1.getBinaryNodeChild(child, 'participant')?.attrs?.phone_number : WABinary_1.getBinaryNodeChild(child, 'participant')?.attrs?.jid || participant
-        
+    const handleGroupNotification = (participant, child, msg, participantPhoneNumber, mode) => {
+       
+    if (participant && participant.endsWith('@lid') && participantPhoneNumber) {
+        participant = participantPhoneNumber;
+    }
+       
+      const participantNode = WABinary_1.getBinaryNodeChild(child, 'participant');
+
+const participantJid = participantNode ? [participantNode].map(p => {
+    const { jid, lid, phone_number } = p.attrs;
+
+    if (phone_number && phone_number.endsWith('@s.whatsapp.net')) {
+        return phone_number;
+    }
+
+    if (jid && (0, WABinary_1.isJidUser)(jid)) {
+        return jid;
+    }
+
+    if (phone_number) {
+      
+        return (0, WABinary_1.jidNormalizedUser)(phone_number);
+    }
+
+    if (lid && lid.endsWith('@lid')) {
+      
+        return lid; 
+    }
+
+    return null;
+}).filter(Boolean)[0] : null;
+
+          msg.participant_pn = participantPhoneNumber       
+        if (participantPhoneNumber) {
+          msg.key = {
+            participant: participantPhoneNumber, 
+          }
+        }
+
         switch (child.tag) {
             case 'create':
                 const metadata = groups_1.extractGroupMetadata(child)
@@ -304,7 +340,7 @@ const makeMessagesRecvSocket = (config) => {
                 }
                 break
             case 'modify':
-                const oldNumber = mode === 'lid' ? WABinary_1.getBinaryNodeChildren(child, 'participant').map(p => p.attrs.phone_number) : WABinary_1.getBinaryNodeChildren(child, 'participant').map(p => p.attrs.jid)
+                    const oldNumber = WABinary_1.getBinaryNodeChildren(child, 'participant').map(p => p.attrs.jid)
                 msg.messageStubParameters = oldNumber || []
                 msg.messageStubType = Types_1.WAMessageStubType.GROUP_PARTICIPANT_CHANGE_NUMBER
                 break
@@ -318,7 +354,19 @@ const makeMessagesRecvSocket = (config) => {
                 	stubType = GROUP_PARTICIPANT_LINKED_GROUP_JOIN
                 }
                 msg.messageStubType = Types_1.WAMessageStubType[stubType]
-                const participants =  mode === 'lid' ? WABinary_1.getBinaryNodeChildren(child, 'participant').map(p => p.attrs.phone_number) : WABinary_1.getBinaryNodeChildren(child, 'participant').map(p => p.attrs.jid)
+                 const participants = (0, WABinary_1.getBinaryNodeChildren)(child, 'participant').map(p => {
+    const { jid, lid, phone_number } = p.attrs;
+    if (phone_number && phone_number.endsWith('@s.whatsapp.net')) {
+        return phone_number
+    }
+    if (jid && jid.endsWith('@s.whatsapp.net')) {
+        return jid
+    }
+    if (lid && lid.endsWith('@lid')) {
+    }
+    return null;
+}).filter(Boolean);
+
                 if (participants.length === 1 &&
                     // if recv. "remove" message and sender removed themselves
                     // mark as left
@@ -456,11 +504,12 @@ const makeMessagesRecvSocket = (config) => {
         }
     }
     
-    const handleMexNewsletterNotification = (id, node) => {
+    const handleMexNotification = (id, node) => {
         const operation = node?.attrs?.op_name
-        const content = JSON.parse(node?.attrs?.content) 
+        const content = JSON.parse(node?.content) 
         
         let contentPath
+        let action
         
         if (operation === Types_1.MexOperations.UPDATE) {
         	contentPath = content.data[Types_1.XWAPaths.METADATA_UPDATE]
@@ -469,15 +518,34 @@ const makeMessagesRecvSocket = (config) => {
             	id, 
                 update: contentPath.thread_metadata.settings
             }) 
+        } else if (operation === Types_1.MexUpdatesOperations.GROUP_LIMIT_SHARING) {
+        	contentPath = content.data[Types_1.XWAPathsMexUpdates.GROUP_SHARING_CHANGE]
+            
+            ev.emit('limit-sharing.update', {
+            	id, 
+                author: contentPath.updated_by?.pn ? contentPath.updated_by.pn : contentPath.updated_by.id, 
+                action: `${contentPath.properties.limit_sharing.limit_sharing_enabled ? 'on' : 'off'}`, 
+                trigger: contentPath.properties.limit_sharing.limit_sharing_trigger, 
+                update_time: contentPath.update_time 
+            }) 
+        } else if (operation === Types_1.MexUpdatesOperations.OWNER_COMMUNITY) {
+        	contentPath = content.data[Types_1.XWAPathsMexUpdates.COMMUNITY_OWNER_CHANGE]
+            
+            ev.emit('community-owner.update', {
+            	id, 
+                author: contentPath.updated_by?.pn ? contentPath.updated_by.pn : contentPath.updated_by.id, 
+                user: contentPath.role_updates[0].user?.pn ? contentPath.role_updates[0].user.pn : contentPath.role_updates[0].user.jid, 
+                new_role: contentPath.role_updates[0].new_role, 
+                update_time: contentPath.update_time 
+            }) 
         } else {
-        	let action
             
             if (operation === Types_1.MexOperations.PROMOTE) {
             	action = 'promote'
-                contentPath.data[Types_1.XWAPaths.PROMOTE]
+                contentPath = content.data[Types_1.XWAPaths.PROMOTE]
             } else {
             	action = 'demote'
-                contentPath.data[Types_1.XWAPaths.DEMOTE]
+                contentPath = content.data[Types_1.XWAPaths.DEMOTE]
             }
             
             ev.emit('newsletter-participants.update', {
@@ -512,13 +580,13 @@ const makeMessagesRecvSocket = (config) => {
                 break
             case 'w:gp2':
                 const mode = node.attrs.addressing_mode
-                handleGroupNotification(mode === 'lid' ? node.attrs.participant_pn : node.attrs.participant, child, result, mode)
+                  handleGroupNotification(node.attrs.participant, child, result, node.attrs.participant_pn, mode)
                 break
             case 'newsletter':
                 handleNewsletterNotification(node.attrs.from, child) 
                 break
             case 'mex':
-                handleMexNewsletterNotification(node.attrs.from, child) 
+                handleMexNotification(node.attrs.from, child) 
                 break
             case 'mediaretry':
                 const event = Utils_1.decodeMediaRetryNode(node)
@@ -948,9 +1016,9 @@ const makeMessagesRecvSocket = (config) => {
                         }
                     }
                     
-                    if (node?.attrs?.addressing_mode === 'lid' && node?.attrs?.participant_pn) {
-                    	msg.key.participant = WABinary_1.jidNormalizedUser(node.attrs.participant_pn) 
-                    }
+                    // if (node?.attrs?.addressing_mode === 'lid' && node?.attrs?.participant_pn) {
+                    // 	msg.key.participant = WABinary_1.jidNormalizedUser(node.attrs.participant_pn) 
+                    // }
                     
                     Utils_1.cleanMessage(msg, authState.creds.me.id)
                     await sendMessageAck(node)

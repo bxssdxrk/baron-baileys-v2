@@ -121,6 +121,20 @@ export type BaileysEventMap = {
     	id: string
         update: NewsletterSettingsUpdate
     }
+    'limit-sharing.update': {
+        id: string
+        author: string
+        action: 'on' | 'off'
+        trigger: proto.LimitSharing.TriggerType
+        update_time: number
+    }
+    'community-owner.update': {
+        id: string
+        author: string
+        user: string
+        new_role: 'SUPERADMIN_MEMBER'
+        update_time: number
+    }
     'blocklist.set': {
         blocklist: string[]
     }

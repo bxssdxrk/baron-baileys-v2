@@ -440,7 +440,9 @@ const chatModificationToAppPatch = (mod, jid) => {
     else if ('clear' in mod) {
         patch = {
             syncAction: {
-                clearChatAction: {} // add message range later
+                clearChatAction: {
+                    messageRange: getMessageRange(mod.lastMessages) 
+                }
             },
             index: ['clearChat', jid, '1' /*the option here is 0 when keep starred messages is enabled*/, '0'],
             type: 'regular_high',
@@ -462,9 +464,9 @@ const chatModificationToAppPatch = (mod, jid) => {
         }
     }
     else if ('contact' in mod) {
-    	patch = {
-    	    syncAction: {
-    	        contactAction: mod?.contact || {}
+            patch = {
+                syncAction: {
+                    contactAction: mod?.contact || {}
             }, 
             index: ['contact', jid], 
             type: 'critical_unblock_low', 
@@ -624,10 +626,10 @@ const processSyncAction = (syncAction, ev, me, initialSyncOpts, logger) => {
         // 1. if the account unarchiveChats setting is true
         //   a. if the chat is archived, and no further messages have been received -- simple, keep archived
         //   b. if the chat was archived, and the user received messages from the other person afterwards
-        //		then the chat should be marked unarchved --
-        //		we compare the timestamp of latest message from the other person to determine this
+        //                then the chat should be marked unarchved --
+        //                we compare the timestamp of latest message from the other person to determine this
         // 2. if the account unarchiveChats setting is false -- then it doesn't matter,
-        //	it'll always take an app state action to mark in unarchived -- which we'll get anyway
+        //        it'll always take an app state action to mark in unarchived -- which we'll get anyway
         const archiveAction = action?.archiveChatAction
         const isArchived = archiveAction
             ? archiveAction.archived
@@ -635,7 +637,7 @@ const processSyncAction = (syncAction, ev, me, initialSyncOpts, logger) => {
         // // basically we don't need to fire an "archive" update if the chat is being marked unarchvied
         // // this only applies for the initial sync
         // if(isInitialSync && !isArchived) {
-        // 	isArchived = false
+        //         isArchived = false
         // }
         const msgRange = !accountSettings?.unarchiveChats ? undefined : archiveAction?.messageRange
         // logger?.debug({ chat: id, syncAction }, 'message range archive')
@@ -669,14 +671,12 @@ const processSyncAction = (syncAction, ev, me, initialSyncOpts, logger) => {
         })
     }
     else if (action?.contactAction) {
-          ev.emit('contacts.upsert', [
-            {
-                id: id,
-                name: action.contactAction.fullName,
-                lid: action.contactAction.lidJid || undefined,
-                jid: (0, WABinary_1.isJidUser)(id) ? id : undefined
-            }
-        ]);
+            ev.emit('contacts.upsert', [{
+            id, 
+            name: action.contactAction.fullName, 
+            lid: action.contactAction.lidJid || undefined, 
+            jid: WABinary_1.isJidUser(id) ? id : undefined
+        }]) 
     }
     else if (action?.pushNameSetting) {
         const name = action?.pushNameSetting?.name
