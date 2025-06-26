@@ -21,7 +21,7 @@ const link_preview_1 = require("../Utils/link-preview")
 const makeMessagesSocket = (config) => {
     const { logger, linkPreviewImageThumbnailWidth, generateHighQualityLinkPreview, options: axiosOptions, patchMessageBeforeSending, cachedGroupMetadata, } = config
     const baron = newsletter_1.makeNewsletterSocket(config)
-    const { ev, authState, processingMutex, signalRepository, upsertMessage, query, fetchPrivacySettings, sendNode, groupMetadata, groupToggleEphemeral, newsletterWMexQuery, executeUSyncQuery } = baron   
+    const { ev, authState, processingMutex, signalRepository, upsertMessage, query, fetchPrivacySettings, sendNode, groupQuery, groupMetadata, groupToggleEphemeral, newsletterWMexQuery, executeUSyncQuery } = baron   
 
     const userDevicesCache = config.userDevicesCache || new node_cache_1.default({
         stdTTL: Defaults_1.DEFAULT_CACHE_TTLS.USER_DEVICES,
@@ -424,7 +424,7 @@ const makeMessagesSocket = (config) => {
                 extraAttrs['mediatype'] = mediaType
             }
 
-            if (Utils_1.normalizeMessageContent(message)?.pinInChatMessage || Utils_1.normalizeMessageContent(message)?.keepInChatMessage || message?.editedMessage) {
+            if (Utils_1.normalizeMessageContent(message)?.pinInChatMessage || Utils_1.normalizeMessageContent(message)?.keepInChatMessage || message.reactionMessage || message.protocolMessage?.editedMessage) {
                 extraAttrs['decrypt-fail'] = 'hide'
             } 
 
@@ -516,7 +516,7 @@ const makeMessagesSocket = (config) => {
 
                 binaryNodeContent.push({
                     tag: 'enc',
-                    attrs: { v: '2', type: 'skmsg' },
+                    attrs: { v: '2', type: 'skmsg', ...extraAttrs }, 
                     content: ciphertext
                 })
 
@@ -541,7 +541,7 @@ const makeMessagesSocket = (config) => {
 
                 binaryNodeContent.push({
                     tag: 'plaintext',
-                    attrs: mediaType ? { mediatype: mediaType } : {},
+                    attrs: extraAttrs ? extraAttrs : {},
                     content: bytes
                 })
             }
@@ -617,7 +617,7 @@ const makeMessagesSocket = (config) => {
                 tag: 'message',
                 attrs: {
                     id: msgId,
-                    type: isNewsletter ? getTypeMessage(message) : 'text',
+                    type: getTypeMessage(message), 
                     ...(additionalAttributes || {})
                 },
                 content: binaryNodeContent
@@ -659,13 +659,38 @@ const makeMessagesSocket = (config) => {
             const messages = Utils_1.normalizeMessageContent(message)  
 
             const buttonType = getButtonType(messages)
+            
+            if (messages.eventMessage) {
+            	if (!stanza.content || !Array.isArray(stanza.content)) {
+                    stanza.content = []
+                }
+                
+                stanza.content.push({
+                	tag: 'meta', 
+                    attrs: {
+                    	event_type: 'creation'
+                    }
+                }) 
+            } else if (messages.pollCreationMessage || messages.pollCreationMessageV2 || messages.pollCreationMessageV3) {
+            	if (!stanza.content || !Array.isArray(stanza.content)) {
+                    stanza.content = []
+                }
+                
+            	stanza.content.push({
+                	tag: 'meta', 
+                    attrs: {
+                    	polltype: 'creation'
+                    }
+                }) 
+            }
+                
 
             if (!isNewsletter && buttonType) {
                 if (!stanza.content || !Array.isArray(stanza.content)) {
                     stanza.content = []
                 }
+                
                 const buttonsNode = getButtonArgs(messages)
-
                 const filteredButtons = WABinary_1.getBinaryFilteredButtons(additionalNodes ? additionalNodes : [])
 
                 if (filteredButtons) {
@@ -720,9 +745,15 @@ const makeMessagesSocket = (config) => {
 
     const getTypeMessage = (msg) => {
         const message = Utils_1.normalizeMessageContent(msg)  
-        if (message.reactionMessage) {
+        if (message.pollCreationMessage || message.pollCreationMessageV2 || message.pollCreationMessageV3) {
+            return 'poll'
+        }       
+        else if (message.reactionMessage) {
             return 'reaction'
         }       
+        else if (message.eventMessage) {
+            return 'event'
+        }        
         else if (getMediaType(message)) {
             return 'media'
         }        
@@ -757,10 +788,10 @@ const makeMessagesSocket = (config) => {
             return 'contact_array'
         }
         else if (message.liveLocationMessage) {
-            return 'livelocation'
+            return 'location'
         }
-        else if (message.stickerMessage) {
-            return 'sticker'
+        else if (message.liveLocationMessage) {
+            return 'livelocation'
         }
         else if (message.listMessage) {
             return 'list'
@@ -1111,6 +1142,20 @@ const makeMessagesSocket = (config) => {
         },
         sendMessage: async (jid, content, options = {}) => {
             const userJid = authState.creds.me.id
+            
+            if (!options.ephemeralExpiration) {
+            	if (WABinary_1.isJidGroup(jid)) {
+					const groups = await groupQuery(jid, 'get', [{
+						tag: 'query',
+						attrs: {
+							request: 'interactive'
+						}
+					}])
+					const metadata = WABinary_1.getBinaryNodeChild(groups, 'group')
+					const expiration = WABinary_1.getBinaryNodeChild(metadata, 'ephemeral')?.attrs?.expiration || 0
+					options.ephemeralExpiration = expiration
+				}
+			}
 
             if (typeof content === 'object' &&
                 'disappearingMessagesInChat' in content &&
@@ -1158,9 +1203,11 @@ const makeMessagesSocket = (config) => {
                 const isPin = 'pin' in content && !!content.pin
                 const isEdit = 'edit' in content && !!content.edit
                 const isDelete = 'delete' in content && !!content.delete
+                const isKeep = 'keep' in content && !!content.keep && content.keep?.type === 2
+                
                 const additionalAttributes = {}
 
-                if (isDelete) {
+                if (isDelete || isKeep) {
                     // if the chat is a group, and I am not the author, then delete the message as an admin
                     if (WABinary_1.isJidGroup(content.delete?.remoteJid) && !content.delete?.fromMe || WABinary_1.isJidNewsletter(jid)) {
                         additionalAttributes.edit = '8'

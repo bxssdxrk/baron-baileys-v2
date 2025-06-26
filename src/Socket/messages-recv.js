@@ -21,7 +21,7 @@ const messages_send_1 = require("./messages-send")
 const makeMessagesRecvSocket = (config) => {
     const { logger, retryRequestDelayMs, maxMsgRetryCount, getMessage, shouldIgnoreJid } = config
     const baron = messages_send_1.makeMessagesSocket(config)
-    const { ev, authState, ws, processingMutex, signalRepository, query, upsertMessage, resyncAppState, onUnexpectedError, assertSessions, sendNode, relayMessage, sendReceipt, uploadPreKeys, getUSyncDevices, createParticipantNodes, sendPeerDataOperationMessage } = baron
+    const { ev, authState, ws, processingMutex, signalRepository, query, upsertMessage, groupMetadata, resyncAppState, onUnexpectedError, assertSessions, sendNode, relayMessage, sendReceipt, uploadPreKeys, getUSyncDevices, createParticipantNodes, sendPeerDataOperationMessage } = baron
     
     /** this mutex ensures that each retryRequest will wait for the previous one to finish */
     const retryMutex = make_mutex_1.makeMutex()
@@ -988,6 +988,41 @@ const participantJid = participantNode ? [participantNode].map(p => {
                     else {
                         // no type in the receipt => message delivered
                         let type = undefined
+
+                        const content = Utils_1.normalizeMessageContent(msg.message)  
+                        const type_2 = Utils_1.getContentType(content) 
+                        const message = msg.message[type_2]
+                        
+                         if (node.attrs.addressing_mode === 'lid') {
+                            const metadata = await groupMetadata(node.attrs.from) 
+                            let found = metadata.participants.find(p => p.lid === node.attrs.participant)
+                           
+                            msg.key.participant = found.jid
+
+                            if (message?.contextInfo?.participant) {
+                                msg.message[type_2].contextInfo.participant = found.jid
+                            }
+                            if (message?.contextInfo?.mentionedJid?.length > 0) {
+                                let mentions = []
+                                for (const id of message.contextInfo.mentionedJid) {
+                                    found = metadata.participants.find(p => p.lid === id)
+                                    mentions.push(found.jid) 
+                                }
+                                msg.message[type_2].contextInfo.mentionedJid = mentions
+                            }
+                        }
+                        
+                        if (!WABinary_1.isJidGroup(node.attrs.from) && WABinary_1.isLidUser(WABinary_1.jidNormalizedUser(node.attrs.from))) {
+                        	const senderPn = WABinary_1.jidNormalizedUser(node.attrs.peer_recipient_pn || node.attrs.sender_pn) 
+                        	msg.key.remoteJid = senderPn
+                            if (message?.contextInfo?.participant) {
+                                msg.message[type_2].contextInfo.participant = senderPn
+                            }
+                            if (message?.contextInfo?.mentionedJid?.length > 0) {
+                            	msg.message[type_2].contextInfo.mentionedJid = [senderPn]
+                            }
+                        }
+
                         let participant = msg.key.participant
                         
                         if (category === 'peer') { // special peer message
