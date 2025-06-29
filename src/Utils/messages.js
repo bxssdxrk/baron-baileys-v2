@@ -306,6 +306,10 @@ const generateWAMessageContent = async (message, options) => {
             extContent.backgroundArgb = await assertColor(options.backgroundColor)
         }
         
+        if (options.textColor) {
+            extContent.textArgb = await assertColor(options.textColor) 
+        }
+        
         if (options.font) {
             extContent.font = options.font
         }
@@ -314,10 +318,6 @@ const generateWAMessageContent = async (message, options) => {
              ...(message.contextInfo || {}),
              ...(message.mentions ? { mentionedJid: message.mentions } : {})
          }
-        
-        m.messageContextInfo = {
-            messageSecret: crypto_1.randomBytes(32)
-        }
         
         m.extendedTextMessage = extContent
     }
@@ -350,10 +350,6 @@ const generateWAMessageContent = async (message, options) => {
             ...(message.mentions ? { mentionedJid: message.mentions } : {})
         }
         
-        contactMessage.messageContextInfo = {
-            messageSecret: crypto_1.randomBytes(32)
-        }
-        
         m = contactMessage
     }
     
@@ -379,10 +375,6 @@ const generateWAMessageContent = async (message, options) => {
             ...(message.mentions ? { mentionedJid: message.mentions } : {})
         }
         
-        locationMessage.messageContextInfo = {
-            messageSecret: crypto_1.randomBytes(32)
-        }
-        
         m = locationMessage
     }
     
@@ -390,10 +382,6 @@ const generateWAMessageContent = async (message, options) => {
         if (!message.react.senderTimestampMs) {
             message.react.senderTimestampMs = Date.now()
         }
-        
-        m.messageContextInfo = {
-            messageSecret: crypto_1.randomBytes(32)
-        } 
         
         m.reactionMessage = Types_1.WAProto.Message.ReactionMessage.fromObject(message.react)
     }
@@ -412,10 +400,6 @@ const generateWAMessageContent = async (message, options) => {
         mess[type].contextInfo = {
             ...(message.contextInfo || {}),
             ...(message.mentions ? { mentionedJid: message.mentions } : {})
-        }
-        
-        mess.messageContextInfo = {
-            messageSecret: crypto_1.randomBytes(32)
         }
         
         m = mess
@@ -438,7 +422,6 @@ const generateWAMessageContent = async (message, options) => {
         m.groupInviteMessage.groupJid = message.groupInvite.jid
         m.groupInviteMessage.groupName = message.groupInvite.name 
         m.groupInviteMessage.contextInfo = message.contextInfo    
-        m.messageContextInfo.messageSecret = crypto_1.randomBytes(32)
         
         if (options.getProfilePicUrl) {
             const pfpUrl = await options.getProfilePicUrl(message.groupInvite.jid)
@@ -461,7 +444,6 @@ const generateWAMessageContent = async (message, options) => {
         m.newsletterAdminInviteMessage.caption = message.adminInvite.caption
         m.newsletterAdminInviteMessage.inviteExpiration = message.adminInvite.expiration
         m.newsletterAdminInviteMessage.contextInfo = message.contextInfo 
-        m.messageContextInfo.messageSecret = crypto_1.randomBytes(32)
         
         if (options.getProfilePicUrl) {
             const pfpUrl = await options.getProfilePicUrl(message.adminInvite.jid)
@@ -483,6 +465,7 @@ const generateWAMessageContent = async (message, options) => {
         m.pinInChatMessage.type = message.pin?.type || 1
         m.pinInChatMessage.senderTimestampMs = message.pin?.time || Date.now()
         m.messageContextInfo.messageAddOnDurationInSecs = message.pin.type === 1 ? message.pin.time || 86400 : 0
+        m.messageContextInfo.messageAddOnExpiryType = WAProto_1.proto.MessageContextInfo.MessageAddonExpiryType.STATIC
     }
     
     else if ('keep' in message) {
@@ -500,7 +483,6 @@ const generateWAMessageContent = async (message, options) => {
         m.scheduledCallCreationMessage.scheduledTimestampMs = message.call?.time || Date.now()
         m.scheduledCallCreationMessage.callType = message.call?.type || 1
         m.scheduledCallCreationMessage.title = message.call?.name || 'Call Creation'
-        m.messageContextInfo.messageSecret = crypto_1.randomBytes(32)
         
         m.scheduledCallCreationMessage.contextInfo = {
             ...(message.contextInfo || {}),
@@ -514,7 +496,6 @@ const generateWAMessageContent = async (message, options) => {
    
         m.paymentInviteMessage.expiryTimestamp = message.paymentInvite?.expiry || 0
         m.paymentInviteMessage.serviceType = message.paymentInvite?.type || 2
-        m.messageContextInfo.messageSecret = crypto_1.randomBytes(32)
         
         m.paymentInviteMessage.contextInfo = {
             ...(message.contextInfo || {}),
@@ -562,27 +543,15 @@ const generateWAMessageContent = async (message, options) => {
                 }
                 break          
         }
-        
-        m.messageContextInfo = {
-            messageSecret: crypto_1.randomBytes(32)
-        } 
     }
     
     else if ('ptv' in message && message.ptv) {
         const { videoMessage } = await prepareWAMessageMedia({ video: message.video }, options)
         
         m.ptvMessage = videoMessage
-        
-        m.messageContextInfo = {
-            messageSecret: crypto_1.randomBytes(32)
-        } 
     }
     
     else if ('order' in message) {
-    	m.messageContextInfo = {
-            messageSecret: crypto_1.randomBytes(32)
-        }
-        
     	m.orderMessage = Types_1.WAProto.Message.OrderMessage.fromObject(message.order) 
         
         m.orderMessage.contextInfo = {
@@ -592,10 +561,6 @@ const generateWAMessageContent = async (message, options) => {
     }
     
     else if ('event' in message) {   	      
-   	m.messageContextInfo = {
-           messageSecret: crypto_1.randomBytes(32)
-       }     
-       
        m.eventMessage = Types_1.WAProto.Message.EventMessage.fromObject(message.event) 
        
        if (!message.event.startTime) {
@@ -619,9 +584,10 @@ const generateWAMessageContent = async (message, options) => {
             }
         })
         
-        m.messageContextInfo = {
-            messageSecret: crypto_1.randomBytes(32)
-        } 
+        m.productMessage.contextInfo = {
+            ...(message.contextInfo || {}),
+            ...(message.mentions ? { mentionedJid: message.mentions } : {})
+        }
     }
     
     else if ('pollResult' in message) {
@@ -642,10 +608,6 @@ const generateWAMessageContent = async (message, options) => {
             ...(message.mentions ? { mentionedJid: message.mentions } : {})
         }
         
-        m.messageContextInfo = {
-            messageSecret: crypto_1.randomBytes(32)
-        } 
-        
         m.pollResultSnapshotMessage = pollResultSnapshotMessage
     } 
     
@@ -657,10 +619,6 @@ const generateWAMessageContent = async (message, options) => {
         if (message.poll.selectableCount < 0
             || message.poll.selectableCount > message.poll.values.length) {
             throw new boom_1.Boom(`poll.selectableCount in poll should be >= 0 and <= ${message.poll.values.length}`, { statusCode: 400 })
-        }
-        
-        m.messageContextInfo = {
-            messageSecret: message.poll.messageSecret || crypto_1.randomBytes(32),
         }
         
         const pollCreationMessage = {
@@ -714,21 +672,69 @@ const generateWAMessageContent = async (message, options) => {
             ...(message.mentions ? { mentionedJid: message.mentions } : {})
         }
         
-        m.messageContextInfo = {
-            messageSecret: crypto_1.randomBytes(32)
+        m.requestPaymentMessage = requestPaymentMessage
+   }
+   
+   else if ('stickerPack' in message) {   	
+       const { stickers, cover, name, publisher, packId, description } = message.stickerPack
+       
+       const coverBuffer = await messages_media_1.toBuffer((await messages_media_1.getStream(cover)).stream) 
+       const imageDataHash = crypto_2.sha256(coverBuffer).toString('base64') 
+       
+       const [coverUploadResult, ...stickerUploadResults] = await Promise.all([
+           prepareWAMessageMedia({ image: coverBuffer }, { ...options, mediaTypeOverride: 'image' }), 
+           ...stickers.map(s => prepareWAMessageMedia({ sticker: s.data }, { ...options, mediaTypeOverride: 'sticker' })) 
+       ]) 
+       
+       const stickerPackId = packId || generics_1.generateMessageID() 
+       const coverImage = coverUploadResult.imageMessage
+       
+       const stickerPackSize = stickerUploadResults.reduce((acc, s) => acc + (s.stickerMessage?.fileLength ? +s.stickerMessage.fileLength : 0), 0) 
+       
+       m.stickerPackMessage = {
+            name, 
+            publisher, 
+            stickerPackId, 
+            packDescription: description, 
+            stickerPackOrigin: WAProto_1.proto.Message.StickerPackMessage.StickerPackOrigin.THIRD_PARTY, 
+            stickerPackSize, 
+            stickers: stickerUploadResults.map((uploadResult, i) => { 
+            	const stickerMsg = uploadResult.stickerMessage
+                const fileSha256B64 = Buffer.from(stickerMsg.fileSha256).toString('base64') 
+                
+                return {
+                	fileName: `${fileSha256B64}.webp`, 
+                    mimetype: stickerMsg.mimetype, 
+                    isAnimated: stickerMsg.isAnimated, 
+                    emojis: stickers[i].emojis || [], 
+                    accessibilityLabel: stickers[i].accessibilityLabel
+                }
+            }), 
+            fileSha256: coverImage.fileSha256, 
+            fileEncSha256: coverImage.fileEncSha256, 
+            mediaKey: coverImage.mediaKey, 
+            directPath: coverImage.directPath, 
+            fileLength: coverImage.fileLength, 
+            mediaKeyTimestamp: coverImage.mediaKeyTimestamp, 
+            trayIconFileName: `${stickerPackId}.png`, 
+            imageDataHash, 
+            thumbnailDirectPath: coverImage.directPath, 
+            thumbnailFileSha256: coverImage.fileSha256, 
+            thumbnailFileEncSha256: coverImage.fileEncSha256, 
+            thumbnailHeight: coverImage.height, 
+            thumbnailWidth: coverImage.width
         } 
         
-        m.requestPaymentMessage = requestPaymentMessage
+        m.stickerPackMessage.contextInfo = {
+            ...(message.contextInfo || {}),
+            ...(message.mentions ? { mentionedJid: message.mentions } : {})
+        }
    }
    
    else if ('sharePhoneNumber' in message) {
         m.protocolMessage = {
             type: Types_1.WAProto.Message.ProtocolMessage.Type.SHARE_PHONE_NUMBER
         }
-        
-        m.messageContextInfo = {
-            messageSecret: crypto_1.randomBytes(32)
-        } 
     }
     
     else if ('requestPhoneNumber' in message) {
@@ -743,10 +749,6 @@ const generateWAMessageContent = async (message, options) => {
             ...(message.contextInfo || {}),
             ...(message.mentions ? { mentionedJid: message.mentions } : {})
         }
-        
-        mess.messageContextInfo = {
-            messageSecret: crypto_1.randomBytes(32)
-        } 
         
         m = mess
     }
@@ -767,10 +769,6 @@ const generateWAMessageContent = async (message, options) => {
         }
         
         m = { listMessage }
-        
-        m.messageContextInfo = {
-            messageSecret: crypto_1.randomBytes(32)
-        } 
     }
     
     else if ('productList' in message && !!message.productList) {
@@ -798,10 +796,6 @@ const generateWAMessageContent = async (message, options) => {
         }
         
         m = { listMessage }
-        
-        m.messageContextInfo = {
-            messageSecret: crypto_1.randomBytes(32)
-        } 
     }
     
     else if ('buttons' in message && !!message.buttons) {        
@@ -841,10 +835,6 @@ const generateWAMessageContent = async (message, options) => {
         }
         
         m = { buttonsMessage }
-        
-        m.messageContextInfo = {
-            messageSecret: crypto_1.randomBytes(32)
-        } 
     }
     
     else if ('templateButtons' in message && !!message.templateButtons) {
@@ -874,10 +864,6 @@ const generateWAMessageContent = async (message, options) => {
         }
         
         m = { templateMessage: { hydratedTemplate }}
-        
-        m.messageContextInfo = {
-            messageSecret: crypto_1.randomBytes(32)
-        } 
     }
     
     else if ('interactiveButtons' in message && !!message.interactiveButtons) {    	
@@ -925,10 +911,6 @@ const generateWAMessageContent = async (message, options) => {
       } 
       
       m = { interactiveMessage }
-      
-      m.messageContextInfo = {
-            messageSecret: crypto_1.randomBytes(32)
-        } 
    } 
    
    else if ('shop' in message && !!message.shop) {
@@ -977,10 +959,6 @@ const generateWAMessageContent = async (message, options) => {
       } 
       
       m = { interactiveMessage }
-      
-      m.messageContextInfo = {
-            messageSecret: crypto_1.randomBytes(32)
-        } 
     }  
    
     else if ('collection' in message && !!message.collection) {
@@ -1029,10 +1007,6 @@ const generateWAMessageContent = async (message, options) => {
       }
       
       m = { interactiveMessage }
-      
-      m.messageContextInfo = {
-            messageSecret: crypto_1.randomBytes(32)
-        } 
     }
     
     else if ('cards' in message && !!message.cards) {
@@ -1110,10 +1084,6 @@ const generateWAMessageContent = async (message, options) => {
         }
         
         m = { interactiveMessage }
-        
-        m.messageContextInfo = {
-            messageSecret: crypto_1.randomBytes(32)
-        } 
     }
     
     if ('ephemeral' in message && !!message.ephemeral) {
@@ -1121,22 +1091,14 @@ const generateWAMessageContent = async (message, options) => {
     }   
     
     if ('viewOnce' in message && !!message.viewOnce) {
-        m = { viewOnceMessage: { message: m } }
-    }
-    
-    if ('viewOnceV2' in message && !!message.viewOnceV2) {
         m = { viewOnceMessageV2: { message: m } }
     }
     
-    if ('viewOnceV2Ext' in message && !!message.viewOnceV2Ext) {
+    if ('viewOnceExt' in message && !!message.viewOnceExt) {
         m = { viewOnceMessageV2Extension: { message: m } }
     }
     
     if ('edit' in message) {
-    	m.messageContextInfo = {
-            messageSecret: crypto_1.randomBytes(32)
-        } 
-        
         m = {
             protocolMessage: {
                 key: message.edit,
@@ -1203,13 +1165,16 @@ const generateWAMessageFromContent = (jid, message, options) => {
         }
     }
     
-    if (!!options?.ephemeralExpiration &&
-        key !== 'protocolMessage' &&
+    if (key !== 'protocolMessage' &&
         key !== 'ephemeralMessage' &&
-        !WABinary_1.isJidNewsletter(jid)) {
+        !WABinary_1.isJidNewsletter(jid)) { 
+        message.messageContextInfo = {
+            messageSecret: crypto_1.randomBytes(32), 
+            ...message.messageContextInfo
+        }
         innerMessage[key].contextInfo = {
             ...(innerMessage[key].contextInfo || {}),
-            expiration: options.ephemeralExpiration || Defaults_1.WA_DEFAULT_EPHEMERAL
+            expiration: options.ephemeralExpiration ? options.ephemeralExpiration : 0
         }
     }
     

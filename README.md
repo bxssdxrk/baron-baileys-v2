@@ -92,6 +92,7 @@ import makeWASocket from 'baron-baileys-v2'
         - [Send Album Message](#send-album-message) 
         - [Shop Message](#shop-message) 
         - [Collection Message](#collection-message) 
+        - [Sticker Pack Message](#Sticker-Pack-Message)
     - [Sending with Link Preview](#sending-messages-with-link-previews)
     - [Media Messages](#media-messages)
         - [Gif Message](#gif-message)
@@ -1521,14 +1522,51 @@ await sock.sendMessage(
 
 ### Status Mentions Message
 ```ts
+const jids = [
+    '123451679@g.us', 
+    '124848899@g.us', 
+    '111384848@g.us', 
+    '62689xxxx@s.whatsapp.net', 
+    '62xxxxxxx@s.whatsapp.net'
+]
+// Text
 await sock.sendStatusMentions(
-   jid, 
     {
-      image: {
-       url: 'https://example.com.jpg'
-       }, 
-       caption: 'Hi'
-    }
+      text: 'Hello Everyone', 
+      font: 2, // optional
+      textColor: 'FF0000', // optional
+      backgroundColor: '#000000' // optional
+    }, 
+    jids // Limit to 5 mentions per status
+)
+
+// Image
+await sock.sendStatusMentions(
+    {
+      Image: { url: 'https://example.com/ruriooe.jpg' }, or image buffer
+      caption: 'Hello Everyone ' // optional
+    }, 
+    jids // Limit to 5 mentions per status
+)
+
+// Video
+await sock.sendStatusMentions(
+    {
+      video: { url: 'https://example.com/ruriooe.mp4' }, or video buffer
+      caption: 'Hello Everyone ' // optional
+    }, 
+    jids // Limit to 5 mentions per status
+)
+
+// Audio
+await sock.sendStatusMentions(
+    {
+      audio: { url: 'https://example.com/ruriooe.mp3' }, or audio buffer
+      backgroundColor: '#000000', // optional 
+      mimetype: 'audio/mp4', 
+      ppt: true
+    }, 
+    jids // Limit to 5 mentions per status
 )
 ```
 
@@ -1827,6 +1865,31 @@ await sock.sendMessage(
        }, 
         hasMediaAttachment: false, // or true
         viewOnce: true
+    }
+)
+```
+### Sticker Pack Message
+```ts 
+// I don't know why the sticker doesn't appear
+await sock.sendMessage(
+    jid,
+    {
+        stickerPack: {
+            name: 'Hiii', 
+            publisher: 'Baron', 
+            description: 'Hello', 
+            cover: Buffer, // Image buffer
+            stickers: [{
+                data: { url: 'https://example.com/1234kjd.webp' }, 
+                emojis: ['❤'], // optional
+                accessibilityLabel: '' // optional
+            }, 
+            {
+                data: Buffer, 
+                emojis: ['❤'], // optional
+                accessibilityLabel: '' // optional
+            }]
+        }
     }
 )
 ```

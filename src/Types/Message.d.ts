@@ -65,6 +65,15 @@ export type MediaConnInfo = {
     fetchDate: Date
 }
 
+export interface StickerPack {
+    stickers: Sticker[]
+    cover: WAMediaUpload
+    name: string
+    publisher: string
+    description?: string
+    packId?: string
+}
+
 export interface Carousel {
     image?: WAMediaUpload
     video?: WAMediaUpload
@@ -174,6 +183,12 @@ type WithDimensions = {
     height?: number
 }
 
+export type Sticker = { 
+    data: WAMediaUpload
+    emojis?: string[]
+    accessibilityLabel?: string
+}
+
 export type PollMessageOptions = {
     name: string
     selectableCount?: number
@@ -273,9 +288,9 @@ export type PaymentInfo = {
     expiry?: number
     from?: string
     image?: {
-        placeholderArgb: fixed32
-        textArgb: fixed32
-        subtextArgb: fixed32
+        placeholderArgb: number
+        textArgb: number
+        subtextArgb: number
     }
 }
 
@@ -328,6 +343,8 @@ export type AnyRegularMessageContent = (({
     businessOwnerJid?: string
     body?: string
     footer?: string
+} | {
+    stickerPack: StickerPack
 } | SharePhoneNumber | RequestPhoneNumber) & ViewOnce & ViewOnceV2 & ViewOnceV2Ext
 
 export type AnyMessageContent = AnyRegularMessageContent | {

@@ -1,7 +1,7 @@
 syntax = "proto3";
 package proto;
 
-/// WhatsApp Version: 2.3000.1023612250
+/// WhatsApp Version: 2.3000.1024299492
 
 message ADVDeviceIdentity {
     optional uint32 rawId = 1;
@@ -327,6 +327,8 @@ message BotCapabilityMetadata {
         PROACTIVE_MESSAGE = 33;
         RICH_RESPONSE_UNIFIED_RESPONSE = 34;
         PROMOTION_MESSAGE = 35;
+        SIMPLIFIED_PROFILE_PAGE = 36;
+        RICH_RESPONSE_SOURCES_IN_MESSAGE = 37;
     }
 }
 
@@ -410,6 +412,8 @@ message BotMetadata {
     optional BotQuotaMetadata botQuotaMetadata = 23;
     optional BotAgeCollectionMetadata botAgeCollectionMetadata = 24;
     optional string conversationStarterPromptId = 25;
+    optional string botResponseId = 26;
+    optional BotSignatureVerificationMetadata verificationMetadata = 27;
 }
 
 enum BotMetricsEntryPoint {
@@ -438,6 +442,7 @@ enum BotMetricsEntryPoint {
     UGC_CHAT_SHORTCUT_AI_STUDIO = 23;
     NEW_CHAT_AI_STUDIO = 24;
     AIVOICE_FAVICON_CALL_HISTORY = 25;
+    ASK_META_AI_CONTEXT_MENU = 26;
 }
 message BotMetricsMetadata {
     optional string destinationId = 1;
@@ -450,6 +455,7 @@ enum BotMetricsThreadEntryPoint {
     AI_HOME_THREAD = 2;
     AI_DEEPLINK_IMMERSIVE_THREAD = 3;
     AI_DEEPLINK_THREAD = 4;
+    ASK_META_AI_CONTEXT_MENU_THREAD = 5;
 }
 message BotModeSelectionMetadata {
     repeated BotUserSelectionMode mode = 1;
@@ -628,6 +634,20 @@ enum BotSessionSource {
     EMU_FLASH_FOLLOWUP = 5;
     VOICE = 6;
 }
+message BotSignatureVerificationMetadata {
+    repeated BotSignatureVerificationUseCaseProof proofs = 1;
+}
+
+message BotSignatureVerificationUseCaseProof {
+    optional int32 version = 1;
+    optional BotSignatureUseCase useCase = 2;
+    optional bytes signature = 3;
+    optional bytes certificateChain = 4;
+    enum BotSignatureUseCase {
+        WA_BOT_MSG = 0;
+    }
+}
+
 message BotSourcesMetadata {
     repeated BotSourceItem sources = 1;
     message BotSourceItem {
@@ -637,6 +657,7 @@ message BotSourcesMetadata {
         optional string sourceQuery = 4;
         optional string faviconCdnUrl = 5;
         optional uint32 citationNumber = 6;
+        optional string sourceTitle = 7;
         enum SourceProvider {
             UNKNOWN = 0;
             BING = 1;
@@ -773,6 +794,7 @@ message Citation {
 message ClientPairingProps {
     optional bool isChatDbLidMigrated = 1;
     optional bool isSyncdPureLidSession = 2;
+    optional bool isSyncdSnapshotRecoveryEnabled = 3;
 }
 
 message ClientPayload {
@@ -1950,6 +1972,7 @@ message Message {
         optional string ctwaSignals = 5;
         optional bytes ctwaPayload = 6;
         optional ContextInfo contextInfo = 7;
+        optional string nativeFlowCallButtonPayload = 8;
     }
     
     message CallLogMessage {
@@ -2685,6 +2708,11 @@ message Message {
             optional FullHistorySyncOnDemandRequestResponse fullHistorySyncOnDemandRequestResponse = 6;
             optional CompanionMetaNonceFetchResponse companionMetaNonceFetchRequestResponse = 7;
             optional SyncDSnapshotFatalRecoveryResponse syncdSnapshotFatalRecoveryResponse = 8;
+            optional CompanionCanonicalUserNonceFetchResponse companionCanonicalUserNonceFetchRequestResponse = 9;
+            message CompanionCanonicalUserNonceFetchResponse {
+                optional string nonce = 1;
+            }
+            
             message CompanionMetaNonceFetchResponse {
                 optional string nonce = 1;
             }
@@ -2751,6 +2779,7 @@ message Message {
         FULL_HISTORY_SYNC_ON_DEMAND = 6;
         COMPANION_META_NONCE_FETCH = 7;
         COMPANION_SYNCD_SNAPSHOT_FATAL_RECOVERY = 8;
+        COMPANION_CANONICAL_USER_NONCE_FETCH = 9;
     }
     message PinInChatMessage {
         optional MessageKey key = 1;
@@ -3749,6 +3778,8 @@ message StatusAttribution {
             FACEBOOK = 2;
             MESSENGER = 3;
             SPOTIFY = 4;
+            YOUTUBE = 5;
+            PINTEREST = 6;
         }
     }
     
@@ -3882,6 +3913,7 @@ message SyncActionValue {
     optional CtwaPerCustomerDataSharingAction ctwaPerCustomerDataSharingAction = 62;
     optional PaymentTosAction paymentTosAction = 63;
     optional PrivacySettingChannelsPersonalisedRecommendationAction privacySettingChannelsPersonalisedRecommendationAction = 64;
+    optional BusinessBroadcastAssociationAction businessBroadcastAssociationAction = 65;
     message AgentAction {
         optional string name = 1;
         optional int32 deviceID = 2;
@@ -3899,6 +3931,10 @@ message SyncActionValue {
     
     message BotWelcomeRequestAction {
         optional bool isSent = 1;
+    }
+    
+    message BusinessBroadcastAssociationAction {
+        optional bool deleted = 1;
     }
     
     message CallLogAction {
@@ -4733,6 +4769,7 @@ message WebMessageInfo {
         CHANGE_LIMIT_SHARING = 216;
         GROUP_MEMBER_LINK_MODE = 217;
         BIZ_AUTOMATICALLY_LABELED_CHAT_SYSTEM_MESSAGE = 218;
+        PHONE_NUMBER_HIDING_CHAT_DEPRECATED_MESSAGE = 219;
     }
 }
 

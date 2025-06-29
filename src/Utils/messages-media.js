@@ -511,7 +511,13 @@ const toSmallestChunkSize = (num) => {
 const getUrlFromDirectPath = (directPath) => `https://${DEF_HOST}${directPath}`
 
 const downloadContentFromMessage = async ({ mediaKey, directPath, url }, type, opts = {}) => {
-    const downloadUrl = url || getUrlFromDirectPath(directPath)
+	const isValidMediaUrl = url?.startsWith('https://mmg.whatsapp.net/') 
+    const downloadUrl = isValidMediaUrl ? url : getUrlFromDirectPath(directPath)
+    
+    if (!downloadUrl) {
+    	throw new boom_1.Boom('No valid media URL or directPath present in message', { statusCode: 400 }) 
+    }
+    
     const keys = await getMediaKeys(mediaKey, type)
     return downloadEncryptedContent(downloadUrl, keys, opts)
 }
