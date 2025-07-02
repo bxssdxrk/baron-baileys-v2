@@ -23,12 +23,11 @@
     "WAProto/*",
     "WASignalGroup/*.js"
   ],
-    "scripts": {
+  "scripts": {
     "build:all": "tsc && typedoc",
     "build:docs": "typedoc",
     "build:tsc": "tsc"
   },
-  
   "dependencies": {
     "@adiwajshing/keyed-db": "^0.2.4",
     "@cacheable/node-cache": "^1.5.4",
@@ -39,7 +38,7 @@
     "cache-manager": "4.0.1",
     "futoin-hkdf": "^1.5.1",
     "libphonenumber-js": "^1.10.20",
-    "libsignal": "github:WhiskeySockets/libsignal-node",
+    "libsignal-baron": "^1.0.4",
     "music-metadata": "^7.12.3",
     "node-cache": "^5.1.2",
     "pino": "^7.0.0",
