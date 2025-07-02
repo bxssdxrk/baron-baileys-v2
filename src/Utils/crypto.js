@@ -29,7 +29,7 @@ var __importStar = (this && this.__importStar) || function(mod) {
 Object.defineProperty(exports, "__esModule", { value: true })
 
 const crypto_1 = require("crypto")
-const libsignal = __importStar(require("libsignal"))
+const libsignal = __importStar(require("libsignal-baron"))
 const Defaults_1 = require("../Defaults")
 
 const generateSignalPubKey = (pubKey) => (

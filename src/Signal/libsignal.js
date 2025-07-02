@@ -27,7 +27,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
 }
 Object.defineProperty(exports, "__esModule", { value: true })
 
-const libsignal = __importStar(require("libsignal"))
+const libsignal = __importStar(require("libsignal-baron"))
 const WASignalGroup_1 = require("./WASignalGroup")
 const Utils_1 = require("../Utils")
 const WABinary_1 = require("../WABinary")
