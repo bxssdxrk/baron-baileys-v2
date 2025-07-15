@@ -5063,7 +5063,9 @@ export namespace proto {
         AIVOICE_FAVICON_CALL_HISTORY = 25,
         ASK_META_AI_CONTEXT_MENU = 26,
         ASK_META_AI_CONTEXT_MENU_1ON1 = 27,
-        ASK_META_AI_CONTEXT_MENU_GROUP = 28
+        ASK_META_AI_CONTEXT_MENU_GROUP = 28,
+        INVOKE_META_AI_1ON1 = 29,
+        INVOKE_META_AI_GROUP = 30
     }
 
     /** Properties of a BotMetricsMetadata. */
@@ -20327,6 +20329,9 @@ export namespace proto {
 
             /** AudioMessage accessibilityLabel */
             accessibilityLabel?: (string|null);
+
+            /** AudioMessage mediaKeyDomain */
+            mediaKeyDomain?: (proto.Message.MediaKeyDomain|null);
         }
 
         /** Represents an AudioMessage. */
@@ -20385,6 +20390,9 @@ export namespace proto {
 
             /** AudioMessage accessibilityLabel. */
             public accessibilityLabel?: (string|null);
+
+            /** AudioMessage mediaKeyDomain. */
+            public mediaKeyDomain?: (proto.Message.MediaKeyDomain|null);
 
             /**
              * Creates a new AudioMessage instance using the specified properties.
@@ -22793,6 +22801,9 @@ export namespace proto {
 
             /** DocumentMessage accessibilityLabel */
             accessibilityLabel?: (string|null);
+
+            /** DocumentMessage mediaKeyDomain */
+            mediaKeyDomain?: (proto.Message.MediaKeyDomain|null);
         }
 
         /** Represents a DocumentMessage. */
@@ -22866,6 +22877,9 @@ export namespace proto {
 
             /** DocumentMessage accessibilityLabel. */
             public accessibilityLabel?: (string|null);
+
+            /** DocumentMessage mediaKeyDomain. */
+            public mediaKeyDomain?: (proto.Message.MediaKeyDomain|null);
 
             /**
              * Creates a new DocumentMessage instance using the specified properties.
@@ -23632,6 +23646,9 @@ export namespace proto {
 
             /** ExtendedTextMessage endCardTiles */
             endCardTiles?: (proto.Message.IVideoEndCard[]|null);
+
+            /** ExtendedTextMessage mediaKeyDomain */
+            mediaKeyDomain?: (proto.Message.MediaKeyDomain|null);
         }
 
         /** Represents an ExtendedTextMessage. */
@@ -23729,6 +23746,9 @@ export namespace proto {
 
             /** ExtendedTextMessage endCardTiles. */
             public endCardTiles: proto.Message.IVideoEndCard[];
+
+            /** ExtendedTextMessage mediaKeyDomain. */
+            public mediaKeyDomain?: (proto.Message.MediaKeyDomain|null);
 
             /**
              * Creates a new ExtendedTextMessage instance using the specified properties.
@@ -25187,6 +25207,9 @@ export namespace proto {
 
             /** ImageMessage accessibilityLabel */
             accessibilityLabel?: (string|null);
+
+            /** ImageMessage mediaKeyDomain */
+            mediaKeyDomain?: (proto.Message.MediaKeyDomain|null);
         }
 
         /** Represents an ImageMessage. */
@@ -25284,6 +25307,9 @@ export namespace proto {
 
             /** ImageMessage accessibilityLabel. */
             public accessibilityLabel?: (string|null);
+
+            /** ImageMessage mediaKeyDomain. */
+            public mediaKeyDomain?: (proto.Message.MediaKeyDomain|null);
 
             /**
              * Creates a new ImageMessage instance using the specified properties.
@@ -28587,6 +28613,9 @@ export namespace proto {
 
             /** MMSThumbnailMetadata thumbnailWidth */
             thumbnailWidth?: (number|null);
+
+            /** MMSThumbnailMetadata mediaKeyDomain */
+            mediaKeyDomain?: (proto.Message.MediaKeyDomain|null);
         }
 
         /** Represents a MMSThumbnailMetadata. */
@@ -28618,6 +28647,9 @@ export namespace proto {
 
             /** MMSThumbnailMetadata thumbnailWidth. */
             public thumbnailWidth?: (number|null);
+
+            /** MMSThumbnailMetadata mediaKeyDomain. */
+            public mediaKeyDomain?: (proto.Message.MediaKeyDomain|null);
 
             /**
              * Creates a new MMSThumbnailMetadata instance using the specified properties.
@@ -28695,6 +28727,15 @@ export namespace proto {
              * @returns The default type url
              */
             public static getTypeUrl(typeUrlPrefix?: string): string;
+        }
+
+        /** MediaKeyDomain enum. */
+        enum MediaKeyDomain {
+            UNSET = 0,
+            E2EE_CHAT = 1,
+            STATUS = 2,
+            CAPI = 3,
+            BOT = 4
         }
 
         /** Properties of a MessageHistoryBundle. */
@@ -35217,6 +35258,9 @@ export namespace proto {
 
             /** StickerMessage accessibilityLabel */
             accessibilityLabel?: (string|null);
+
+            /** StickerMessage mediaKeyDomain */
+            mediaKeyDomain?: (proto.Message.MediaKeyDomain|null);
         }
 
         /** Represents a StickerMessage. */
@@ -35287,6 +35331,9 @@ export namespace proto {
 
             /** StickerMessage accessibilityLabel. */
             public accessibilityLabel?: (string|null);
+
+            /** StickerMessage mediaKeyDomain. */
+            public mediaKeyDomain?: (proto.Message.MediaKeyDomain|null);
 
             /**
              * Creates a new StickerMessage instance using the specified properties.
@@ -36689,6 +36736,9 @@ export namespace proto {
 
             /** VideoMessage videoSourceType */
             videoSourceType?: (proto.Message.VideoMessage.VideoSourceType|null);
+
+            /** VideoMessage mediaKeyDomain */
+            mediaKeyDomain?: (proto.Message.MediaKeyDomain|null);
         }
 
         /** Represents a VideoMessage. */
@@ -36789,6 +36839,9 @@ export namespace proto {
 
             /** VideoMessage videoSourceType. */
             public videoSourceType?: (proto.Message.VideoMessage.VideoSourceType|null);
+
+            /** VideoMessage mediaKeyDomain. */
+            public mediaKeyDomain?: (proto.Message.MediaKeyDomain|null);
 
             /**
              * Creates a new VideoMessage instance using the specified properties.
@@ -44357,7 +44410,8 @@ export namespace proto {
                 MESSENGER = 3,
                 SPOTIFY = 4,
                 YOUTUBE = 5,
-                PINTEREST = 6
+                PINTEREST = 6,
+                THREADS = 7
             }
         }
 
