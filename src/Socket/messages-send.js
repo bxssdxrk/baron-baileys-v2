@@ -519,10 +519,10 @@ const makeMessagesSocket = (config) => {
                 extraAttrs["decrypt-fail"] = "hide";
             }
 
-            if (messages.interactiveResponseMessage?.nativeFlowResponseMessage) {
-                extraAttrs["native_flow_name"] =
-                    messages.interactiveResponseMessage?.nativeFlowResponseMessage.name;
-            }
+            // if (messages.interactiveResponseMessage?.nativeFlowResponseMessage) {
+            //     extraAttrs["native_flow_name"] =
+            //         messages.interactiveResponseMessage?.nativeFlowResponseMessage.name;
+            // } test
 
             if (isGroup || isStatus) {
                 const [groupData, senderKeyMap] = await Promise.all([
