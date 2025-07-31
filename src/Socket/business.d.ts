@@ -23,6 +23,7 @@ export declare const makeBusinessSocket: (config: SocketConfig) => {
         to: string
     }>
     rejectCall: (callId: string, callFrom: string) => Promise<void>
+    nodelogger: (node: BinaryNode) => Promise<void>
     fetchMessageHistory: (count: number, oldestMsgKey: import("../Types").WAProto.IMessageKey, oldestMsgTimestamp: number | import("long").Long) => Promise<string>
     requestPlaceholderResend: (messageKey: import("../Types").WAProto.IMessageKey) => Promise<string | undefined>
     getPrivacyTokens: (jids: string[]) => Promise<BinaryNode>

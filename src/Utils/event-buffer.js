@@ -26,6 +26,7 @@ const BUFFERABLE_EVENT = [
     'messages.reaction',
     'message-receipt.update',
     'groups.update',
+    'communities.update',
 ]
 
 const BUFFERABLE_EVENT_SET = new Set(BUFFERABLE_EVENT)
@@ -142,7 +143,8 @@ const makeBufferData = () => {
         messageReactions: {},
         messageDeletes: {},
         messageReceipts: {},
-        groupUpdates: {}
+        groupUpdates: {},
+        communityUpdates: {}
     }
 }
 
@@ -423,6 +425,17 @@ function append(data, historyCache, event, eventData, logger) {
                 }
             }
             break
+        case 'communities.update':
+            const communityUpdates = eventData
+            console.log('community updates', communityUpdates )
+            for (const update of communityUpdates) {
+                const id = update.id
+                const communityUpdate = data.communityUpdates[id] || {}
+                if (!data.communityUpdates[id]) {
+                    data.communityUpdates[id] = Object.assign(communityUpdate, update)
+                }
+            }
+            break
         default:
             throw new Error(`"${event}" cannot be buffered`)
     }
@@ -524,6 +537,10 @@ function consolidateEvents(data) {
     const groupUpdateList = Object.values(data.groupUpdates)
     if (groupUpdateList.length) {
         map['groups.update'] = groupUpdateList
+    }
+    const communityUpdateList = Object.values(data.communityUpdates)
+    if (communityUpdateList.length) {
+        map['communities.update'] = communityUpdateList
     }
     return map
 }

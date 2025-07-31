@@ -272,6 +272,9 @@ const jid2 = message.key.participant;
         const emitGroupUpdate = (update) => {
             ev.emit('groups.update', [{ id: jid, ...update, author: message.participant ? message.participant : undefined }])
         }
+        const emitCommunityUpdate = (update) => {
+            ev.emit('communities.update', [{ id: jid, ...update, author: message.participant ? message.participant : undefined }])
+        }
         const emitGroupRequestJoin = (participant, action, method) => {
             ev.emit('group.join-request', { id: jid, author: message.participant, participant, action, method: method })
         }
@@ -335,10 +338,20 @@ const jid2 = message.key.participant;
                 chat.name = name
                 emitGroupUpdate({ subject: name })
                 break
+                case Types_1.WAMessageStubType.COMMUNITY_PARENT_GROUP_SUBJECT_CHANGED:
+                const name2 = message.messageStubParameters?.[0]
+                chat.name2 = name2
+                emitCommunityUpdate({ subject: name2 })
+                break
             case Types_1.WAMessageStubType.GROUP_CHANGE_DESCRIPTION:
                 const description = message.messageStubParameters?.[0]
                 chat.description = description
                 emitGroupUpdate({ desc: description })
+                break
+                 case Types_1.WAMessageStubType.COMMUNITY_CHANGE_DESCRIPTION:
+                const description2 = message.messageStubParameters?.[0]
+                chat.description2 = description2
+                emitCommunityUpdate({ desc: description2 })
                 break
             case Types_1.WAMessageStubType.GROUP_CHANGE_INVITE_LINK:
                 const code = message.messageStubParameters?.[0]

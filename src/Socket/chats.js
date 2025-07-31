@@ -215,6 +215,7 @@ const makeChatsSocket = (config) => {
     }
 
 
+
     const fetchStatus = async (...jids) => {
         const usyncQuery = new WAUSync_1.USyncQuery().withStatusProtocol()
         

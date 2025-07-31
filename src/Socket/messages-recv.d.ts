@@ -11,6 +11,7 @@ export declare const makeMessagesRecvSocket: (config: SocketConfig) => {
         to: string
     }>
     rejectCall: (callId: string, callFrom: string) => Promise<void>
+    nodelogger: (node: BinaryNode) => Promise<void>
     fetchMessageHistory: (count: number, oldestMsgKey: WAMessageKey, oldestMsgTimestamp: number | Long) => Promise<string>
     requestPlaceholderResend: (messageKey: WAMessageKey) => Promise<string | undefined>
     getPrivacyTokens: (jids: string[]) => Promise<BinaryNode>
