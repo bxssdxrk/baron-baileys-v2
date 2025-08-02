@@ -214,6 +214,9 @@ export type BufferedEventData = {
     groupUpdates: {
         [jid: string]: Partial<GroupMetadata>
     }
+    communityUpdates: {
+        [jid: string]: Partial<GroupMetadata>
+    }
 }
 
 export type BaileysEvent = keyof BaileysEventMap
