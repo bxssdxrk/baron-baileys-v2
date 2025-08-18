@@ -14,6 +14,7 @@ export declare const makeChatsSocket: (config: SocketConfig) => {
     }>
     upsertMessage: (msg: proto.IWebMessageInfo, type: MessageUpsertType) => Promise<void>
     appPatch: (patchCreate: WAPatchCreate) => Promise<void>
+    createCallLink: (type: 'audio' | 'video', event?: number, timeoutMs?: number) => Promise<void>
     sendPresenceUpdate: (type: WAPresence, toJid?: string) => Promise<void>
     presenceSubscribe: (toJid: string, tcToken?: Buffer) => Promise<void>
     getBotListV2: () => Promise<BotListInfo[]>
@@ -42,6 +43,7 @@ export declare const makeChatsSocket: (config: SocketConfig) => {
     updateReadReceiptsPrivacy: (value: WAReadReceiptsValue) => Promise<void>
     updateGroupsAddPrivacy: (value: WAPrivacyGroupAddValue) => Promise<void>
     updateDefaultDisappearingMode: (duration: number) => Promise<void>
+    updateDisableLinkPreviewsPrivacy: (isPreviewsDisabled: boolean) => Promise<void>
     getBusinessProfile: (jid: string) => Promise<WABusinessProfile | void>
     resyncAppState: (collections: readonly ("critical_block" | "critical_unblock_low" | "regular_high" | "regular_low" | "regular")[], isInitialSync: boolean) => Promise<void>
     chatModify: (mod: ChatModification, jid: string) => Promise<void>

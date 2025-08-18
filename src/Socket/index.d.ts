@@ -45,9 +45,9 @@ declare const makeWASocket: (config: UserFacingSocketConfig) => {
     }>
     profilePictureUrl: (jids: string) => Promise<string>
     getUSyncDevices: (jids: string[], useCache: boolean, ignoreZeroDevices: boolean) => Promise<import("..").JidWithDevice[]>
+    getEphemeralGroup: (jid: string) => Promise<number>
     updateMediaMessage: (message: import("../Types").WAProto.IWebMessageInfo) => Promise<import("../Types").WAProto.IWebMessageInfo>
     sendStatusMentions: (content: import("../Types").WAProto.IMessage, jid: string, Private?: boolean) => Promise<string>
-    sendAlbumMessage: (jid: string, medias: import("../Types").WAProto.IMessage, options?: import("../Types").MiscMessageGenerationOptions) => Promise<string>
     sendMessage: (jid: string, content: import("../Types").AnyMessageContent, options?: import("../Types").MiscMessageGenerationOptions) => Promise<import("../Types").WAProto.WebMessageInfo | undefined>
     subscribeNewsletterUpdates: (jid: string) => Promise<{
         duration: string
@@ -65,6 +65,9 @@ declare const makeWASocket: (config: UserFacingSocketConfig) => {
     newsletterQuery: (jid: string, type: string, content: BinaryNode) => Promise<BinaryNode>
     newsletterWMexQuery: (jid?: string | undefined, query_id: number, content: BinaryNode) => Promise<BinaryNode>
     newsletterMetadata: (type: "invite" | "jid", key: string, role?: import("../Types").NewsletterViewRole | undefined) => Promise<import("../Types").NewsletterMetadata>
+    newsletterFetchAllParticipating: () => Promise<{
+    	[_: string]: import("../Types").NewsletterMetadata
+    }>
     newsletterAdminCount: (jid: string) => Promise<number>
     newsletterChangeOwner: (jid: string, userLid: string) => Promise<void>
     newsletterDemote: (jid: string, userLid: string) => Promise<void>
@@ -108,6 +111,7 @@ declare const makeWASocket: (config: UserFacingSocketConfig) => {
     }
     upsertMessage: (msg: import("../Types").WAProto.IWebMessageInfo, type: import("../Types").MessageUpsertType) => Promise<void>
     appPatch: (patchCreate: import("../Types").WAPatchCreate) => Promise<void>
+    createCallLink: (type: 'audio' | 'video', event?: number, timeoutMs?: number) => Promise<void>
     sendPresenceUpdate: (type: import("../Types").WAPresence, toJid?: string | undefined) => Promise<void>
     presenceSubscribe: (toJid: string, tcToken?: Buffer | undefined) => Promise<void>    
     getBotListV2: () => Promise<BotListInfo[]>
@@ -135,6 +139,7 @@ declare const makeWASocket: (config: UserFacingSocketConfig) => {
     updateReadReceiptsPrivacy: (value: import("../Types").WAReadReceiptsValue) => Promise<void>
     updateGroupsAddPrivacy: (value: import("../Types").WAPrivacyGroupAddValue) => Promise<void>
     updateDefaultDisappearingMode: (duration: number) => Promise<void>
+    updateDisableLinkPreviewsPrivacy: (isPreviewsDisabled: boolean) => Promise<void>
     getBusinessProfile: (jid: string) => Promise<void | import("../Types").WABusinessProfile>
     resyncAppState: (collections: readonly ("critical_block" | "critical_unblock_low" | "regular_high" | "regular_low" | "regular")[], isInitialSync: boolean) => Promise<void>
     chatModify: (mod: import("../Types").ChatModification, jid: string) => Promise<void>

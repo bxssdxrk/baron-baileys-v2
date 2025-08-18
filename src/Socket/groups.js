@@ -65,6 +65,16 @@ const makeGroupsSocket = (config) => {
         return data
     }
     
+    baron.ws.on('CB:ib,,dirty', async (node) => {
+        const { attrs } = WABinary_1.getBinaryNodeChild(node, 'dirty')
+        if (attrs.type !== 'groups') {
+            return
+        }
+                
+        await groupFetchAllParticipating()
+        await baron.cleanDirtyBits('groups')
+    })
+    
     return {
         ...baron,
         groupQuery, 
@@ -309,7 +319,7 @@ const extractGroupMetadata = (result) => {
         subject: group.attrs.subject,
         subjectOwner: mode === 'lid' ? group.attrs.s_o_pn : group.attrs.s_o,
         subjectTime: +group.attrs.s_t,
-        size: WABinary_1.getBinaryNodeChildren(group, 'participant').length,
+        size: group.attrs?.size ? +group.attrs.size : WABinary_1.getBinaryNodeChildren(group, 'participant').length,
         creation: +group.attrs.creation,
         owner: group.attrs.creator ? WABinary_1.jidNormalizedUser(mode === 'lid' ? group.attrs.creator_pn : group.attrs.creator) : undefined,
         ownerCountry: group.attrs.creator_country_code, 
@@ -324,7 +334,7 @@ const extractGroupMetadata = (result) => {
         memberAddMode,
         participants: WABinary_1.getBinaryNodeChildren(group, 'participant').map(({ attrs }) => {
             return {
-                 id: attrs.jid,
+                id: (0, WABinary_1.isJidUser)(attrs.jid) ? attrs.jid : (0, WABinary_1.jidNormalizedUser)(attrs.phone_number),
                 jid: (0, WABinary_1.isJidUser)(attrs.jid) ? attrs.jid : (0, WABinary_1.jidNormalizedUser)(attrs.phone_number),
                 lid: (0, WABinary_1.isLidUser)(attrs.jid) ? attrs.jid : attrs.lid,
                 admin: (attrs.type || null)

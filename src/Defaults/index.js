@@ -6,7 +6,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 
 Object.defineProperty(exports, "__esModule", { value: true })
 
-exports.DEFAULT_CACHE_TTLS = exports.INITIAL_PREKEY_COUNT = exports.MIN_PREKEY_COUNT = exports.MEDIA_KEYS = exports.MEDIA_HKDF_KEY_MAPPING = exports.MEDIA_PATH_MAP = exports.DEFAULT_CONNECTION_CONFIG = exports.PROCESSABLE_HISTORY_TYPES = exports.WA_CERT_DETAILS = exports.URL_REGEX = exports.NOISE_WA_HEADER = exports.KEY_BUNDLE_TYPE = exports.DICT_VERSION = exports.NOISE_MODE = exports.WA_DEFAULT_EPHEMERAL = exports.PHONE_CONNECTION_CB = exports.DEF_TAG_PREFIX = exports.DEF_CALLBACK_PREFIX = exports.DEFAULT_ORIGIN = exports.UNAUTHORIZED_CODES = null
+exports.DEFAULT_CACHE_TTLS = exports.INITIAL_PREKEY_COUNT = exports.MIN_PREKEY_COUNT = exports.MEDIA_KEYS = exports.MEDIA_HKDF_KEY_MAPPING = exports.MEDIA_PATH_MAP = exports.DEFAULT_CONNECTION_CONFIG = exports.PROCESSABLE_HISTORY_TYPES = exports.WA_CERT_DETAILS = exports.URL_REGEX = exports.NOISE_WA_HEADER = exports.KEY_BUNDLE_TYPE = exports.DICT_VERSION = exports.NOISE_MODE = exports.WA_DEFAULT_EPHEMERAL = exports.PHONE_CONNECTION_CB = exports.DEF_TAG_PREFIX = exports.DEF_CALLBACK_PREFIX = exports.CALL_AUDIO_PREFIX = exports.CALL_VIDEO_PREFIX = exports.DEFAULT_ORIGIN = exports.UNAUTHORIZED_CODES = null
 
 const WAProto_1 = require("../../WAProto");
 const libsignal_1 = require("../Signal/libsignal");
@@ -20,6 +20,10 @@ exports.UNAUTHORIZED_CODES = [401, 403, 419]
 exports.PHONENUMBER_MCC = phonenumber_mcc_json_1.default
 
 exports.DEFAULT_ORIGIN = 'https://web.whatsapp.com'
+
+exports.CALL_VIDEO_PREFIX = 'https://call.whatsapp.com/video/' 
+
+exports.CALL_AUDIO_PREFIX = 'https://call.whatsapp.com/voice/'
 
 exports.DEF_CALLBACK_PREFIX = 'CB:'
 
@@ -55,7 +59,7 @@ exports.DEFAULT_CONNECTION_CONFIG = {
     browser: Utils_1.Browsers.iOS('SAFARI'),
     waWebSocketUrl: 'wss://web.whatsapp.com/ws/chat',
     connectTimeoutMs: 20000,
-    keepAliveIntervalMs: 15000,
+    keepAliveIntervalMs: 30000,
     logger: logger_1.default.child({ class: 'silent' }),
     printQRInTerminal: false,
     emitOwnEvents: true,
@@ -68,11 +72,11 @@ exports.DEFAULT_CONNECTION_CONFIG = {
     markOnlineOnConnect: true,
     syncFullHistory: false,
     patchMessageBeforeSending: msg => msg,
-    shouldSyncHistoryMessage: () => false,
+    shouldSyncHistoryMessage: () => true,
     shouldIgnoreJid: () => false,
     linkPreviewImageThumbnailWidth: 192,
     transactionOpts: { maxCommitRetries: 10, delayBetweenTriesMs: 3000 },
-    generateHighQualityLinkPreview: true,
+    generateHighQualityLinkPreview: false,
     options: {},
     appStateMacVerification: {
         patch: false,
@@ -90,6 +94,7 @@ exports.MEDIA_PATH_MAP = {
     document: '/mms/document',
     audio: '/mms/audio',
     sticker: '/mms/image',
+    'sticker-pack': '/mms/sticker', 
     'thumbnail-link': '/mms/image',
     'product-catalog-image': '/product/image',
     'md-app-state': '',
@@ -104,8 +109,9 @@ exports.MEDIA_HKDF_KEY_MAPPING = {
     'ppic': '',
     'product': 'Image',
     'ptt': 'Audio',
+    'video': 'Video', 
     'sticker': 'Image',
-    'video': 'Video',
+    'sticker-pack': 'Sticker Pack', 
     'thumbnail-document': 'Document Thumbnail',
     'thumbnail-image': 'Image Thumbnail',
     'thumbnail-video': 'Video Thumbnail',

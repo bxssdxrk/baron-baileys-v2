@@ -3996,7 +3996,8 @@ export namespace proto {
             PROMOTION_MESSAGE = 35,
             SIMPLIFIED_PROFILE_PAGE = 36,
             RICH_RESPONSE_SOURCES_IN_MESSAGE = 37,
-            RICH_RESPONSE_SIDE_BY_SIDE_SURVEY = 38
+            RICH_RESPONSE_SIDE_BY_SIDE_SURVEY = 38,
+            RICH_RESPONSE_UNIFIED_TEXT_COMPONENT = 39
         }
     }
 
@@ -5066,6 +5067,9 @@ export namespace proto {
 
         /** BotMetadata botMessageOriginMetadata */
         botMessageOriginMetadata?: (proto.IBotMessageOriginMetadata|null);
+
+        /** BotMetadata inThreadSurveyMetadata */
+        inThreadSurveyMetadata?: (proto.IInThreadSurveyMetadata|null);
     }
 
     /** Represents a BotMetadata. */
@@ -5163,6 +5167,9 @@ export namespace proto {
 
         /** BotMetadata botMessageOriginMetadata. */
         public botMessageOriginMetadata?: (proto.IBotMessageOriginMetadata|null);
+
+        /** BotMetadata inThreadSurveyMetadata. */
+        public inThreadSurveyMetadata?: (proto.IInThreadSurveyMetadata|null);
 
         /**
          * Creates a new BotMetadata instance using the specified properties.
@@ -6512,7 +6519,8 @@ export namespace proto {
         /** BotPromotionType enum. */
         enum BotPromotionType {
             UNKNOWN_TYPE = 0,
-            C50 = 1
+            C50 = 1,
+            SURVEY_PLATFORM = 2
         }
     }
 
@@ -9750,6 +9758,9 @@ export namespace proto {
 
         /** ClientPayload accountType */
         accountType?: (proto.ClientPayload.AccountType|null);
+
+        /** ClientPayload connectionSequenceInfo */
+        connectionSequenceInfo?: (number|null);
     }
 
     /** Represents a ClientPayload. */
@@ -9850,6 +9861,9 @@ export namespace proto {
 
         /** ClientPayload accountType. */
         public accountType?: (proto.ClientPayload.AccountType|null);
+
+        /** ClientPayload connectionSequenceInfo. */
+        public connectionSequenceInfo?: (number|null);
 
         /**
          * Creates a new ClientPayload instance using the specified properties.
@@ -12372,6 +12386,9 @@ export namespace proto {
 
             /** ExternalAdReplyInfo wtwaWebsiteUrl */
             wtwaWebsiteUrl?: (string|null);
+
+            /** ExternalAdReplyInfo adPreviewUrl */
+            adPreviewUrl?: (string|null);
         }
 
         /** Represents an ExternalAdReplyInfo. */
@@ -12460,6 +12477,9 @@ export namespace proto {
 
             /** ExternalAdReplyInfo wtwaWebsiteUrl. */
             public wtwaWebsiteUrl?: (string|null);
+
+            /** ExternalAdReplyInfo adPreviewUrl. */
+            public adPreviewUrl?: (string|null);
 
             /**
              * Creates a new ExternalAdReplyInfo instance using the specified properties.
@@ -17612,6 +17632,523 @@ export namespace proto {
          * @returns The default type url
          */
         public static getTypeUrl(typeUrlPrefix?: string): string;
+    }
+
+    /** Properties of an InThreadSurveyMetadata. */
+    interface IInThreadSurveyMetadata {
+
+        /** InThreadSurveyMetadata tessaSessionId */
+        tessaSessionId?: (string|null);
+
+        /** InThreadSurveyMetadata simonSessionId */
+        simonSessionId?: (string|null);
+
+        /** InThreadSurveyMetadata simonSurveyId */
+        simonSurveyId?: (string|null);
+
+        /** InThreadSurveyMetadata tessaRootId */
+        tessaRootId?: (string|null);
+
+        /** InThreadSurveyMetadata requestId */
+        requestId?: (string|null);
+
+        /** InThreadSurveyMetadata tessaEvent */
+        tessaEvent?: (string|null);
+
+        /** InThreadSurveyMetadata invitationHeaderText */
+        invitationHeaderText?: (string|null);
+
+        /** InThreadSurveyMetadata invitationBodyText */
+        invitationBodyText?: (string|null);
+
+        /** InThreadSurveyMetadata invitationCtaText */
+        invitationCtaText?: (string|null);
+
+        /** InThreadSurveyMetadata invitationCtaUrl */
+        invitationCtaUrl?: (string|null);
+
+        /** InThreadSurveyMetadata surveyTitle */
+        surveyTitle?: (string|null);
+
+        /** InThreadSurveyMetadata questions */
+        questions?: (proto.InThreadSurveyMetadata.IInThreadSurveyQuestion[]|null);
+
+        /** InThreadSurveyMetadata surveyContinueButtonText */
+        surveyContinueButtonText?: (string|null);
+
+        /** InThreadSurveyMetadata surveySubmitButtonText */
+        surveySubmitButtonText?: (string|null);
+
+        /** InThreadSurveyMetadata privacyStatementFull */
+        privacyStatementFull?: (string|null);
+
+        /** InThreadSurveyMetadata privacyStatementParts */
+        privacyStatementParts?: (proto.InThreadSurveyMetadata.IInThreadSurveyPrivacyStatementPart[]|null);
+
+        /** InThreadSurveyMetadata feedbackToastText */
+        feedbackToastText?: (string|null);
+    }
+
+    /** Represents an InThreadSurveyMetadata. */
+    class InThreadSurveyMetadata implements IInThreadSurveyMetadata {
+
+        /**
+         * Constructs a new InThreadSurveyMetadata.
+         * @param [properties] Properties to set
+         */
+        constructor(properties?: proto.IInThreadSurveyMetadata);
+
+        /** InThreadSurveyMetadata tessaSessionId. */
+        public tessaSessionId?: (string|null);
+
+        /** InThreadSurveyMetadata simonSessionId. */
+        public simonSessionId?: (string|null);
+
+        /** InThreadSurveyMetadata simonSurveyId. */
+        public simonSurveyId?: (string|null);
+
+        /** InThreadSurveyMetadata tessaRootId. */
+        public tessaRootId?: (string|null);
+
+        /** InThreadSurveyMetadata requestId. */
+        public requestId?: (string|null);
+
+        /** InThreadSurveyMetadata tessaEvent. */
+        public tessaEvent?: (string|null);
+
+        /** InThreadSurveyMetadata invitationHeaderText. */
+        public invitationHeaderText?: (string|null);
+
+        /** InThreadSurveyMetadata invitationBodyText. */
+        public invitationBodyText?: (string|null);
+
+        /** InThreadSurveyMetadata invitationCtaText. */
+        public invitationCtaText?: (string|null);
+
+        /** InThreadSurveyMetadata invitationCtaUrl. */
+        public invitationCtaUrl?: (string|null);
+
+        /** InThreadSurveyMetadata surveyTitle. */
+        public surveyTitle?: (string|null);
+
+        /** InThreadSurveyMetadata questions. */
+        public questions: proto.InThreadSurveyMetadata.IInThreadSurveyQuestion[];
+
+        /** InThreadSurveyMetadata surveyContinueButtonText. */
+        public surveyContinueButtonText?: (string|null);
+
+        /** InThreadSurveyMetadata surveySubmitButtonText. */
+        public surveySubmitButtonText?: (string|null);
+
+        /** InThreadSurveyMetadata privacyStatementFull. */
+        public privacyStatementFull?: (string|null);
+
+        /** InThreadSurveyMetadata privacyStatementParts. */
+        public privacyStatementParts: proto.InThreadSurveyMetadata.IInThreadSurveyPrivacyStatementPart[];
+
+        /** InThreadSurveyMetadata feedbackToastText. */
+        public feedbackToastText?: (string|null);
+
+        /**
+         * Creates a new InThreadSurveyMetadata instance using the specified properties.
+         * @param [properties] Properties to set
+         * @returns InThreadSurveyMetadata instance
+         */
+        public static create(properties?: proto.IInThreadSurveyMetadata): proto.InThreadSurveyMetadata;
+
+        /**
+         * Encodes the specified InThreadSurveyMetadata message. Does not implicitly {@link proto.InThreadSurveyMetadata.verify|verify} messages.
+         * @param message InThreadSurveyMetadata message or plain object to encode
+         * @param [writer] Writer to encode to
+         * @returns Writer
+         */
+        public static encode(message: proto.IInThreadSurveyMetadata, writer?: $protobuf.Writer): $protobuf.Writer;
+
+        /**
+         * Encodes the specified InThreadSurveyMetadata message, length delimited. Does not implicitly {@link proto.InThreadSurveyMetadata.verify|verify} messages.
+         * @param message InThreadSurveyMetadata message or plain object to encode
+         * @param [writer] Writer to encode to
+         * @returns Writer
+         */
+        public static encodeDelimited(message: proto.IInThreadSurveyMetadata, writer?: $protobuf.Writer): $protobuf.Writer;
+
+        /**
+         * Decodes an InThreadSurveyMetadata message from the specified reader or buffer.
+         * @param reader Reader or buffer to decode from
+         * @param [length] Message length if known beforehand
+         * @returns InThreadSurveyMetadata
+         * @throws {Error} If the payload is not a reader or valid buffer
+         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+         */
+        public static decode(reader: ($protobuf.Reader|Uint8Array), length?: number): proto.InThreadSurveyMetadata;
+
+        /**
+         * Decodes an InThreadSurveyMetadata message from the specified reader or buffer, length delimited.
+         * @param reader Reader or buffer to decode from
+         * @returns InThreadSurveyMetadata
+         * @throws {Error} If the payload is not a reader or valid buffer
+         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+         */
+        public static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): proto.InThreadSurveyMetadata;
+
+        /**
+         * Verifies an InThreadSurveyMetadata message.
+         * @param message Plain object to verify
+         * @returns `null` if valid, otherwise the reason why it is not
+         */
+        public static verify(message: { [k: string]: any }): (string|null);
+
+        /**
+         * Creates an InThreadSurveyMetadata message from a plain object. Also converts values to their respective internal types.
+         * @param object Plain object
+         * @returns InThreadSurveyMetadata
+         */
+        public static fromObject(object: { [k: string]: any }): proto.InThreadSurveyMetadata;
+
+        /**
+         * Creates a plain object from an InThreadSurveyMetadata message. Also converts values to other types if specified.
+         * @param message InThreadSurveyMetadata
+         * @param [options] Conversion options
+         * @returns Plain object
+         */
+        public static toObject(message: proto.InThreadSurveyMetadata, options?: $protobuf.IConversionOptions): { [k: string]: any };
+
+        /**
+         * Converts this InThreadSurveyMetadata to JSON.
+         * @returns JSON object
+         */
+        public toJSON(): { [k: string]: any };
+
+        /**
+         * Gets the default type url for InThreadSurveyMetadata
+         * @param [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+         * @returns The default type url
+         */
+        public static getTypeUrl(typeUrlPrefix?: string): string;
+    }
+
+    namespace InThreadSurveyMetadata {
+
+        /** Properties of an InThreadSurveyOption. */
+        interface IInThreadSurveyOption {
+
+            /** InThreadSurveyOption stringValue */
+            stringValue?: (string|null);
+
+            /** InThreadSurveyOption numericValue */
+            numericValue?: (number|null);
+
+            /** InThreadSurveyOption textTranslated */
+            textTranslated?: (string|null);
+        }
+
+        /** Represents an InThreadSurveyOption. */
+        class InThreadSurveyOption implements IInThreadSurveyOption {
+
+            /**
+             * Constructs a new InThreadSurveyOption.
+             * @param [properties] Properties to set
+             */
+            constructor(properties?: proto.InThreadSurveyMetadata.IInThreadSurveyOption);
+
+            /** InThreadSurveyOption stringValue. */
+            public stringValue?: (string|null);
+
+            /** InThreadSurveyOption numericValue. */
+            public numericValue?: (number|null);
+
+            /** InThreadSurveyOption textTranslated. */
+            public textTranslated?: (string|null);
+
+            /**
+             * Creates a new InThreadSurveyOption instance using the specified properties.
+             * @param [properties] Properties to set
+             * @returns InThreadSurveyOption instance
+             */
+            public static create(properties?: proto.InThreadSurveyMetadata.IInThreadSurveyOption): proto.InThreadSurveyMetadata.InThreadSurveyOption;
+
+            /**
+             * Encodes the specified InThreadSurveyOption message. Does not implicitly {@link proto.InThreadSurveyMetadata.InThreadSurveyOption.verify|verify} messages.
+             * @param message InThreadSurveyOption message or plain object to encode
+             * @param [writer] Writer to encode to
+             * @returns Writer
+             */
+            public static encode(message: proto.InThreadSurveyMetadata.IInThreadSurveyOption, writer?: $protobuf.Writer): $protobuf.Writer;
+
+            /**
+             * Encodes the specified InThreadSurveyOption message, length delimited. Does not implicitly {@link proto.InThreadSurveyMetadata.InThreadSurveyOption.verify|verify} messages.
+             * @param message InThreadSurveyOption message or plain object to encode
+             * @param [writer] Writer to encode to
+             * @returns Writer
+             */
+            public static encodeDelimited(message: proto.InThreadSurveyMetadata.IInThreadSurveyOption, writer?: $protobuf.Writer): $protobuf.Writer;
+
+            /**
+             * Decodes an InThreadSurveyOption message from the specified reader or buffer.
+             * @param reader Reader or buffer to decode from
+             * @param [length] Message length if known beforehand
+             * @returns InThreadSurveyOption
+             * @throws {Error} If the payload is not a reader or valid buffer
+             * @throws {$protobuf.util.ProtocolError} If required fields are missing
+             */
+            public static decode(reader: ($protobuf.Reader|Uint8Array), length?: number): proto.InThreadSurveyMetadata.InThreadSurveyOption;
+
+            /**
+             * Decodes an InThreadSurveyOption message from the specified reader or buffer, length delimited.
+             * @param reader Reader or buffer to decode from
+             * @returns InThreadSurveyOption
+             * @throws {Error} If the payload is not a reader or valid buffer
+             * @throws {$protobuf.util.ProtocolError} If required fields are missing
+             */
+            public static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): proto.InThreadSurveyMetadata.InThreadSurveyOption;
+
+            /**
+             * Verifies an InThreadSurveyOption message.
+             * @param message Plain object to verify
+             * @returns `null` if valid, otherwise the reason why it is not
+             */
+            public static verify(message: { [k: string]: any }): (string|null);
+
+            /**
+             * Creates an InThreadSurveyOption message from a plain object. Also converts values to their respective internal types.
+             * @param object Plain object
+             * @returns InThreadSurveyOption
+             */
+            public static fromObject(object: { [k: string]: any }): proto.InThreadSurveyMetadata.InThreadSurveyOption;
+
+            /**
+             * Creates a plain object from an InThreadSurveyOption message. Also converts values to other types if specified.
+             * @param message InThreadSurveyOption
+             * @param [options] Conversion options
+             * @returns Plain object
+             */
+            public static toObject(message: proto.InThreadSurveyMetadata.InThreadSurveyOption, options?: $protobuf.IConversionOptions): { [k: string]: any };
+
+            /**
+             * Converts this InThreadSurveyOption to JSON.
+             * @returns JSON object
+             */
+            public toJSON(): { [k: string]: any };
+
+            /**
+             * Gets the default type url for InThreadSurveyOption
+             * @param [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+             * @returns The default type url
+             */
+            public static getTypeUrl(typeUrlPrefix?: string): string;
+        }
+
+        /** Properties of an InThreadSurveyPrivacyStatementPart. */
+        interface IInThreadSurveyPrivacyStatementPart {
+
+            /** InThreadSurveyPrivacyStatementPart text */
+            text?: (string|null);
+
+            /** InThreadSurveyPrivacyStatementPart url */
+            url?: (string|null);
+        }
+
+        /** Represents an InThreadSurveyPrivacyStatementPart. */
+        class InThreadSurveyPrivacyStatementPart implements IInThreadSurveyPrivacyStatementPart {
+
+            /**
+             * Constructs a new InThreadSurveyPrivacyStatementPart.
+             * @param [properties] Properties to set
+             */
+            constructor(properties?: proto.InThreadSurveyMetadata.IInThreadSurveyPrivacyStatementPart);
+
+            /** InThreadSurveyPrivacyStatementPart text. */
+            public text?: (string|null);
+
+            /** InThreadSurveyPrivacyStatementPart url. */
+            public url?: (string|null);
+
+            /**
+             * Creates a new InThreadSurveyPrivacyStatementPart instance using the specified properties.
+             * @param [properties] Properties to set
+             * @returns InThreadSurveyPrivacyStatementPart instance
+             */
+            public static create(properties?: proto.InThreadSurveyMetadata.IInThreadSurveyPrivacyStatementPart): proto.InThreadSurveyMetadata.InThreadSurveyPrivacyStatementPart;
+
+            /**
+             * Encodes the specified InThreadSurveyPrivacyStatementPart message. Does not implicitly {@link proto.InThreadSurveyMetadata.InThreadSurveyPrivacyStatementPart.verify|verify} messages.
+             * @param message InThreadSurveyPrivacyStatementPart message or plain object to encode
+             * @param [writer] Writer to encode to
+             * @returns Writer
+             */
+            public static encode(message: proto.InThreadSurveyMetadata.IInThreadSurveyPrivacyStatementPart, writer?: $protobuf.Writer): $protobuf.Writer;
+
+            /**
+             * Encodes the specified InThreadSurveyPrivacyStatementPart message, length delimited. Does not implicitly {@link proto.InThreadSurveyMetadata.InThreadSurveyPrivacyStatementPart.verify|verify} messages.
+             * @param message InThreadSurveyPrivacyStatementPart message or plain object to encode
+             * @param [writer] Writer to encode to
+             * @returns Writer
+             */
+            public static encodeDelimited(message: proto.InThreadSurveyMetadata.IInThreadSurveyPrivacyStatementPart, writer?: $protobuf.Writer): $protobuf.Writer;
+
+            /**
+             * Decodes an InThreadSurveyPrivacyStatementPart message from the specified reader or buffer.
+             * @param reader Reader or buffer to decode from
+             * @param [length] Message length if known beforehand
+             * @returns InThreadSurveyPrivacyStatementPart
+             * @throws {Error} If the payload is not a reader or valid buffer
+             * @throws {$protobuf.util.ProtocolError} If required fields are missing
+             */
+            public static decode(reader: ($protobuf.Reader|Uint8Array), length?: number): proto.InThreadSurveyMetadata.InThreadSurveyPrivacyStatementPart;
+
+            /**
+             * Decodes an InThreadSurveyPrivacyStatementPart message from the specified reader or buffer, length delimited.
+             * @param reader Reader or buffer to decode from
+             * @returns InThreadSurveyPrivacyStatementPart
+             * @throws {Error} If the payload is not a reader or valid buffer
+             * @throws {$protobuf.util.ProtocolError} If required fields are missing
+             */
+            public static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): proto.InThreadSurveyMetadata.InThreadSurveyPrivacyStatementPart;
+
+            /**
+             * Verifies an InThreadSurveyPrivacyStatementPart message.
+             * @param message Plain object to verify
+             * @returns `null` if valid, otherwise the reason why it is not
+             */
+            public static verify(message: { [k: string]: any }): (string|null);
+
+            /**
+             * Creates an InThreadSurveyPrivacyStatementPart message from a plain object. Also converts values to their respective internal types.
+             * @param object Plain object
+             * @returns InThreadSurveyPrivacyStatementPart
+             */
+            public static fromObject(object: { [k: string]: any }): proto.InThreadSurveyMetadata.InThreadSurveyPrivacyStatementPart;
+
+            /**
+             * Creates a plain object from an InThreadSurveyPrivacyStatementPart message. Also converts values to other types if specified.
+             * @param message InThreadSurveyPrivacyStatementPart
+             * @param [options] Conversion options
+             * @returns Plain object
+             */
+            public static toObject(message: proto.InThreadSurveyMetadata.InThreadSurveyPrivacyStatementPart, options?: $protobuf.IConversionOptions): { [k: string]: any };
+
+            /**
+             * Converts this InThreadSurveyPrivacyStatementPart to JSON.
+             * @returns JSON object
+             */
+            public toJSON(): { [k: string]: any };
+
+            /**
+             * Gets the default type url for InThreadSurveyPrivacyStatementPart
+             * @param [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+             * @returns The default type url
+             */
+            public static getTypeUrl(typeUrlPrefix?: string): string;
+        }
+
+        /** Properties of an InThreadSurveyQuestion. */
+        interface IInThreadSurveyQuestion {
+
+            /** InThreadSurveyQuestion questionText */
+            questionText?: (string|null);
+
+            /** InThreadSurveyQuestion questionId */
+            questionId?: (string|null);
+
+            /** InThreadSurveyQuestion questionOptions */
+            questionOptions?: (proto.InThreadSurveyMetadata.IInThreadSurveyOption[]|null);
+        }
+
+        /** Represents an InThreadSurveyQuestion. */
+        class InThreadSurveyQuestion implements IInThreadSurveyQuestion {
+
+            /**
+             * Constructs a new InThreadSurveyQuestion.
+             * @param [properties] Properties to set
+             */
+            constructor(properties?: proto.InThreadSurveyMetadata.IInThreadSurveyQuestion);
+
+            /** InThreadSurveyQuestion questionText. */
+            public questionText?: (string|null);
+
+            /** InThreadSurveyQuestion questionId. */
+            public questionId?: (string|null);
+
+            /** InThreadSurveyQuestion questionOptions. */
+            public questionOptions: proto.InThreadSurveyMetadata.IInThreadSurveyOption[];
+
+            /**
+             * Creates a new InThreadSurveyQuestion instance using the specified properties.
+             * @param [properties] Properties to set
+             * @returns InThreadSurveyQuestion instance
+             */
+            public static create(properties?: proto.InThreadSurveyMetadata.IInThreadSurveyQuestion): proto.InThreadSurveyMetadata.InThreadSurveyQuestion;
+
+            /**
+             * Encodes the specified InThreadSurveyQuestion message. Does not implicitly {@link proto.InThreadSurveyMetadata.InThreadSurveyQuestion.verify|verify} messages.
+             * @param message InThreadSurveyQuestion message or plain object to encode
+             * @param [writer] Writer to encode to
+             * @returns Writer
+             */
+            public static encode(message: proto.InThreadSurveyMetadata.IInThreadSurveyQuestion, writer?: $protobuf.Writer): $protobuf.Writer;
+
+            /**
+             * Encodes the specified InThreadSurveyQuestion message, length delimited. Does not implicitly {@link proto.InThreadSurveyMetadata.InThreadSurveyQuestion.verify|verify} messages.
+             * @param message InThreadSurveyQuestion message or plain object to encode
+             * @param [writer] Writer to encode to
+             * @returns Writer
+             */
+            public static encodeDelimited(message: proto.InThreadSurveyMetadata.IInThreadSurveyQuestion, writer?: $protobuf.Writer): $protobuf.Writer;
+
+            /**
+             * Decodes an InThreadSurveyQuestion message from the specified reader or buffer.
+             * @param reader Reader or buffer to decode from
+             * @param [length] Message length if known beforehand
+             * @returns InThreadSurveyQuestion
+             * @throws {Error} If the payload is not a reader or valid buffer
+             * @throws {$protobuf.util.ProtocolError} If required fields are missing
+             */
+            public static decode(reader: ($protobuf.Reader|Uint8Array), length?: number): proto.InThreadSurveyMetadata.InThreadSurveyQuestion;
+
+            /**
+             * Decodes an InThreadSurveyQuestion message from the specified reader or buffer, length delimited.
+             * @param reader Reader or buffer to decode from
+             * @returns InThreadSurveyQuestion
+             * @throws {Error} If the payload is not a reader or valid buffer
+             * @throws {$protobuf.util.ProtocolError} If required fields are missing
+             */
+            public static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): proto.InThreadSurveyMetadata.InThreadSurveyQuestion;
+
+            /**
+             * Verifies an InThreadSurveyQuestion message.
+             * @param message Plain object to verify
+             * @returns `null` if valid, otherwise the reason why it is not
+             */
+            public static verify(message: { [k: string]: any }): (string|null);
+
+            /**
+             * Creates an InThreadSurveyQuestion message from a plain object. Also converts values to their respective internal types.
+             * @param object Plain object
+             * @returns InThreadSurveyQuestion
+             */
+            public static fromObject(object: { [k: string]: any }): proto.InThreadSurveyMetadata.InThreadSurveyQuestion;
+
+            /**
+             * Creates a plain object from an InThreadSurveyQuestion message. Also converts values to other types if specified.
+             * @param message InThreadSurveyQuestion
+             * @param [options] Conversion options
+             * @returns Plain object
+             */
+            public static toObject(message: proto.InThreadSurveyMetadata.InThreadSurveyQuestion, options?: $protobuf.IConversionOptions): { [k: string]: any };
+
+            /**
+             * Converts this InThreadSurveyQuestion to JSON.
+             * @returns JSON object
+             */
+            public toJSON(): { [k: string]: any };
+
+            /**
+             * Gets the default type url for InThreadSurveyQuestion
+             * @param [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+             * @returns The default type url
+             */
+            public static getTypeUrl(typeUrlPrefix?: string): string;
+        }
     }
 
     /** Properties of an InteractiveAnnotation. */
@@ -25967,6 +26504,9 @@ export namespace proto {
 
             /** ImageMessage mediaKeyDomain */
             mediaKeyDomain?: (proto.Message.MediaKeyDomain|null);
+
+            /** ImageMessage qrUrl */
+            qrUrl?: (string|null);
         }
 
         /** Represents an ImageMessage. */
@@ -26067,6 +26607,9 @@ export namespace proto {
 
             /** ImageMessage mediaKeyDomain. */
             public mediaKeyDomain?: (proto.Message.MediaKeyDomain|null);
+
+            /** ImageMessage qrUrl. */
+            public qrUrl?: (string|null);
 
             /**
              * Creates a new ImageMessage instance using the specified properties.
@@ -26509,6 +27052,9 @@ export namespace proto {
 
                 /** CarouselMessage messageVersion */
                 messageVersion?: (number|null);
+
+                /** CarouselMessage carouselCardType */
+                carouselCardType?: (proto.Message.InteractiveMessage.CarouselMessage.CarouselCardType|null);
             }
 
             /** Represents a CarouselMessage. */
@@ -26525,6 +27071,9 @@ export namespace proto {
 
                 /** CarouselMessage messageVersion. */
                 public messageVersion?: (number|null);
+
+                /** CarouselMessage carouselCardType. */
+                public carouselCardType?: (proto.Message.InteractiveMessage.CarouselMessage.CarouselCardType|null);
 
                 /**
                  * Creates a new CarouselMessage instance using the specified properties.
@@ -26602,6 +27151,15 @@ export namespace proto {
                  * @returns The default type url
                  */
                 public static getTypeUrl(typeUrlPrefix?: string): string;
+            }
+
+            namespace CarouselMessage {
+
+                /** CarouselCardType enum. */
+                enum CarouselCardType {
+                    DEFAULT = 0,
+                    ALBUM = 1
+                }
             }
 
             /** Properties of a CollectionMessage. */
@@ -29640,8 +30198,8 @@ export namespace proto {
             /** MessageHistoryMetadata historyReceivers */
             historyReceivers?: (string[]|null);
 
-            /** MessageHistoryMetadata firstMessageTimestamp */
-            firstMessageTimestamp?: (number|Long|null);
+            /** MessageHistoryMetadata oldestMessageTimestamp */
+            oldestMessageTimestamp?: (number|Long|null);
 
             /** MessageHistoryMetadata messageCount */
             messageCount?: (number|Long|null);
@@ -29659,8 +30217,8 @@ export namespace proto {
             /** MessageHistoryMetadata historyReceivers. */
             public historyReceivers: string[];
 
-            /** MessageHistoryMetadata firstMessageTimestamp. */
-            public firstMessageTimestamp?: (number|Long|null);
+            /** MessageHistoryMetadata oldestMessageTimestamp. */
+            public oldestMessageTimestamp?: (number|Long|null);
 
             /** MessageHistoryMetadata messageCount. */
             public messageCount?: (number|Long|null);
@@ -31724,6 +32282,12 @@ export namespace proto {
 
                     /** CompanionCanonicalUserNonceFetchResponse nonce */
                     nonce?: (string|null);
+
+                    /** CompanionCanonicalUserNonceFetchResponse waFbid */
+                    waFbid?: (string|null);
+
+                    /** CompanionCanonicalUserNonceFetchResponse forceRefresh */
+                    forceRefresh?: (boolean|null);
                 }
 
                 /** Represents a CompanionCanonicalUserNonceFetchResponse. */
@@ -31737,6 +32301,12 @@ export namespace proto {
 
                     /** CompanionCanonicalUserNonceFetchResponse nonce. */
                     public nonce?: (string|null);
+
+                    /** CompanionCanonicalUserNonceFetchResponse waFbid. */
+                    public waFbid?: (string|null);
+
+                    /** CompanionCanonicalUserNonceFetchResponse forceRefresh. */
+                    public forceRefresh?: (boolean|null);
 
                     /**
                      * Creates a new CompanionCanonicalUserNonceFetchResponse instance using the specified properties.
@@ -35418,6 +35988,9 @@ export namespace proto {
 
             /** SendPaymentMessage background */
             background?: (proto.IPaymentBackground|null);
+
+            /** SendPaymentMessage transactionData */
+            transactionData?: (string|null);
         }
 
         /** Represents a SendPaymentMessage. */
@@ -35437,6 +36010,9 @@ export namespace proto {
 
             /** SendPaymentMessage background. */
             public background?: (proto.IPaymentBackground|null);
+
+            /** SendPaymentMessage transactionData. */
+            public transactionData?: (string|null);
 
             /**
              * Creates a new SendPaymentMessage instance using the specified properties.
@@ -45401,7 +45977,8 @@ export namespace proto {
             enum Source {
                 UNKNOWN = 0,
                 RAY_BAN_META_GLASSES = 1,
-                OAKLEY_META_GLASSES = 2
+                OAKLEY_META_GLASSES = 2,
+                HYPERNOVA_GLASSES = 3
             }
         }
 
@@ -45885,6 +46462,9 @@ export namespace proto {
         /** StickerMetadata isLottie */
         isLottie?: (boolean|null);
 
+        /** StickerMetadata imageHash */
+        imageHash?: (string|null);
+
         /** StickerMetadata isAvatarSticker */
         isAvatarSticker?: (boolean|null);
     }
@@ -45933,6 +46513,9 @@ export namespace proto {
 
         /** StickerMetadata isLottie. */
         public isLottie?: (boolean|null);
+
+        /** StickerMetadata imageHash. */
+        public imageHash?: (string|null);
 
         /** StickerMetadata isAvatarSticker. */
         public isAvatarSticker?: (boolean|null);
@@ -47110,8 +47693,8 @@ export namespace proto {
             /** BusinessBroadcastListAction deleted */
             deleted?: (boolean|null);
 
-            /** BusinessBroadcastListAction phoneNumbers */
-            phoneNumbers?: (string[]|null);
+            /** BusinessBroadcastListAction lids */
+            lids?: (string[]|null);
 
             /** BusinessBroadcastListAction listName */
             listName?: (string|null);
@@ -47129,8 +47712,8 @@ export namespace proto {
             /** BusinessBroadcastListAction deleted. */
             public deleted?: (boolean|null);
 
-            /** BusinessBroadcastListAction phoneNumbers. */
-            public phoneNumbers: string[];
+            /** BusinessBroadcastListAction lids. */
+            public lids: string[];
 
             /** BusinessBroadcastListAction listName. */
             public listName?: (string|null);
@@ -52343,6 +52926,9 @@ export namespace proto {
             /** StickerAction isLottie */
             isLottie?: (boolean|null);
 
+            /** StickerAction imageHash */
+            imageHash?: (string|null);
+
             /** StickerAction isAvatarSticker */
             isAvatarSticker?: (boolean|null);
         }
@@ -52388,6 +52974,9 @@ export namespace proto {
 
             /** StickerAction isLottie. */
             public isLottie?: (boolean|null);
+
+            /** StickerAction imageHash. */
+            public imageHash?: (string|null);
 
             /** StickerAction isAvatarSticker. */
             public isAvatarSticker?: (boolean|null);

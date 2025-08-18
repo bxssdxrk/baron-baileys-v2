@@ -22,12 +22,15 @@ const makeChatsSocket = (config) => {
     const { logger, markOnlineOnConnect, fireInitQueries, appStateMacVerification, shouldIgnoreJid, shouldSyncHistoryMessage, } = config
     const baron = usync_1.makeUSyncSocket(config)
     const { ev, ws, authState, generateMessageTag, sendNode, query, onUnexpectedError, groupFetchAllParticipating } = baron
+    
     let privacySettings
-    let needToFlushWithAppStateSync = false
-    let pendingAppStateSync = false
+    let syncState = Types_1.SyncState.Connecting
     
     /** this mutex ensures that the notifications (receipts, messages etc.) are processed in order */
     const processingMutex = make_mutex_1.makeMutex()
+    
+    // Timeout for AwaitingInitialSync State
+    let awaitingSyncTimeout
     
     const placeholderResendCache = config.placeholderResendCache || new node_cache_1.default({
         stdTTL: Defaults_1.DEFAULT_CACHE_TTLS.MSG_RETRY,
@@ -213,9 +216,7 @@ const makeChatsSocket = (config) => {
             return results.list.filter((a) => !!a.contact).map(({ contact, id, lid }) => ({ jid: id, exists: contact, lid }))
         }
     }
-
-
-
+    
     const fetchStatus = async (...jids) => {
         const usyncQuery = new WAUSync_1.USyncQuery().withStatusProtocol()
         
@@ -548,6 +549,40 @@ const makeChatsSocket = (config) => {
         }
     })    
     
+    // source: https://github.com/WhiskeySockets/Baileys/pull/1677
+    const createCallLink = async (type, event, timeoutMs) => {
+    	type = type?.toLowerCase() 
+    
+    	if (!type || (type !== 'audio' && type !== 'video')) {
+    		throw new Error('Make sure the type is audio or video!') 
+    	}
+    
+    	const result = await query({
+    		tag: 'call',
+    		attrs: {
+    			id: generateMessageTag(), 
+    			to: '@call'
+    		}, 
+    		content: [{
+    			tag: 'link_create', 
+    			attrs: {
+    				media: type
+    			}, 
+    			content: event ? [{ 
+    				tag: 'event', 
+    				attrs: {
+    					start_time: String(event) 
+    				}
+    			}] : undefined
+    		}]
+    	}, timeoutMs) 
+    
+    	const child = WABinary_1.getBinaryNodeChild(result, 'link_create') 
+    	const token = child?.attrs?.token
+    
+    	return type === 'audio' ? Defaults_1.CALL_AUDIO_PREFIX + token : Defaults_1.CALL_VIDEO_PREFIX + token
+    }
+    
     const sendPresenceUpdate = async (type, toJid) => {
         const me = authState.creds.me
         
@@ -567,11 +602,13 @@ const makeChatsSocket = (config) => {
             })
         }
         else {
+        	const { server } = WABinary_1.jidDecode(toJid) 
+        
             await sendNode({
                 tag: 'chatstate',
                 attrs: {
-                    from: me.id,
-                    to: toJid,
+                    from: server === 'lid' ? me.lid : me.id,
+                    to: toJid
                 },
                 content: [
                     {
@@ -754,6 +791,17 @@ const makeChatsSocket = (config) => {
     }
     
     /**
+     * Enable/Disable link preview privacy, not related to baileys link preview generation
+     */
+    const updateDisableLinkPreviewsPrivacy = (isPreviewsDisabled) => {
+    	return chatModify({
+    		disableLinkPreviews: {
+    			isPreviewsDisabled
+    		}
+    	}, '') 
+    } 
+    
+    /**
      * Star or Unstar a message
      */
     const star = (jid, messages, star) => {
@@ -867,7 +915,6 @@ const makeChatsSocket = (config) => {
     
     const upsertMessage = ev.createBufferedFunction(async (msg, type) => {
         ev.emit('messages.upsert', { messages: [msg], type })
-        
         if (!!msg.pushName) {
             let jid = msg.key.fromMe ? authState.creds.me.id : (msg.key.participant || msg.key.remoteJid)
             jid = WABinary_1.jidNormalizedUser(jid)
@@ -888,16 +935,41 @@ const makeChatsSocket = (config) => {
                 && Defaults_1.PROCESSABLE_HISTORY_TYPES.includes(historyMsg.syncType))
             : false
             
-        if (historyMsg && !authState.creds.myAppStateKeyId) {
-            logger.warn('skipping app state sync, as myAppStateKeyId is not set')
-            pendingAppStateSync = true
+        if (historyMsg && syncState === Types_1.SyncState.AwaitingInitialSync) {
+            if (awaitingSyncTimeout) {
+            	clearTimeout(awaitingSyncTimeout) 
+            	awaitingSyncTimeout = undefined
+            }
+            
+            if (shouldProcessHistoryMsg) {
+            	syncState = Types_1.SyncState.Syncing
+            	logger.info('Transitioned to Syncing state') 
+            	// Let doAppStateSync handle the final flush after it`s done
+            } else {
+            	syncState = Types_1.SyncState.Online
+            	logger.info('History sync skipped, transitioning to Online state and flushing buffer') 
+            	ev.flush() 
+            }
+        }
+        
+        const doAppStateSync = async () => {
+        	if (syncState === Types_1.SyncState.Syncing) {
+        		logger.info('Doing app state sync') 
+        		await resyncAppState(Types_1.ALL_WA_PATCH_NAMES, true)
+        
+        		// Sync is complete, go online and flush everything
+        		syncState = Types_1.SyncState.Online
+        		logger.info('App state sync complete, transitioning to Online state and flushing buffer') 
+        		ev.flush() 
+        
+        		const accountSyncCounter = (authState.creds.accountSyncCounter || 0) + 1
+        		ev.emit('creds.update', { accountSyncCounter }) 
+        	}
         }
         
         await Promise.all([
             (async () => {
-                if (historyMsg
-                    && authState.creds.myAppStateKeyId) {
-                    pendingAppStateSync = false
+                if (shouldProcessHistoryMsg) {
                     await doAppStateSync()
                 }
             })(),
@@ -913,23 +985,9 @@ const makeChatsSocket = (config) => {
             })
         ])
         
-        if (msg.message?.protocolMessage?.appStateSyncKeyShare
-            && pendingAppStateSync) {
-            await doAppStateSync()
-            pendingAppStateSync = false
-        }
-        
-        async function doAppStateSync() {
-            if (!authState.creds.accountSyncCounter) {
-                logger.info('doing initial app state sync')
-                await resyncAppState(Types_1.ALL_WA_PATCH_NAMES, true)
-                const accountSyncCounter = (authState.creds.accountSyncCounter || 0) + 1
-                ev.emit('creds.update', { accountSyncCounter })
-                if (needToFlushWithAppStateSync) {
-                    logger.debug('flushing with app state sync')
-                    ev.flush()
-                }
-            }
+        if (msg.message?.protocolMessage?.appStateSyncKeyShare && syncState === Types_1.SyncState.Syncing) {
+        	logger.info('App state sync key arrived, triggering app state sync') 
+        	await doAppStateSync() 
         }
     })
     
@@ -970,14 +1028,38 @@ const makeChatsSocket = (config) => {
                 .catch(error => onUnexpectedError(error, 'presence update requests'))
         }
         
-        if (receivedPendingNotifications && // if we don't have the app state key
-            // we keep buffering events until we finally have
-            // the key and can sync the messages
-            // todo scrutinize
-            !authState.creds?.myAppStateKeyId) {
-            ev.buffer()
-            needToFlushWithAppStateSync = true
+        if (!receivedPendingNotifications || syncState !== Types_1.SyncState.Connecting) {
+        	return
         }
+        
+        syncState = Types_1.AwaitingInitialSync
+        logger.info('Connection is now AwaitingInitialSync, buffering events') 
+        ev.buffer() 
+        
+        const willSyncHistory = shouldSyncHistoryMessage(WAProto_1.proto.Message.HistorySyncNotification.fromObject({
+        	syncType: WAProto_1.proto.HistorySync.HistorySyncType.RECENT
+        })) 
+        
+        if (!willSyncHistory) {
+        	logger.info('History sync is disabled by config, not waiting for notification. Transitioning to Online.') 
+        	syncState = Types_1.SyncState.Online
+        	setTimeout(() => ev.flush(), 0) 
+        	return 
+        }
+        
+        logger.info('History sync is enabled, awaiting notification with a 20s timeout.') 
+        
+        if (awaitingSyncTimeout) {
+        	clearTimeout(awaitingSyncTimeout) 
+        }
+        
+        awaitingSyncTimeout = setTimeout(() => {
+        	if (syncState === Types_1.SyncState.AwaitingInitialSync) {
+        		logger.warn('Timeout in AwaitingInitialSync, forcing state to Online and flushing buffer') 
+        		syncState = Types_1.SyncState.Online
+        		ev.flush() 
+        	}
+        }, 20_000) 
     })
     
     return {
@@ -989,6 +1071,7 @@ const makeChatsSocket = (config) => {
         fetchPrivacySettings,
         upsertMessage,
         appPatch,
+        createCallLink, 
         sendPresenceUpdate,
         presenceSubscribe, 
         getBotListV2,  
@@ -1011,6 +1094,7 @@ const makeChatsSocket = (config) => {
         updateReadReceiptsPrivacy,
         updateGroupsAddPrivacy,
         updateDefaultDisappearingMode,
+        updateDisableLinkPreviewsPrivacy, 
         getBusinessProfile,
         resyncAppState,
         chatModify,

@@ -79,6 +79,7 @@ export declare const makeGroupsSocket: (config: SocketConfig) => {
     updateReadReceiptsPrivacy: (value: import("../Types").WAReadReceiptsValue) => Promise<void>
     updateGroupsAddPrivacy: (value: import("../Types").WAPrivacyGroupAddValue) => Promise<void>
     updateDefaultDisappearingMode: (duration: number) => Promise<void>
+    updateDisableLinkPreviewsPrivacy: (isPreviewsDisabled: boolean) => Promise<void>
     getBusinessProfile: (jid: string) => Promise<void | import("../Types").WABusinessProfile>
     resyncAppState: (collections: readonly ("critical_block" | "critical_unblock_low" | "regular_high" | "regular_low" | "regular")[], isInitialSync: boolean) => Promise<void>
     chatModify: (mod: import("../Types").ChatModification, jid: string) => Promise<void>

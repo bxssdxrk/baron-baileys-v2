@@ -80,6 +80,21 @@ const makeNewsletterSocket = (config) => {
         }))
     }
     
+    const newsletterMetadata = async (type, key, role) => {
+        const result = await newsletterWMexQuery(undefined, Types_1.QueryIds.METADATA, {
+            input: {
+                key,
+                type: type.toUpperCase(),
+                view_role: role || 'GUEST'
+            },
+            fetch_viewer_metadata: true,
+            fetch_full_image: true,
+            fetch_creation_time: true
+        })
+            
+        return extractNewsletterMetadata(result)
+    }
+    
     return {
         ...baron,
         newsletterQuery, 
@@ -169,20 +184,21 @@ const makeNewsletterSocket = (config) => {
             
             return extractNewsletterMetadata(result, true)
         },
-        newsletterMetadata: async (type, key, role) => {
-            const result = await newsletterWMexQuery(undefined, Types_1.QueryIds.METADATA, {
-                input: {
-                    key,
-                    type: type.toUpperCase(),
-                    view_role: role || 'GUEST'
-                },
-                fetch_viewer_metadata: true,
-                fetch_full_image: true,
-                fetch_creation_time: true
-            })
-            
-            return extractNewsletterMetadata(result)
-        },
+        newsletterMetadata, 
+        newsletterFetchAllParticipating: async () => {
+        	const data = {}
+        
+        	const result = await newsletterWMexQuery(undefined, Types_1.QueryIds.SUBSCRIBED) 
+        	const child = JSON.parse(WABinary_1.getBinaryNodeChild(result, 'result')?.content?.toString())
+        	const newsletters = child.data[Types_1.XWAPaths.SUBSCRIBED]
+        
+        	for (const i of newsletters) {
+        		const metadata = await newsletterMetadata('JID', i.id) 
+        		data[metadata.id] = metadata
+        	}
+        	
+        	return data
+        }, 
         newsletterAdminCount: async (jid) => {
             const result = await newsletterWMexQuery(jid, Types_1.QueryIds.ADMIN_COUNT)
             const buff = WABinary_1.getBinaryNodeChild(result, 'result')?.content?.toString()
@@ -255,7 +271,6 @@ const extractNewsletterMetadata = (node, isCreate) => {
         reaction_codes: metadataPath.thread_metadata?.settings?.reaction_codes?.value,
         subscribers: +metadataPath.thread_metadata.subscribers_count,
         verification: metadataPath.thread_metadata.verification,
-        verification_source: metadataPath.thread_metadata.verification_source, 
         viewer_metadata: metadataPath.viewer_metadata
     }
     return metadata

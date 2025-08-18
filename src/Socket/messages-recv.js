@@ -1295,30 +1295,33 @@ const makeMessagesRecvSocket = (config) => {
           } else {
             // no type in the receipt => message delivered
             let type = undefined;
-
+ if (communityJid) {
+              msg.communityJid = communityJid;
+            }
             const content = Utils_1.normalizeMessageContent(msg.message);
             const type_2 = Utils_1.getContentType(content);
             const message = msg.message[type_2];
-            if (communityJid) {
-              msg.communityJid = communityJid;
-            }
 
-            if (node.attrs.addressing_mode === "lid") {
+            if (node?.attrs?.addressing_mode === "lid") {
               const metadata = await groupMetadata(node.attrs.from);
               let found = metadata.participants.find(
                 (p) => p.lid === node.attrs.participant
               );
 
-              msg.key.participant = found.jid;
+              msg.key.participant = found.id;
 
               if (message?.contextInfo?.participant) {
-                msg.message[type_2].contextInfo.participant = found.jid;
+                found = metadata.participants.find(
+                  (p) => p.lid === msg.message[type_2].contextInfo.participant
+                );
+                msg.message[type_2].contextInfo.participant = found.id;
               }
+
               if (message?.contextInfo?.mentionedJid?.length > 0) {
                 let mentions = [];
                 for (const id of message.contextInfo.mentionedJid) {
                   found = metadata.participants.find((p) => p.lid === id);
-                  mentions.push(found.jid);
+                  mentions.push(found.id);
                 }
                 msg.message[type_2].contextInfo.mentionedJid = mentions;
               }
@@ -1334,9 +1337,16 @@ const makeMessagesRecvSocket = (config) => {
                 node.attrs.peer_recipient_pn || node.attrs.sender_pn
               );
               msg.key.remoteJid = senderPn;
+
               if (message?.contextInfo?.participant) {
-                msg.message[type_2].contextInfo.participant = senderPn;
+                const isMe =
+                  msg.message[type_2].contextInfo.participant ===
+                  WABinary_1.jidNormalizedUser(authState.creds.me.lid);
+                msg.message[type_2].contextInfo.participant = isMe
+                  ? WABinary_1.jidNormalizedUser(authState.creds.me.id)
+                  : senderPn;
               }
+
               if (message?.contextInfo?.mentionedJid?.length > 0) {
                 msg.message[type_2].contextInfo.mentionedJid = [senderPn];
               }
@@ -1456,11 +1466,31 @@ const makeMessagesRecvSocket = (config) => {
   };
 
   const handleCall = async (node) => {
+    let status;
+
     const { attrs } = node;
     const [infoChild] = WABinary_1.getAllBinaryNodeChildren(node);
     const callId = infoChild.attrs["call-id"];
     const from = infoChild.attrs.from || infoChild.attrs["call-creator"];
-    const status = Utils_1.getCallStatusFromNode(infoChild);
+    status = Utils_1.getCallStatusFromNode(infoChild);
+
+    if (WABinary_1.isLidUser(from) && infoChild.tag === "relaylatency") {
+      const verify = callOfferCache.get(callId);
+
+      if (!verify) {
+        status = "offer";
+
+        const callLid = {
+          chatId: attrs.from,
+          from,
+          id: callId,
+          date: new Date(+attrs.t * 1000),
+          offline: !!attrs.offline,
+          status,
+        };
+        callOfferCache.set(callId, callLid);
+      }
+    }
 
     const call = {
       chatId: attrs.from,
@@ -1650,14 +1680,14 @@ const makeMessagesRecvSocket = (config) => {
     );
     //  nodelogger(node)
   });
-  const linkedParentMap = {}; 
+  const linkedParentMap = {};
   ws.on("CB:iq", (node) => {
     if (node && node.tag === "iq" && node.attrs.type === "result") {
       const groups = node.content;
 
       if (Array.isArray(groups)) {
         for (const group of groups) {
-          const groupId = group.attrs.id + "@g.us"; 
+          const groupId = group.attrs.id + "@g.us";
 
           if (group && Array.isArray(group.content)) {
             for (const item of group.content) {
@@ -1674,7 +1704,7 @@ const makeMessagesRecvSocket = (config) => {
       }
     }
   });
-// codes in telegram channel @wegschleifen
+  // codes in telegram channel @wegschleifen
   ev.on("call", ([call]) => {
     // missed call + group call notification message generation
     if (
