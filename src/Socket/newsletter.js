@@ -193,6 +193,10 @@ const makeNewsletterSocket = (config) => {
         	const newsletters = child.data[Types_1.XWAPaths.SUBSCRIBED]
         
         	for (const i of newsletters) {
+        		if (!WABinary_1.isJidNewsletter(i.id)) {
+        			continue
+        		}
+        	
         		const metadata = await newsletterMetadata('JID', i.id) 
         		data[metadata.id] = metadata
         	}

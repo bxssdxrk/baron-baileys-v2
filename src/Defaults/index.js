@@ -82,7 +82,7 @@ exports.DEFAULT_CONNECTION_CONFIG = {
         patch: false,
         snapshot: false,
     },
-    countryCode: 'ID',
+    countryCode: 'EN',
     getMessage: async () => undefined,
     cachedGroupMetadata: async () => undefined,
     makeSignalRepository: libsignal_1.makeLibSignalRepository

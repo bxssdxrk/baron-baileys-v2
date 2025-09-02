@@ -123,7 +123,8 @@ const fromMe = WABinary_1.isJidNewsletter(stanza.attrs.from)
         messageTimestamp: +stanza.attrs.t,
         pushName: pushname,
         broadcast: WABinary_1.isJidBroadcast(from), 
-        newsletter: WABinary_1.isJidNewsletter(from) 
+        newsletter: WABinary_1.isJidNewsletter(from),
+        additionalAttributes: stanza.attrs
     }
     if (msgType === 'newsletter') {
         fullMessage.newsletter_server_id  = +stanza.attrs?.server_id
