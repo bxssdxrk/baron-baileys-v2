@@ -12,6 +12,13 @@ const NO_MESSAGE_FOUND_ERROR_TEXT = 'Message absent from node'
 
 const MISSING_KEYS_ERROR_TEXT = 'Key used already or never filled'
 
+// Retry configuration for failed decryption
+const DECRYPTION_RETRY_CONFIG = {
+    maxRetries: 3,
+    baseDelayMs: 100,
+    sessionRecordErrors: ['No session record', 'SessionError: No session record']
+}
+
 const NACK_REASONS = {
     ParsingError: 487,
     UnrecognizedStanza: 488,
@@ -28,6 +35,60 @@ const NACK_REASONS = {
     DBOperationFailed: 552
 }
 
+const extractAddressingContext = (stanza) => {
+    let senderAlt
+    let recipientAlt
+    
+    const sender = stanza.attrs.participant || stanza.attrs.from
+    const addressingMode = stanza.attrs.addressing_mode || (sender?.endsWith('lid') ? 'lid' : 'pn')
+    
+    if (WABinary_1.isLidUser(sender)) {
+        // Message is LID-addressed: sender is LID, extract corresponding PN
+        // without device data
+        senderAlt = stanza.attrs.participant_pn || stanza.attrs.sender_pn || stanza.attrs.peer_recipient_pn
+        recipientAlt = stanza.attrs.recipient_pn
+        // with device data
+        if (sender && senderAlt)
+            senderAlt = WABinary_1.transferDevice(sender, senderAlt)
+    }
+    
+    else if (WABinary_1.isJidUser(sender)) { 
+        // Message is PN-addressed: sender is PN, extract corresponding LID
+        // without device data
+        senderAlt = stanza.attrs.participant_lid || stanza.attrs.sender_lid || stanza.attrs.peer_recipient_lid
+        recipientAlt = stanza.attrs.recipient_lid
+        //with device data
+        if (sender && senderAlt)
+            senderAlt = WABinary_1.transferDevice(sender, senderAlt)
+    }
+    return {
+        addressingMode,
+        senderAlt,
+        recipientAlt
+    }
+}
+
+const getDecryptionJid = async (sender, repository) => {
+    if (!sender.includes('@s.whatsapp.net')) {
+        return sender
+    }
+    return (await repository.lidMapping.getLIDForPN(sender))
+}
+
+const storeMappingFromEnvelope = async (stanza, sender, decryptionJid, repository, logger) => {
+    const { senderAlt } = extractAddressingContext(stanza)
+    
+    if (senderAlt && WABinary_1.isLidUser(senderAlt) && WABinary_1.isJidUser(sender) && decryptionJid === sender) {
+        try {
+            await repository.lidMapping.storeLIDPNMappings([{ lid: senderAlt, pn: sender }])
+            logger.debug({ sender, senderAlt }, 'Stored LID mapping from envelope')
+        }
+        catch (error) {
+            logger.warn({ sender, senderAlt, error }, 'Failed to store LID mapping')
+        }
+    }
+}
+
 /**
  * Decode the received node as a message.
  * @note this will only parse the message, not decrypt it
@@ -38,11 +99,9 @@ function decodeMessageNode(stanza, meId, meLid) {
     let author
     const msgId = stanza.attrs.id
     const from = stanza.attrs.from
-    let participant = stanza.attrs.participant 
-     if (participant && participant.endsWith('@lid') && stanza.attrs.participant_pn) {
-        participant = stanza.attrs.participant_pn;
-    }
+    const participant = stanza.attrs.participant
     const recipient = stanza.attrs.recipient
+    const addressingContext = extractAddressingContext(stanza) 
     const isMe = (jid) => WABinary_1.areJidsSameUser(jid, meId)
     const isMeLid = (jid) => WABinary_1.areJidsSameUser(jid, meLid)
     if (WABinary_1.isJidUser(from)) {
@@ -101,22 +160,22 @@ function decodeMessageNode(stanza, meId, meLid) {
     else {
         throw new boom_1.Boom('Unknown message type', { data: stanza })
     }
-     const senderJid = stanza.attrs.participant || stanza.attrs.from;
+    // const fromMe = WABinary_1.isJidNewsletter(from) ? !!stanza.attrs?.is_sender : WABinary_1.isLidUser(from) ? isMeLid(stanza.attrs.participant || stanza.attrs.from) : isMe(stanza.attrs.participant || stanza.attrs.from)
+         const senderJid = stanza.attrs.participant || stanza.attrs.from;
 
 const fromMe = WABinary_1.isJidNewsletter(stanza.attrs.from)
     ? !!stanza.attrs?.is_sender
     : WABinary_1.isLidUser(senderJid)
         ? (0, WABinary_1.areJidsSameUser)(senderJid, meLid)
         : (0, WABinary_1.areJidsSameUser)(senderJid, meId);
-
     const pushname = stanza?.attrs?.notify
     const key = {
         remoteJid: chatId,
+        remoteJidAlt: !WABinary_1.isJidGroup(chatId) ? addressingContext.senderAlt : undefined,
         fromMe,
         id: msgId,
-        ...(participant !== undefined && { participant: fromMe ? meId : participant }),
-        ...(stanza.attrs.participant_pn !== undefined && { participant_pn: fromMe ? meId : stanza.attrs.participant_pn }),
-        ...(stanza.attrs.participant_lid !== undefined && { participant_lid: fromMe ? meLid : stanza.attrs.participant_lid }),
+        participant,
+        participantAlt: WABinary_1.isJidGroup(chatId) ? addressingContext.senderAlt : undefined,
     }
     const fullMessage = {
         key,
@@ -124,7 +183,8 @@ const fromMe = WABinary_1.isJidNewsletter(stanza.attrs.from)
         pushName: pushname,
         broadcast: WABinary_1.isJidBroadcast(from), 
         newsletter: WABinary_1.isJidNewsletter(from),
-        additionalAttributes: stanza.attrs
+        additionalAttributes: stanza.attrs,
+        Owner: "Baron" // Non-WhatsApp attribute
     }
     if (msgType === 'newsletter') {
         fullMessage.newsletter_server_id  = +stanza.attrs?.server_id
@@ -157,25 +217,8 @@ const decryptMessageNode = (stanza, meId, meLid, repository, logger) => {
                         const details = WAProto_1.proto.VerifiedNameCertificate.Details.decode(cert.details)
                         fullMessage.verifiedBizName = details.verifiedName
                     }
-                    if (tag === 'multicast' && content instanceof Uint8Array) {
-                    	fullMessage.multicast = true
-                    }
-                    if (tag === 'meta' && content instanceof Uint8Array) {
-                        fullMessage.metaInfo = {
-                            targetID: attrs.target_id
-                        }
-                        if (attrs.target_sender_jid) {
-                            fullMessage.metaInfo.targetSender = WABinary_1.jidNormalizedUser(attrs.target_sender_jid)
-                        }
-                    }
-                    if (tag === 'bot' && content instanceof Uint8Array) {
-                    	if (attrs.edit) {
-                    	    fullMessage.botInfo = {
-                    	        editType: attrs.edit, 
-                                editTargetID: attrs.edit_target_id, 
-                                editSenderTimestampMS: attrs.sender_timestamp_ms
-                            }
-                        }
+                    if (tag === 'unavailable' && attrs.type === 'view_once') {
+                        fullMessage.key.isViewOnce = true; // TODO: remove from here and add a STUB TYPE
                     }
                     if (tag !== 'enc' && tag !== 'plaintext') {
                         continue
@@ -185,6 +228,12 @@ const decryptMessageNode = (stanza, meId, meLid, repository, logger) => {
                     }
                     decryptables += 1
                     let msgBuffer
+                    const user = WABinary_1.isJidUser(sender) ? sender : author // TODO: flaky logic
+                    const decryptionJid = await getDecryptionJid(user, repository)
+                    
+                    if (tag !== 'plaintext') {
+                        await storeMappingFromEnvelope(stanza, user, decryptionJid, repository, logger)
+                    }
                     try {
                         const e2eType = tag === 'plaintext' ? 'plaintext' : attrs.type
                         switch (e2eType) {
@@ -197,9 +246,8 @@ const decryptMessageNode = (stanza, meId, meLid, repository, logger) => {
                                 break
                             case 'pkmsg':
                             case 'msg':
-                                const user = WABinary_1.isJidUser(sender) ? sender : author
                                 msgBuffer = await repository.decryptMessage({
-                                    jid: user,
+                                    jid: decryptionJid,
                                     type: e2eType,
                                     ciphertext: content
                                 })
@@ -232,12 +280,21 @@ const decryptMessageNode = (stanza, meId, meLid, repository, logger) => {
                         }
                     }
                     catch (err) {
-                        logger.error({ key: fullMessage.key, err }, 'failed to decrypt message')
+                        const errorContext = {
+                            key: fullMessage.key,
+                            err,
+                            messageType: tag === 'plaintext' ? 'plaintext' : attrs.type,
+                            sender,
+                            author,
+                            isSessionRecordError: isSessionRecordError(err)
+                        }
+                        logger.error(errorContext, 'failed to process sender key distribution message')
                         fullMessage.messageStubType = WAProto_1.proto.WebMessageInfo.StubType.CIPHERTEXT
-                        fullMessage.messageStubParameters = [err.message]
+                        fullMessage.messageStubParameters = [err.message.toString()]
                     }
                 }
             }
+            
             // if nothing was found to decrypt
             if (!decryptables) {
                 fullMessage.messageStubType = WAProto_1.proto.WebMessageInfo.StubType.CIPHERTEXT
@@ -247,7 +304,20 @@ const decryptMessageNode = (stanza, meId, meLid, repository, logger) => {
     }
 }
 
+/**
+ * Utility function to check if an error is related to missing session record
+ */
+function isSessionRecordError(error) {
+    const errorMessage = error?.message || error?.toString() || ''
+    return DECRYPTION_RETRY_CONFIG.sessionRecordErrors.some(errorPattern => errorMessage.includes(errorPattern))
+}
+
 module.exports = {
+  NACK_REASONS, 
   decodeMessageNode, 
-  decryptMessageNode
+  decryptMessageNode, 
+  extractAddressingContext, 
+  MISSING_KEYS_ERROR_TEXT, 
+  DECRYPTION_RETRY_CONFIG, 
+  NO_MESSAGE_FOUND_ERROR_TEXT
 }

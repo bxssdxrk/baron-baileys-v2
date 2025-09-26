@@ -19,8 +19,11 @@ export type WAContactMessage = proto.Message.IContactMessage
 export type WAContactsArrayMessage = proto.Message.IContactsArrayMessage
 
 export type WAMessageKey = proto.IMessageKey & {
+    remoteJidAlt?: string
+    participantAlt?: string
     newsletter_server_id?: string
-}
+    isViewOnce?: boolean
+};
 
 export type WATextMessage = proto.Message.IExtendedTextMessage
 
@@ -46,6 +49,11 @@ export type WAMediaUpload = Buffer | {
 
 /** Set of message types that are supported by the library */
 export type MessageType = keyof proto.Message
+
+export declare enum WAMessageAddressingMode {
+	PN = 'pn', 
+	LID = 'lid'
+}
 
 export type DownloadableMessage = {
     mediaKey?: Uint8Array | null
@@ -416,6 +424,9 @@ export type WAMediaUploadFunction = (encFilePath: string | Buffer, opts: WAMedia
     mediaUrl: string
     directPath: string
     handle?: string
+    meta_hmac?: string
+    ts?: number
+    fbid?: number
 }>
 
 export type MediaGenerationOptions = {

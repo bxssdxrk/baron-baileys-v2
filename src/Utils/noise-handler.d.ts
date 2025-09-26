@@ -7,6 +7,7 @@ export declare const makeNoiseHandler: ({ keyPair: { private: privateKey, public
     keyPair: KeyPair
     NOISE_HEADER: Uint8Array
     logger: ILogger
+    mobile: boolean
     routingInfo?: Buffer | undefined
 }) => {
     encrypt: (plaintext: Uint8Array) => Buffer

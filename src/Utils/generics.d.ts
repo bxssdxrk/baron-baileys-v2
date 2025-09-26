@@ -52,6 +52,8 @@ export declare function promiseTimeout<T>(ms: number | undefined, promise: (reso
 
 export declare const generateMessageID: (userId?: string) => string
 
+export declare const generateParticipantHashV2: (participants: string[]) => string
+
 export declare function bindWaitForEvent<T extends keyof BaileysEventMap>(ev: BaileysEventEmitter, event: T): (check: (u: BaileysEventMap[T]) => boolean | undefined, timeoutMs?: number) => Promise<void>
 
 export declare const bindWaitForConnectionUpdate: (ev: BaileysEventEmitter) => (check: (u: Partial<ConnectionState>) => boolean | undefined, timeoutMs?: number) => Promise<void>
@@ -63,20 +65,6 @@ export declare const printQRIfNecessaryListener: (ev: BaileysEventEmitter, logge
  */
  
 export declare const fetchLatestBaileysVersion: (options?: AxiosRequestConfig<{}>) => Promise<{
-    version: WAVersion
-    isLatest: boolean
-    error?: undefined
-} | {
-    version: WAVersion
-    isLatest: boolean
-    error: any
-}>
-
-/**
- * A utility that fetches the latest web version of whatsapp.
- * Use to ensure your WA connection is always on the latest version
- */
-export declare const fetchLatestWaWebVersion: (options: AxiosRequestConfig<{}>) => Promise<{
     version: WAVersion
     isLatest: boolean
     error?: undefined
@@ -127,3 +115,17 @@ export declare function fromUnicodeEscape(escapedText: string): string
 export declare function asciiEncode(text: string): string
 
 export declare function asciiDecode(...codes: string[]): string[]
+
+/**
+ * A utility that fetches the latest web version of whatsapp.
+ * Use to ensure your WA connection is always on the latest version
+ */
+export declare const fetchLatestWaWebVersion: (options: AxiosRequestConfig<{}>) => Promise<{
+    version: WAVersion
+    isLatest: boolean
+    error?: undefined
+} | {
+    version: WAVersion
+    isLatest: boolean
+    error: any
+}>

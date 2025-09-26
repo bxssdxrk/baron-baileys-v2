@@ -12,22 +12,33 @@ const generics_1 = require("./generics")
 const signal_1 = require("./signal")
 
 const getUserAgent = (config) => {
+       var _a, _b;
+      
+    const osVersion = config.mobile ? '16.7.10' : '0.1';
+    const version = config.mobile ? [2, 25, 15, 75] : config.version;
+    const device = config.mobile ? 'iPhone_X' : 'Desktop';
+    const manufacturer = config.mobile ? 'Apple' : '';
+    const platform = config.mobile ? WAProto_1.proto.ClientPayload.UserAgent.Platform.IOS : WAProto_1.proto.ClientPayload.UserAgent.Platform.WEB;
+    const phoneId = config.mobile ? { phoneId: config.auth.creds.phoneId } : {};
+   
     return {
         appVersion: {
-            primary: config.version[0],
-            secondary: config.version[1],
-            tertiary: config.version[2],
+            primary: version[0],
+            secondary: version[1],
+            tertiary: version[2],
         },
-        platform: WAProto_1.proto.ClientPayload.UserAgent.Platform.WEB,
-        releaseChannel: WAProto_1.proto.ClientPayload.UserAgent.ReleaseChannel.BETA,
-        osVersion: '0.1',
-        device: 'Desktop',
+        platform,
+        releaseChannel: WAProto_1.proto.ClientPayload.UserAgent.ReleaseChannel.RELEASE,
+        osVersion:  osVersion,
+        manufacturer,
+        device,
         deviceType: WAProto_1.proto.ClientPayload.UserAgent.DeviceType.DESKTOP, 
         osBuildNumber: '0.1',
         localeLanguageIso6391: 'en',
-        mnc: '000',
-        mcc: '000',
+        mcc: ((_a = config.auth.creds.registration) === null || _a === void 0 ? void 0 : _a.phoneNumberMobileCountryCode) || '000',
+        mnc: ((_b = config.auth.creds.registration) === null || _b === void 0 ? void 0 : _b.phoneNumberMobileNetworkCode) || '000',
         localeCountryIso31661Alpha2: config.countryCode,
+        ...phoneId
     }
 }
 
@@ -51,10 +62,31 @@ const getClientPayload = (config) => {
         connectReason: WAProto_1.proto.ClientPayload.ConnectReason.USER_ACTIVATED,
         userAgent: getUserAgent(config),
     }
-    payload.webInfo = getWebInfo(config)
+    if (!config.mobile) {
+        payload.webInfo = getWebInfo(config);
+    }
     return payload
 }
-
+const generateMobileNode = (config) => {
+    if (!config.auth.creds) {
+        throw new boom_1.Boom('No registration data found', { data: config });
+    }
+    const payload = {
+        ...getClientPayload(config),
+        sessionId: Math.floor(Math.random() * 999999999 + 1),
+        shortConnect: true,
+        connectAttemptCount: 0,
+        device: 0,
+        dnsSource: {
+            appCached: false,
+            dnsMethod: WAProto_1.proto.ClientPayload.DNSSource.DNSResolutionMethod.SYSTEM,
+        },
+        passive: false,
+        pushName: 'test',
+        username: Number(`${config.auth.creds.registration.phoneNumberCountryCode}${config.auth.creds.registration.phoneNumberNationalNumber}`),
+    };
+    return WAProto_1.proto.ClientPayload.fromObject(payload);
+};
 const generateLoginNode = (userJid, config) => {
     const { user, device } = WABinary_1.jidDecode(userJid)
     const payload = {
@@ -183,5 +215,6 @@ module.exports = {
   generateLoginNode, 
   generateRegistrationNode, 
   configureSuccessfulPairing, 
-  encodeSignedDeviceIdentity
+  encodeSignedDeviceIdentity,
+  generateMobileNode
 }

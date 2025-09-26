@@ -35,6 +35,7 @@ Object.defineProperty(exports, "__esModule", { value: true })
 const boom_1 = require("@hapi/boom")
 const axios_1 = __importDefault(require("axios"))
 const crypto_1 = require("crypto")
+const crypto_2 = require("./crypto")
 const os_1 = require("os")
 const WAProto_1 = require("../../WAProto")
 const baileys_version_json_1 = require("../Defaults/baileys-version.json")
@@ -145,7 +146,6 @@ const Browsers = {
         return [platformName, browser, version || PLATFORM_VERSIONS[platform] || 'latest']
     }
 }
-
 
 
 const BufferJSON = {
@@ -299,6 +299,12 @@ const generateMessageID = (userId) => {
     return sha + hash.toString('hex').toUpperCase().substring(0, 16)
 }
 
+// code is inspired by whatsmeow
+const generateParticipantHashV2 = (participants) => {
+    participants.sort()
+    const sha256Hash = crypto_2.sha256(Buffer.from(participants.join(''))).toString('base64')
+    return '2:' + sha256Hash.slice(0, 6)
+};
 const generateMessageIDV2 = (userId) => {
     const data = Buffer.alloc(8 + 20 + 16);
     data.writeBigUInt64BE(BigInt(Math.floor(Date.now() / 1000)));
@@ -329,7 +335,6 @@ const generateDesktopMessageID = () => {
     const random = crypto_1.randomBytes(8); // 8 bytes = 16 hex-Zeichen
     return (prefix + random.toString('hex')).toUpperCase(); // ergibt 18 Zeichen
 };
-
 function bindWaitForEvent(ev, event) {
     return async (check, timeoutMs) => {
         let listener
@@ -376,7 +381,7 @@ const printQRIfNecessaryListener = (ev, logger) => {
  * Use to ensure your WA connection is always on the latest version
  */
 const fetchLatestBaileysVersion = async (options = {}) => {
-    const URL = 'https://raw.githubusercontent.com/WhiskeySockets/Baileys/master/src/Defaults/baileys-version.json'
+const URL = 'https://raw.githubusercontent.com/WhiskeySockets/Baileys/master/src/Defaults/baileys-version.json'
     try {
         const result = await axios_1.default.get(URL, {
             ...options,
@@ -431,6 +436,7 @@ const fetchLatestWaWebVersion = async (options) => {
         }
     }
 }
+
 
 /** unique message tag prefix for MD clients */
 const generateMdTagPrefix = () => {
@@ -576,7 +582,7 @@ const asciiDecode = (...codes) => {
 }
 
 module.exports = {
-  Browsers, 
+  Browsers,  
   BufferJSON, 
   getPlatformId, 
   getKeyAuthor, 
@@ -593,6 +599,7 @@ module.exports = {
   delayCancellable, 
   promiseTimeout, 
   generateMessageID, 
+  generateParticipantHashV2, 
   generateMessageIDV2,
   generateAndroidMessageID,
   generateIOSMessageID,

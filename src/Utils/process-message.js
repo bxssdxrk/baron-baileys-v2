@@ -9,7 +9,7 @@ const WABinary_1 = require("../WABinary")
 const crypto_1 = require("./crypto")
 const generics_1 = require("./generics")
 const history_1 = require("./history")
-const chats_1 = require("../Socket/chats")
+
 const REAL_MSG_STUB_TYPES = new Set([
     Types_1.WAMessageStubType.CALL_MISSED_GROUP_VIDEO,
     Types_1.WAMessageStubType.CALL_MISSED_GROUP_VOICE,
@@ -109,7 +109,7 @@ function decryptPollVote({ encPayload, encIv }, { pollCreatorJid, pollMsgId, pol
     }
 }
 
-const processMessage = async (message, { shouldProcessHistoryMsg, placeholderResendCache, ev, creds, keyStore, logger, options, getMessage }) => {
+const processMessage = async (message, { shouldProcessHistoryMsg, placeholderResendCache, ev, creds, signalRepository, keyStore, logger, options, getMessage }) => {
     const meId = creds.me.id
     const { accountSettings } = creds
     const chat = { id: WABinary_1.jidNormalizedUser(getChatId(message.key)) }
@@ -175,7 +175,7 @@ const processMessage = async (message, { shouldProcessHistoryMsg, placeholderRes
                             newAppStateSyncKeyId = strKeyId
                         }
                         logger?.info({ newAppStateSyncKeyId, newKeys }, 'injecting new app state sync keys')
-                    })
+                    }, meId)
                     ev.emit('creds.update', { myAppStateKeyId: newAppStateSyncKeyId })
                 }
                 else {
@@ -202,7 +202,7 @@ const processMessage = async (message, { shouldProcessHistoryMsg, placeholderRes
             case WAProto_1.proto.Message.ProtocolMessage.Type.PEER_DATA_OPERATION_REQUEST_RESPONSE_MESSAGE:
                 const response = protocolMsg.peerDataOperationRequestResponseMessage
                 if (response) {
-                    placeholderResendCache?.del(response.stanzaId)
+                    await placeholderResendCache?.del(response.stanzaId)
                     // TODO: IMPLEMENT HISTORY SYNC ETC (sticker uploads etc.).
                     const { peerDataOperationResult } = response
                     for (const result of peerDataOperationResult) {
@@ -240,9 +240,24 @@ const processMessage = async (message, { shouldProcessHistoryMsg, placeholderRes
                     }
                 ])
                 break
+            case WAProto_1.proto.Message.ProtocolMessage.Type.LID_MIGRATION_MAPPING_SYNC:
+                const encodedPayload = protocolMsg.lidMigrationMappingSyncMessage?.encodedMappingPayload
+                const { pnToLidMappings, chatDbMigrationTimestamp } = WAProto_1.proto.LIDMigrationMappingSyncPayload.decode(encodedPayload)
+                
+                logger?.debug({ pnToLidMappings, chatDbMigrationTimestamp }, 'got lid mappings and chat db migration timestamp')
+                
+                const pairs = []
+                
+                for (const { pn, latestLid, assignedLid } of pnToLidMappings) {
+                    const lid = latestLid || assignedLid
+                    pairs.push({ lid: `${lid}@lid`, pn: `${pn}@s.whatsapp.net` })
+                }
+                
+                await signalRepository.lidMapping.storeLIDPNMappings(pairs)
+                break
             case WAProto_1.proto.Message.ProtocolMessage.Type.LIMIT_SHARING:
                 ev.emit('limit-sharing.update', {
-                	id: protocolMsg.key.remoteJid, 
+                	id: message.key.remoteJid, 
                     author: WABinary_1.areJidsSameUser(message.key.remoteJid, protocolMsg.key.remoteJid) ? WABinary_1.jidNormalizedUser(meId) : message.key.remoteJid, 
                     action: `${protocolMsg.limitSharing.sharingLimited ? 'on' : 'off'}`, 
                     trigger: protocolMsg.limitSharing.trigger, 
@@ -263,17 +278,11 @@ const processMessage = async (message, { shouldProcessHistoryMsg, placeholderRes
     }
     else if (message.messageStubType) {
         const jid = message.key?.remoteJid
-        
         //let actor = whatsappID (message.participant)
-        let participants     
-
-const jid2 = message.key.participant;   
-        const emitParticipantsUpdate = (action) => (ev.emit('group-participants.update', { id: jid, author: jid2, participants, action}))
+        let participants
+        const emitParticipantsUpdate = (action) => (ev.emit('group-participants.update', { id: jid, author: message.participant, participants, action }))
         const emitGroupUpdate = (update) => {
             ev.emit('groups.update', [{ id: jid, ...update, author: message.participant ? message.participant : undefined }])
-        }
-        const emitCommunityUpdate = (update) => {
-            ev.emit('communities.update', [{ id: jid, ...update, author: message.participant ? message.participant : undefined }])
         }
         const emitGroupRequestJoin = (participant, action, method) => {
             ev.emit('group.join-request', { id: jid, author: message.participant, participant, action, method: method })
@@ -338,20 +347,10 @@ const jid2 = message.key.participant;
                 chat.name = name
                 emitGroupUpdate({ subject: name })
                 break
-                case Types_1.WAMessageStubType.COMMUNITY_PARENT_GROUP_SUBJECT_CHANGED:
-                const name2 = message.messageStubParameters?.[0]
-                chat.name2 = name2
-                emitCommunityUpdate({ subject: name2 })
-                break
             case Types_1.WAMessageStubType.GROUP_CHANGE_DESCRIPTION:
                 const description = message.messageStubParameters?.[0]
                 chat.description = description
                 emitGroupUpdate({ desc: description })
-                break
-                 case Types_1.WAMessageStubType.COMMUNITY_CHANGE_DESCRIPTION:
-                const description2 = message.messageStubParameters?.[0]
-                chat.description2 = description2
-                emitCommunityUpdate({ desc: description2 })
                 break
             case Types_1.WAMessageStubType.GROUP_CHANGE_INVITE_LINK:
                 const code = message.messageStubParameters?.[0]

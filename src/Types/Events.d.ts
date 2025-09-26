@@ -30,9 +30,9 @@ export type BaileysEventMap = {
     'chats.upsert': Chat[]
     /** update the given chats */
     'chats.update': ChatUpdate[]
-    'chats.phoneNumberShare': {
+    'lid-mapping.update': {
         lid: string
-        jid: string
+        pn: string
     }
     /** delete chats with given ID */
     'chats.delete': string[]
@@ -212,9 +212,6 @@ export type BufferedEventData = {
         }
     }
     groupUpdates: {
-        [jid: string]: Partial<GroupMetadata>
-    }
-     communityUpdates: {
         [jid: string]: Partial<GroupMetadata>
     }
 }

@@ -14,7 +14,7 @@ const generateIV = (counter) => {
     return new Uint8Array(iv)
 }
 
-const makeNoiseHandler = ({ keyPair: { private: privateKey, public: publicKey }, NOISE_HEADER, logger, routingInfo }) => {
+const makeNoiseHandler = ({ keyPair: { private: privateKey, public: publicKey }, NOISE_HEADER, logger, mobile, routingInfo }) => {
     logger = logger.child({ class: 'ns' })
     const authenticate = (data) => {
         if (!isFinished) {
@@ -93,6 +93,16 @@ const makeNoiseHandler = ({ keyPair: { private: privateKey, public: publicKey },
             }
             const keyEnc = encrypt(noiseKey.public)
             await mixIntoKey(crypto_1.Curve.sharedKey(noiseKey.private, serverHello.ephemeral))
+            if (mobile) {
+                WAProto_1.proto.CertChain.NoiseCertificate.decode(certDecoded);
+            }
+            else {
+                const { intermediate: certIntermediate } = WAProto_1.proto.CertChain.decode(certDecoded);
+                const { issuerSerial } = WAProto_1.proto.CertChain.NoiseCertificate.Details.decode(certIntermediate.details);
+                if (issuerSerial !== Defaults_1.WA_CERT_DETAILS.SERIAL) {
+                    throw new boom_1.Boom('certification match failed', { statusCode: 400 });
+                }
+            }
             return keyEnc
         },
         encodeFrame: (data) => {
