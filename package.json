@@ -1,6 +1,6 @@
 {
   "name": "baron-baileys-v2",
-  "version": "1.1.9",
+  "version": "1.2.0",
   "description": "WhatsApp API",
   "keywords": [
     "whatsapp",
@@ -39,6 +39,7 @@
     "futoin-hkdf": "^1.5.1",
     "libphonenumber-js": "^1.10.20",
     "libsignal-baron": "^1.0.8",
+    "lru-cache": "^11.2.2",
     "music-metadata": "^7.12.3",
     "node-cache": "^5.1.2",
     "pino": "^7.0.0",

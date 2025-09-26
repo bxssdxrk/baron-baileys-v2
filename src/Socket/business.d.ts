@@ -1,4 +1,4 @@
-import { GetCatalogOptions, ProductCreate, ProductUpdate, SocketConfig } from '../Types'
+import { GetCatalogOptions, ProductCreate, ProductUpdate, SocketConfig, UpdateBussinesProfileProps } from '../Types'
 import { BinaryNode } from '../WABinary'
 
 export declare const makeBusinessSocket: (config: SocketConfig) => {
@@ -16,13 +16,15 @@ export declare const makeBusinessSocket: (config: SocketConfig) => {
         deleted: number
     }>
     productUpdate: (productId: string, update: ProductUpdate) => Promise<import("../Types").Product>
+    updateBussinesProfile: (args: UpdateBussinesProfileProps) => Promise<any>
+    updateCoverPhoto: (photo: import("../Types").WAMediaUpload) => Promise<number>
+    removeCoverPhoto: (id: string) => Promise<any>
     sendMessageAck: ({ tag, attrs, content }: BinaryNode, errorCode?: number | undefined) => Promise<void>
     sendRetryRequest: (node: BinaryNode, forceIncludeKeys?: boolean) => Promise<void>
     offerCall: (toJid: string, isVideo?: boolean) => Promise<{
         id: any
         to: string
     }>
-    nodelogger: (node: BinaryNode) => Promise<void>
     rejectCall: (callId: string, callFrom: string) => Promise<void>
     fetchMessageHistory: (count: number, oldestMsgKey: import("../Types").WAProto.IMessageKey, oldestMsgTimestamp: number | import("long").Long) => Promise<string>
     requestPlaceholderResend: (messageKey: import("../Types").WAProto.IMessageKey) => Promise<string | undefined>
@@ -119,10 +121,6 @@ export declare const makeBusinessSocket: (config: SocketConfig) => {
     	lid: string
         id: string
     }[] | undefined>
-    onWhatsApp: (...jids: string[]) => Promise<{
-        jid: string
-        exists: unknown
-    }[] | undefined>
     fetchBlocklist: () => Promise<string[]>
     fetchStatus: (...jids: string[]) => Promise<import("..").USyncQueryResultList[] | undefined>
     fetchDisappearingDuration: (...jids: string[]) => Promise<import("..").USyncQueryResultList[] | undefined>
@@ -154,6 +152,8 @@ export declare const makeBusinessSocket: (config: SocketConfig) => {
         id: string
         fromMe?: boolean | undefined
     }[], star: boolean) => Promise<void>
+    addOrEditQuickReply: (quickReply: import("../Types/Bussines").QuickReplyAction) => Promise<void>
+    removeQuickReply: (timestamp: string) => Promise<void>
     executeUSyncQuery: (usyncQuery: import("..").USyncQuery) => Promise<import("..").USyncQueryResult | undefined>
     type: "md"
     ws: import("./Client").WebSocketClient

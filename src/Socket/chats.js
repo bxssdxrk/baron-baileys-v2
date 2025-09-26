@@ -15,13 +15,13 @@ const Utils_1 = require("../Utils")
 const make_mutex_1 = require("../Utils/make-mutex")
 const WABinary_1 = require("../WABinary")
 const WAUSync_1 = require("../WAUSync")
-const usync_1 = require("./usync")
+const socket_1 = require("./socket")
 const MAX_SYNC_ATTEMPTS = 2
 
 const makeChatsSocket = (config) => {
     const { logger, markOnlineOnConnect, fireInitQueries, appStateMacVerification, shouldIgnoreJid, shouldSyncHistoryMessage, } = config
-    const baron = usync_1.makeUSyncSocket(config)
-    const { ev, ws, authState, generateMessageTag, sendNode, query, onUnexpectedError, groupFetchAllParticipating } = baron
+    const baron = socket_1.makeSocket(config)
+    const { ev, ws, authState, generateMessageTag, sendNode, query, signalRepository, onUnexpectedError, groupFetchAllParticipating } = baron
     
     let privacySettings
     let syncState = Types_1.SyncState.Connecting
@@ -199,21 +199,6 @@ const makeChatsSocket = (config) => {
         
         if (result) {
             return result.list
-        }
-    }
-    
-    const onWhatsApp = async (...jids) => {
-        const usyncQuery = new WAUSync_1.USyncQuery().withContactProtocol().withLIDProtocol() 
-        
-        for (const jid of jids) {
-            const phone = `+${jid.replace('+', '').split('@')[0].split(':')[0]}`
-            usyncQuery.withUser(new WAUSync_1.USyncUser().withPhone(phone))
-        }
-        
-        const results = await baron.executeUSyncQuery(usyncQuery)
-        
-        if (results) {
-            return results.list.filter((a) => !!a.contact).map(({ contact, id, lid }) => ({ jid: id, exists: contact, lid }))
         }
     }
     
@@ -540,7 +525,7 @@ const makeChatsSocket = (config) => {
                     }
                 }
             }
-        })
+        }, authState?.creds?.me?.id || 'resync-app-state')
         
         const { onMutation } = newAppStateChunkHandler(isInitialSync)
         
@@ -735,7 +720,7 @@ const makeChatsSocket = (config) => {
                 }
                 await query(node)
                 await authState.keys.set({ 'app-state-sync-version': { [name]: state } })
-            })
+            }, authState?.creds?.me?.id || 'app-patch')
         })
         
         if (config.emitOwnEvents) {
@@ -901,6 +886,24 @@ const makeChatsSocket = (config) => {
         }, jid)
      }
      
+     /**
+     * Add or Edit Quick Reply
+     */
+    const addOrEditQuickReply = (quickReply) => {
+        return chatModify({
+            quickReply
+        }, '')
+    }
+    
+    /**
+     * Remove Quick Reply
+     */
+    const removeQuickReply = (timestamp) => {
+        return chatModify({
+            quickReply: { timestamp, deleted: true }
+        }, '')
+    }
+     
     /**
      * queries need to be fired on connection open
      * help ensure parity with WA Web
@@ -974,6 +977,7 @@ const makeChatsSocket = (config) => {
                 }
             })(),
             Utils_1.processMessage(msg, {
+            	signalRepository, 
                 shouldProcessHistoryMsg,
                 placeholderResendCache,
                 ev,
@@ -1076,7 +1080,6 @@ const makeChatsSocket = (config) => {
         presenceSubscribe, 
         getBotListV2,  
         getLidUser, 
-        onWhatsApp,
         fetchBlocklist,
         fetchStatus,
         fetchDisappearingDuration,
@@ -1104,7 +1107,9 @@ const makeChatsSocket = (config) => {
         removeChatLabel,
         addMessageLabel,
         removeMessageLabel,
-        clearMessage
+        clearMessage, 
+        addOrEditQuickReply,
+        removeQuickReply
     }
 }
 

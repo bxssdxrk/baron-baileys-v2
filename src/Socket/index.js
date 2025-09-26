@@ -3,7 +3,8 @@
 Object.defineProperty(exports, "__esModule", { value: true })
 
 const Defaults_1 = require("../Defaults")
-const community_1= require("./communities");
+const communities_1 = require("./communities")
+
 // export the last socket layer
 const makeWASocket = (config) => {
 	const newConfig = {
@@ -17,7 +18,7 @@ const makeWASocket = (config) => {
         newConfig.shouldSyncHistoryMessage = () => !!newConfig.syncFullHistory
     }
 
-    return community_1.makeCommunitiesSocket(newConfig)
+    return communities_1.makeCommunitiesSocket(newConfig)
 }
 
 exports.default = makeWASocket

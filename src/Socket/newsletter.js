@@ -203,12 +203,21 @@ const makeNewsletterSocket = (config) => {
         	
         	return data
         }, 
-        newsletterAdminCount: async (jid) => {
-            const result = await newsletterWMexQuery(jid, Types_1.QueryIds.ADMIN_COUNT)
-            const buff = WABinary_1.getBinaryNodeChild(result, 'result')?.content?.toString()
-            
-            return JSON.parse(buff).data[Types_1.XWAPaths.ADMIN_COUNT].admin_count
-        },
+        newsletterFetchAllParticipating: async () => {
+  		const result = await newsletterWMexQuery(undefined, Types_1.QueryIds.SUBSCRIBED)
+ 		 const child = JSON.parse(WABinary_1.getBinaryNodeChild(result, 'result')?.content?.toString())
+  		const newsletters = child.data[Types_1.XWAPaths.SUBSCRIBED] || []
+
+  		const data = {}
+
+  		for (const { id } of newsletters) {
+    		if (!WABinary_1.isJidNewsletter(id)) continue
+   		 const metadata = await newsletterMetadata('JID', id)
+    		data[metadata.id] = metadata
+  		}
+
+  		return data
+		},
         newsletterChangeOwner: async (jid, userLid) => {
             await newsletterWMexQuery(jid, Types_1.QueryIds.CHANGE_OWNER, {
                 user_id: userLid
@@ -261,21 +270,21 @@ const extractNewsletterMetadata = (node, isCreate) => {
     const metadataPath = JSON.parse(result).data[isCreate ? Types_1.XWAPaths.CREATE : Types_1.XWAPaths.NEWSLETTER]
     
     const metadata = {
-        id: metadataPath.id,
-        state: metadataPath.state.type,
-        creation_time: +metadataPath.thread_metadata.creation_time,
-        name: metadataPath.thread_metadata.name.text,
-        nameTime: +metadataPath.thread_metadata.name.update_time,
-        description: metadataPath.thread_metadata.description.text,
-        descriptionTime: +metadataPath.thread_metadata.description.update_time,
-        invite: metadataPath.thread_metadata.invite,
-        handle: metadataPath.thread_metadata.handle,
-        picture: Utils_1.getUrlFromDirectPath(metadataPath.thread_metadata.picture?.direct_path || ''), 
-        preview: Utils_1.getUrlFromDirectPath(metadataPath.thread_metadata.preview?.direct_path || ''), 
-        reaction_codes: metadataPath.thread_metadata?.settings?.reaction_codes?.value,
-        subscribers: +metadataPath.thread_metadata.subscribers_count,
-        verification: metadataPath.thread_metadata.verification,
-        viewer_metadata: metadataPath.viewer_metadata
+        id: metadataPath?.id,
+        state: metadataPath?.state?.type,
+        creation_time: +metadataPath?.thread_metadata?.creation_time,
+        name: metadataPath?.thread_metadata?.name?.text,
+        nameTime: +metadataPath?.thread_metadata?.name?.update_time,
+        description: metadataPath?.thread_metadata?.description?.text,
+        descriptionTime: +metadataPath?.thread_metadata?.description?.update_time,
+        invite: metadataPath?.thread_metadata?.invite,
+        handle: metadataPath?.thread_metadata?.handle,
+        picture: Utils_1.getUrlFromDirectPath(metadataPath?.thread_metadata?.picture?.direct_path || ''), 
+        preview: Utils_1.getUrlFromDirectPath(metadataPath?.thread_metadata?.preview?.direct_path || ''), 
+        reaction_codes: metadataPath?.thread_metadata?.settings?.reaction_codes?.value,
+        subscribers: +metadataPath?.thread_metadata?.subscribers_count,
+        verification: metadataPath?.thread_metadata?.verification,
+        viewer_metadata: metadataPath?.viewer_metadata
     }
     return metadata
 }

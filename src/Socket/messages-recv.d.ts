@@ -10,7 +10,6 @@ export declare const makeMessagesRecvSocket: (config: SocketConfig) => {
         id: any
         to: string
     }>
-    nodelogger: (node: BinaryNode) => Promise<void>
     rejectCall: (callId: string, callFrom: string) => Promise<void>
     fetchMessageHistory: (count: number, oldestMsgKey: WAMessageKey, oldestMsgTimestamp: number | Long) => Promise<string>
     requestPlaceholderResend: (messageKey: WAMessageKey) => Promise<string | undefined>
@@ -107,10 +106,6 @@ export declare const makeMessagesRecvSocket: (config: SocketConfig) => {
     	lid: string
         id: string
     }[] | undefined>
-    onWhatsApp: (...jids: string[]) => Promise<{
-        jid: string
-        exists: unknown
-    }[] | undefined>
     fetchBlocklist: () => Promise<string[]>
     fetchStatus: (...jids: string[]) => Promise<import("..").USyncQueryResultList[] | undefined>
     fetchDisappearingDuration: (...jids: string[]) => Promise<import("..").USyncQueryResultList[] | undefined>
@@ -142,6 +137,8 @@ export declare const makeMessagesRecvSocket: (config: SocketConfig) => {
         id: string
         fromMe?: boolean | undefined
     }[], star: boolean) => Promise<void>
+    addOrEditQuickReply: (quickReply: import("../Types/Bussines").QuickReplyAction) => Promise<void>
+    removeQuickReply: (timestamp: string) => Promise<void>
     addOrEditContact: (jid: string, contact: ContactAction) => Promise<void>
     removeContact: (jid: string) => Promise<void>
     executeUSyncQuery: (usyncQuery: import("..").USyncQuery) => Promise<import("..").USyncQueryResult | undefined>

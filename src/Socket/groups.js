@@ -299,16 +299,20 @@ const makeGroupsSocket = (config) => {
 const extractGroupMetadata = (result) => {
     const group = WABinary_1.getBinaryNodeChild(result, 'group')
     const descChild = WABinary_1.getBinaryNodeChild(group, 'description')
+    const mode = group.attrs.addressing_mode === 'lid' ? Types_1.WAMessageAddressingMode.LID : Types_1.WAMessageAddressingMode.PN
     
     let desc
     let descId
+    let descOwner
+    let descOwnerLid
     
     if (descChild) {
         desc = WABinary_1.getBinaryNodeChildString(descChild, 'body')
         descId = descChild.attrs.id
+        descOwner = mode === Types_1.WAMessageAddressingMode.LID ? WABinary_1.jidNormalizedUser(descChild.attrs.participant_pn) : WABinary_1.jidNormalizedUser(descChild.attrs.participant) 
+        descOwnerLid = mode === Types_1.WAMessageAddressingMode.LID ? WABinary_1.jidNormalizedUser(descChild.attrs.participant) : undefined
     }
     
-    const mode = group.attrs.addressing_mode
     const groupId = group.attrs.id.includes('@') ? group.attrs.id : WABinary_1.jidEncode(group.attrs.id, 'g.us')
     const eph = WABinary_1.getBinaryNodeChild(group, 'ephemeral')?.attrs.expiration
     const memberAddMode = WABinary_1.getBinaryNodeChildString(group, 'member_add_mode') === 'all_member_add'
@@ -317,14 +321,18 @@ const extractGroupMetadata = (result) => {
         id: groupId,
         addressingMode: mode, 
         subject: group.attrs.subject,
-        subjectOwner: mode === 'lid' ? group.attrs.s_o_pn : group.attrs.s_o,
+        subjectOwner: mode === Types_1.WAMessageAddressingMode.LID ? group.attrs.s_o_pn : group.attrs.s_o,
+        subjectOwnerLid: group.attrs.s_o, 
         subjectTime: +group.attrs.s_t,
         size: group.attrs?.size ? +group.attrs.size : WABinary_1.getBinaryNodeChildren(group, 'participant').length,
         creation: +group.attrs.creation,
-        owner: group.attrs.creator ? WABinary_1.jidNormalizedUser(mode === 'lid' ? group.attrs.creator_pn : group.attrs.creator) : undefined,
+        owner: group.attrs.creator ? WABinary_1.jidNormalizedUser(mode === Types_1.WAMessageAddressingMode.LID ? group.attrs.creator_pn : group.attrs.creator) : undefined,
+        ownerLid: group.attrs.creator ? WABinary_1.jidNormalizedUser(group.attrs.creator) : undefined, 
         ownerCountry: group.attrs.creator_country_code, 
         desc,
         descId,
+        descOwner, 
+        descOwnerLid, 
         linkedParent: WABinary_1.getBinaryNodeChild(group, 'linked_parent')?.attrs.jid || undefined,
         restrict: !!WABinary_1.getBinaryNodeChild(group, 'locked'),
         announce: !!WABinary_1.getBinaryNodeChild(group, 'announcement'),
@@ -334,11 +342,11 @@ const extractGroupMetadata = (result) => {
         memberAddMode,
         participants: WABinary_1.getBinaryNodeChildren(group, 'participant').map(({ attrs }) => {
             return {
-                id: (0, WABinary_1.isJidUser)(attrs.jid) ? attrs.jid : (0, WABinary_1.jidNormalizedUser)(attrs.phone_number),
-                jid: (0, WABinary_1.isJidUser)(attrs.jid) ? attrs.jid : (0, WABinary_1.jidNormalizedUser)(attrs.phone_number),
-                lid: (0, WABinary_1.isLidUser)(attrs.jid) ? attrs.jid : attrs.lid,
-                admin: (attrs.type || null)
-            };
+                id: mode === Types_1.WAMessageAddressingMode.LID ? attrs.phone_number : attrs.jid,
+                jid: mode === Types_1.WAMessageAddressingMode.LID ? attrs.phone_number : attrs.jid,
+                lid: mode === Types_1.WAMessageAddressingMode.LID ? attrs.jid : attrs.lid, 
+                admin: (attrs.type || null),
+            }
         }),
         ephemeralDuration: eph ? +eph : undefined, 
     }
