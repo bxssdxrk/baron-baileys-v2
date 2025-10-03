@@ -3948,6 +3948,9 @@ export namespace proto {
 
         /** BotAgeCollectionMetadata shouldTriggerAgeCollectionOnClient */
         shouldTriggerAgeCollectionOnClient?: (boolean|null);
+
+        /** BotAgeCollectionMetadata ageCollectionType */
+        ageCollectionType?: (proto.BotAgeCollectionMetadata.AgeCollectionType|null);
     }
 
     /** Represents a BotAgeCollectionMetadata. */
@@ -3964,6 +3967,9 @@ export namespace proto {
 
         /** BotAgeCollectionMetadata shouldTriggerAgeCollectionOnClient. */
         public shouldTriggerAgeCollectionOnClient?: (boolean|null);
+
+        /** BotAgeCollectionMetadata ageCollectionType. */
+        public ageCollectionType?: (proto.BotAgeCollectionMetadata.AgeCollectionType|null);
 
         /**
          * Creates a new BotAgeCollectionMetadata instance using the specified properties.
@@ -4041,6 +4047,15 @@ export namespace proto {
          * @returns The default type url
          */
         public static getTypeUrl(typeUrlPrefix?: string): string;
+    }
+
+    namespace BotAgeCollectionMetadata {
+
+        /** AgeCollectionType enum. */
+        enum AgeCollectionType {
+            O18_BINARY = 0,
+            WAFFLE = 1
+        }
     }
 
     /** Properties of a BotAvatarMetadata. */
@@ -5715,6 +5730,109 @@ export namespace proto {
         public static getTypeUrl(typeUrlPrefix?: string): string;
     }
 
+    /** Properties of a BotMessageSharingInfo. */
+    interface IBotMessageSharingInfo {
+
+        /** BotMessageSharingInfo botEntryPointOrigin */
+        botEntryPointOrigin?: (proto.BotMetricsEntryPoint|null);
+
+        /** BotMessageSharingInfo forwardScore */
+        forwardScore?: (number|null);
+    }
+
+    /** Represents a BotMessageSharingInfo. */
+    class BotMessageSharingInfo implements IBotMessageSharingInfo {
+
+        /**
+         * Constructs a new BotMessageSharingInfo.
+         * @param [properties] Properties to set
+         */
+        constructor(properties?: proto.IBotMessageSharingInfo);
+
+        /** BotMessageSharingInfo botEntryPointOrigin. */
+        public botEntryPointOrigin?: (proto.BotMetricsEntryPoint|null);
+
+        /** BotMessageSharingInfo forwardScore. */
+        public forwardScore?: (number|null);
+
+        /**
+         * Creates a new BotMessageSharingInfo instance using the specified properties.
+         * @param [properties] Properties to set
+         * @returns BotMessageSharingInfo instance
+         */
+        public static create(properties?: proto.IBotMessageSharingInfo): proto.BotMessageSharingInfo;
+
+        /**
+         * Encodes the specified BotMessageSharingInfo message. Does not implicitly {@link proto.BotMessageSharingInfo.verify|verify} messages.
+         * @param message BotMessageSharingInfo message or plain object to encode
+         * @param [writer] Writer to encode to
+         * @returns Writer
+         */
+        public static encode(message: proto.IBotMessageSharingInfo, writer?: $protobuf.Writer): $protobuf.Writer;
+
+        /**
+         * Encodes the specified BotMessageSharingInfo message, length delimited. Does not implicitly {@link proto.BotMessageSharingInfo.verify|verify} messages.
+         * @param message BotMessageSharingInfo message or plain object to encode
+         * @param [writer] Writer to encode to
+         * @returns Writer
+         */
+        public static encodeDelimited(message: proto.IBotMessageSharingInfo, writer?: $protobuf.Writer): $protobuf.Writer;
+
+        /**
+         * Decodes a BotMessageSharingInfo message from the specified reader or buffer.
+         * @param reader Reader or buffer to decode from
+         * @param [length] Message length if known beforehand
+         * @returns BotMessageSharingInfo
+         * @throws {Error} If the payload is not a reader or valid buffer
+         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+         */
+        public static decode(reader: ($protobuf.Reader|Uint8Array), length?: number): proto.BotMessageSharingInfo;
+
+        /**
+         * Decodes a BotMessageSharingInfo message from the specified reader or buffer, length delimited.
+         * @param reader Reader or buffer to decode from
+         * @returns BotMessageSharingInfo
+         * @throws {Error} If the payload is not a reader or valid buffer
+         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+         */
+        public static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): proto.BotMessageSharingInfo;
+
+        /**
+         * Verifies a BotMessageSharingInfo message.
+         * @param message Plain object to verify
+         * @returns `null` if valid, otherwise the reason why it is not
+         */
+        public static verify(message: { [k: string]: any }): (string|null);
+
+        /**
+         * Creates a BotMessageSharingInfo message from a plain object. Also converts values to their respective internal types.
+         * @param object Plain object
+         * @returns BotMessageSharingInfo
+         */
+        public static fromObject(object: { [k: string]: any }): proto.BotMessageSharingInfo;
+
+        /**
+         * Creates a plain object from a BotMessageSharingInfo message. Also converts values to other types if specified.
+         * @param message BotMessageSharingInfo
+         * @param [options] Conversion options
+         * @returns Plain object
+         */
+        public static toObject(message: proto.BotMessageSharingInfo, options?: $protobuf.IConversionOptions): { [k: string]: any };
+
+        /**
+         * Converts this BotMessageSharingInfo to JSON.
+         * @returns JSON object
+         */
+        public toJSON(): { [k: string]: any };
+
+        /**
+         * Gets the default type url for BotMessageSharingInfo
+         * @param [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+         * @returns The default type url
+         */
+        public static getTypeUrl(typeUrlPrefix?: string): string;
+    }
+
     /** Properties of a BotMetadata. */
     interface IBotMetadata {
 
@@ -6033,8 +6151,10 @@ export namespace proto {
         INVOKE_META_AI_GROUP = 30,
         META_AI_FORWARD = 31,
         NEW_CHAT_AI_CONTACT = 32,
-        MESSAGE_QUICK_ACTION = 33,
-        ATTACHMENT_TRAY = 34
+        MESSAGE_QUICK_ACTION_1_ON_1_CHAT = 33,
+        MESSAGE_QUICK_ACTION_GROUP_CHAT = 34,
+        ATTACHMENT_TRAY_1_ON_1_CHAT = 35,
+        ATTACHMENT_TRAY_GROUP_CHAT = 36
     }
 
     /** Properties of a BotMetricsMetadata. */
@@ -10633,6 +10753,12 @@ export namespace proto {
 
         /** ClientPayload paaLink */
         paaLink?: (boolean|null);
+
+        /** ClientPayload preacksCount */
+        preacksCount?: (number|null);
+
+        /** ClientPayload processingQueueSize */
+        processingQueueSize?: (number|null);
     }
 
     /** Represents a ClientPayload. */
@@ -10739,6 +10865,12 @@ export namespace proto {
 
         /** ClientPayload paaLink. */
         public paaLink?: (boolean|null);
+
+        /** ClientPayload preacksCount. */
+        public preacksCount?: (number|null);
+
+        /** ClientPayload processingQueueSize. */
+        public processingQueueSize?: (number|null);
 
         /**
          * Creates a new ClientPayload instance using the specified properties.
@@ -12473,6 +12605,9 @@ export namespace proto {
 
         /** ContextInfo quotedType */
         quotedType?: (proto.ContextInfo.QuotedType|null);
+
+        /** ContextInfo botMessageSharingInfo */
+        botMessageSharingInfo?: (proto.IBotMessageSharingInfo|null);
     }
 
     /** Represents a ContextInfo. */
@@ -12645,6 +12780,9 @@ export namespace proto {
 
         /** ContextInfo quotedType. */
         public quotedType?: (proto.ContextInfo.QuotedType|null);
+
+        /** ContextInfo botMessageSharingInfo. */
+        public botMessageSharingInfo?: (proto.IBotMessageSharingInfo|null);
 
         /**
          * Creates a new ContextInfo instance using the specified properties.
@@ -13732,7 +13870,9 @@ export namespace proto {
             SD_IMAGE_PARENT = 3,
             HD_IMAGE_CHILD = 4,
             MOTION_PHOTO_PARENT = 5,
-            MOTION_PHOTO_CHILD = 6
+            MOTION_PHOTO_CHILD = 6,
+            HEVC_VIDEO_PARENT = 7,
+            HEVC_VIDEO_CHILD = 8
         }
 
         /** Properties of a QuestionReplyQuotedMessage. */
@@ -14515,6 +14655,9 @@ export namespace proto {
 
         /** DeviceCapabilities businessBroadcast */
         businessBroadcast?: (proto.DeviceCapabilities.IBusinessBroadcast|null);
+
+        /** DeviceCapabilities userHasAvatar */
+        userHasAvatar?: (proto.DeviceCapabilities.IUserHasAvatar|null);
     }
 
     /** Represents a DeviceCapabilities. */
@@ -14534,6 +14677,9 @@ export namespace proto {
 
         /** DeviceCapabilities businessBroadcast. */
         public businessBroadcast?: (proto.DeviceCapabilities.IBusinessBroadcast|null);
+
+        /** DeviceCapabilities userHasAvatar. */
+        public userHasAvatar?: (proto.DeviceCapabilities.IUserHasAvatar|null);
 
         /**
          * Creates a new DeviceCapabilities instance using the specified properties.
@@ -14810,6 +14956,103 @@ export namespace proto {
 
             /**
              * Gets the default type url for LIDMigration
+             * @param [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+             * @returns The default type url
+             */
+            public static getTypeUrl(typeUrlPrefix?: string): string;
+        }
+
+        /** Properties of a UserHasAvatar. */
+        interface IUserHasAvatar {
+
+            /** UserHasAvatar userHasAvatar */
+            userHasAvatar?: (boolean|null);
+        }
+
+        /** Represents a UserHasAvatar. */
+        class UserHasAvatar implements IUserHasAvatar {
+
+            /**
+             * Constructs a new UserHasAvatar.
+             * @param [properties] Properties to set
+             */
+            constructor(properties?: proto.DeviceCapabilities.IUserHasAvatar);
+
+            /** UserHasAvatar userHasAvatar. */
+            public userHasAvatar?: (boolean|null);
+
+            /**
+             * Creates a new UserHasAvatar instance using the specified properties.
+             * @param [properties] Properties to set
+             * @returns UserHasAvatar instance
+             */
+            public static create(properties?: proto.DeviceCapabilities.IUserHasAvatar): proto.DeviceCapabilities.UserHasAvatar;
+
+            /**
+             * Encodes the specified UserHasAvatar message. Does not implicitly {@link proto.DeviceCapabilities.UserHasAvatar.verify|verify} messages.
+             * @param message UserHasAvatar message or plain object to encode
+             * @param [writer] Writer to encode to
+             * @returns Writer
+             */
+            public static encode(message: proto.DeviceCapabilities.IUserHasAvatar, writer?: $protobuf.Writer): $protobuf.Writer;
+
+            /**
+             * Encodes the specified UserHasAvatar message, length delimited. Does not implicitly {@link proto.DeviceCapabilities.UserHasAvatar.verify|verify} messages.
+             * @param message UserHasAvatar message or plain object to encode
+             * @param [writer] Writer to encode to
+             * @returns Writer
+             */
+            public static encodeDelimited(message: proto.DeviceCapabilities.IUserHasAvatar, writer?: $protobuf.Writer): $protobuf.Writer;
+
+            /**
+             * Decodes a UserHasAvatar message from the specified reader or buffer.
+             * @param reader Reader or buffer to decode from
+             * @param [length] Message length if known beforehand
+             * @returns UserHasAvatar
+             * @throws {Error} If the payload is not a reader or valid buffer
+             * @throws {$protobuf.util.ProtocolError} If required fields are missing
+             */
+            public static decode(reader: ($protobuf.Reader|Uint8Array), length?: number): proto.DeviceCapabilities.UserHasAvatar;
+
+            /**
+             * Decodes a UserHasAvatar message from the specified reader or buffer, length delimited.
+             * @param reader Reader or buffer to decode from
+             * @returns UserHasAvatar
+             * @throws {Error} If the payload is not a reader or valid buffer
+             * @throws {$protobuf.util.ProtocolError} If required fields are missing
+             */
+            public static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): proto.DeviceCapabilities.UserHasAvatar;
+
+            /**
+             * Verifies a UserHasAvatar message.
+             * @param message Plain object to verify
+             * @returns `null` if valid, otherwise the reason why it is not
+             */
+            public static verify(message: { [k: string]: any }): (string|null);
+
+            /**
+             * Creates a UserHasAvatar message from a plain object. Also converts values to their respective internal types.
+             * @param object Plain object
+             * @returns UserHasAvatar
+             */
+            public static fromObject(object: { [k: string]: any }): proto.DeviceCapabilities.UserHasAvatar;
+
+            /**
+             * Creates a plain object from a UserHasAvatar message. Also converts values to other types if specified.
+             * @param message UserHasAvatar
+             * @param [options] Conversion options
+             * @returns Plain object
+             */
+            public static toObject(message: proto.DeviceCapabilities.UserHasAvatar, options?: $protobuf.IConversionOptions): { [k: string]: any };
+
+            /**
+             * Converts this UserHasAvatar to JSON.
+             * @returns JSON object
+             */
+            public toJSON(): { [k: string]: any };
+
+            /**
+             * Gets the default type url for UserHasAvatar
              * @param [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
              * @returns The default type url
              */
@@ -19546,6 +19789,103 @@ export namespace proto {
         }
     }
 
+    /** Properties of an InteractiveMessageAdditionalMetadata. */
+    interface IInteractiveMessageAdditionalMetadata {
+
+        /** InteractiveMessageAdditionalMetadata isGalaxyFlowCompleted */
+        isGalaxyFlowCompleted?: (boolean|null);
+    }
+
+    /** Represents an InteractiveMessageAdditionalMetadata. */
+    class InteractiveMessageAdditionalMetadata implements IInteractiveMessageAdditionalMetadata {
+
+        /**
+         * Constructs a new InteractiveMessageAdditionalMetadata.
+         * @param [properties] Properties to set
+         */
+        constructor(properties?: proto.IInteractiveMessageAdditionalMetadata);
+
+        /** InteractiveMessageAdditionalMetadata isGalaxyFlowCompleted. */
+        public isGalaxyFlowCompleted?: (boolean|null);
+
+        /**
+         * Creates a new InteractiveMessageAdditionalMetadata instance using the specified properties.
+         * @param [properties] Properties to set
+         * @returns InteractiveMessageAdditionalMetadata instance
+         */
+        public static create(properties?: proto.IInteractiveMessageAdditionalMetadata): proto.InteractiveMessageAdditionalMetadata;
+
+        /**
+         * Encodes the specified InteractiveMessageAdditionalMetadata message. Does not implicitly {@link proto.InteractiveMessageAdditionalMetadata.verify|verify} messages.
+         * @param message InteractiveMessageAdditionalMetadata message or plain object to encode
+         * @param [writer] Writer to encode to
+         * @returns Writer
+         */
+        public static encode(message: proto.IInteractiveMessageAdditionalMetadata, writer?: $protobuf.Writer): $protobuf.Writer;
+
+        /**
+         * Encodes the specified InteractiveMessageAdditionalMetadata message, length delimited. Does not implicitly {@link proto.InteractiveMessageAdditionalMetadata.verify|verify} messages.
+         * @param message InteractiveMessageAdditionalMetadata message or plain object to encode
+         * @param [writer] Writer to encode to
+         * @returns Writer
+         */
+        public static encodeDelimited(message: proto.IInteractiveMessageAdditionalMetadata, writer?: $protobuf.Writer): $protobuf.Writer;
+
+        /**
+         * Decodes an InteractiveMessageAdditionalMetadata message from the specified reader or buffer.
+         * @param reader Reader or buffer to decode from
+         * @param [length] Message length if known beforehand
+         * @returns InteractiveMessageAdditionalMetadata
+         * @throws {Error} If the payload is not a reader or valid buffer
+         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+         */
+        public static decode(reader: ($protobuf.Reader|Uint8Array), length?: number): proto.InteractiveMessageAdditionalMetadata;
+
+        /**
+         * Decodes an InteractiveMessageAdditionalMetadata message from the specified reader or buffer, length delimited.
+         * @param reader Reader or buffer to decode from
+         * @returns InteractiveMessageAdditionalMetadata
+         * @throws {Error} If the payload is not a reader or valid buffer
+         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+         */
+        public static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): proto.InteractiveMessageAdditionalMetadata;
+
+        /**
+         * Verifies an InteractiveMessageAdditionalMetadata message.
+         * @param message Plain object to verify
+         * @returns `null` if valid, otherwise the reason why it is not
+         */
+        public static verify(message: { [k: string]: any }): (string|null);
+
+        /**
+         * Creates an InteractiveMessageAdditionalMetadata message from a plain object. Also converts values to their respective internal types.
+         * @param object Plain object
+         * @returns InteractiveMessageAdditionalMetadata
+         */
+        public static fromObject(object: { [k: string]: any }): proto.InteractiveMessageAdditionalMetadata;
+
+        /**
+         * Creates a plain object from an InteractiveMessageAdditionalMetadata message. Also converts values to other types if specified.
+         * @param message InteractiveMessageAdditionalMetadata
+         * @param [options] Conversion options
+         * @returns Plain object
+         */
+        public static toObject(message: proto.InteractiveMessageAdditionalMetadata, options?: $protobuf.IConversionOptions): { [k: string]: any };
+
+        /**
+         * Converts this InteractiveMessageAdditionalMetadata to JSON.
+         * @returns JSON object
+         */
+        public toJSON(): { [k: string]: any };
+
+        /**
+         * Gets the default type url for InteractiveMessageAdditionalMetadata
+         * @param [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+         * @returns The default type url
+         */
+        public static getTypeUrl(typeUrlPrefix?: string): string;
+    }
+
     /** Properties of a KeepInChat. */
     interface IKeepInChat {
 
@@ -21377,6 +21717,9 @@ export namespace proto {
 
         /** Message statusQuotedMessage */
         statusQuotedMessage?: (proto.Message.IStatusQuotedMessage|null);
+
+        /** Message statusStickerInteractionMessage */
+        statusStickerInteractionMessage?: (proto.Message.IStatusStickerInteractionMessage|null);
     }
 
     /** Represents a Message. */
@@ -21666,6 +22009,9 @@ export namespace proto {
 
         /** Message statusQuotedMessage. */
         public statusQuotedMessage?: (proto.Message.IStatusQuotedMessage|null);
+
+        /** Message statusStickerInteractionMessage. */
+        public statusStickerInteractionMessage?: (proto.Message.IStatusStickerInteractionMessage|null);
 
         /**
          * Creates a new Message instance using the specified properties.
@@ -28117,6 +28463,12 @@ export namespace proto {
 
                 /** Footer text */
                 text?: (string|null);
+
+                /** Footer hasMediaAttachment */
+                hasMediaAttachment?: (boolean|null);
+
+                /** Footer audioMessage */
+                audioMessage?: (proto.Message.IAudioMessage|null);
             }
 
             /** Represents a Footer. */
@@ -28130,6 +28482,15 @@ export namespace proto {
 
                 /** Footer text. */
                 public text?: (string|null);
+
+                /** Footer hasMediaAttachment. */
+                public hasMediaAttachment?: (boolean|null);
+
+                /** Footer audioMessage. */
+                public audioMessage?: (proto.Message.IAudioMessage|null);
+
+                /** Footer media. */
+                public media?: "audioMessage";
 
                 /**
                  * Creates a new Footer instance using the specified properties.
@@ -37768,6 +38129,124 @@ export namespace proto {
             }
         }
 
+        /** Properties of a StatusStickerInteractionMessage. */
+        interface IStatusStickerInteractionMessage {
+
+            /** StatusStickerInteractionMessage key */
+            key?: (proto.IMessageKey|null);
+
+            /** StatusStickerInteractionMessage stickerKey */
+            stickerKey?: (string|null);
+
+            /** StatusStickerInteractionMessage type */
+            type?: (proto.Message.StatusStickerInteractionMessage.StatusStickerType|null);
+        }
+
+        /** Represents a StatusStickerInteractionMessage. */
+        class StatusStickerInteractionMessage implements IStatusStickerInteractionMessage {
+
+            /**
+             * Constructs a new StatusStickerInteractionMessage.
+             * @param [properties] Properties to set
+             */
+            constructor(properties?: proto.Message.IStatusStickerInteractionMessage);
+
+            /** StatusStickerInteractionMessage key. */
+            public key?: (proto.IMessageKey|null);
+
+            /** StatusStickerInteractionMessage stickerKey. */
+            public stickerKey?: (string|null);
+
+            /** StatusStickerInteractionMessage type. */
+            public type?: (proto.Message.StatusStickerInteractionMessage.StatusStickerType|null);
+
+            /**
+             * Creates a new StatusStickerInteractionMessage instance using the specified properties.
+             * @param [properties] Properties to set
+             * @returns StatusStickerInteractionMessage instance
+             */
+            public static create(properties?: proto.Message.IStatusStickerInteractionMessage): proto.Message.StatusStickerInteractionMessage;
+
+            /**
+             * Encodes the specified StatusStickerInteractionMessage message. Does not implicitly {@link proto.Message.StatusStickerInteractionMessage.verify|verify} messages.
+             * @param message StatusStickerInteractionMessage message or plain object to encode
+             * @param [writer] Writer to encode to
+             * @returns Writer
+             */
+            public static encode(message: proto.Message.IStatusStickerInteractionMessage, writer?: $protobuf.Writer): $protobuf.Writer;
+
+            /**
+             * Encodes the specified StatusStickerInteractionMessage message, length delimited. Does not implicitly {@link proto.Message.StatusStickerInteractionMessage.verify|verify} messages.
+             * @param message StatusStickerInteractionMessage message or plain object to encode
+             * @param [writer] Writer to encode to
+             * @returns Writer
+             */
+            public static encodeDelimited(message: proto.Message.IStatusStickerInteractionMessage, writer?: $protobuf.Writer): $protobuf.Writer;
+
+            /**
+             * Decodes a StatusStickerInteractionMessage message from the specified reader or buffer.
+             * @param reader Reader or buffer to decode from
+             * @param [length] Message length if known beforehand
+             * @returns StatusStickerInteractionMessage
+             * @throws {Error} If the payload is not a reader or valid buffer
+             * @throws {$protobuf.util.ProtocolError} If required fields are missing
+             */
+            public static decode(reader: ($protobuf.Reader|Uint8Array), length?: number): proto.Message.StatusStickerInteractionMessage;
+
+            /**
+             * Decodes a StatusStickerInteractionMessage message from the specified reader or buffer, length delimited.
+             * @param reader Reader or buffer to decode from
+             * @returns StatusStickerInteractionMessage
+             * @throws {Error} If the payload is not a reader or valid buffer
+             * @throws {$protobuf.util.ProtocolError} If required fields are missing
+             */
+            public static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): proto.Message.StatusStickerInteractionMessage;
+
+            /**
+             * Verifies a StatusStickerInteractionMessage message.
+             * @param message Plain object to verify
+             * @returns `null` if valid, otherwise the reason why it is not
+             */
+            public static verify(message: { [k: string]: any }): (string|null);
+
+            /**
+             * Creates a StatusStickerInteractionMessage message from a plain object. Also converts values to their respective internal types.
+             * @param object Plain object
+             * @returns StatusStickerInteractionMessage
+             */
+            public static fromObject(object: { [k: string]: any }): proto.Message.StatusStickerInteractionMessage;
+
+            /**
+             * Creates a plain object from a StatusStickerInteractionMessage message. Also converts values to other types if specified.
+             * @param message StatusStickerInteractionMessage
+             * @param [options] Conversion options
+             * @returns Plain object
+             */
+            public static toObject(message: proto.Message.StatusStickerInteractionMessage, options?: $protobuf.IConversionOptions): { [k: string]: any };
+
+            /**
+             * Converts this StatusStickerInteractionMessage to JSON.
+             * @returns JSON object
+             */
+            public toJSON(): { [k: string]: any };
+
+            /**
+             * Gets the default type url for StatusStickerInteractionMessage
+             * @param [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+             * @returns The default type url
+             */
+            public static getTypeUrl(typeUrlPrefix?: string): string;
+        }
+
+        namespace StatusStickerInteractionMessage {
+
+            /** StatusStickerType enum. */
+            enum StatusStickerType {
+                UNKNOWN = 0,
+                REACTION = 1
+            }
+        }
+
         /** Properties of a StickerMessage. */
         interface IStickerMessage {
 
@@ -39895,7 +40374,9 @@ export namespace proto {
             VIEW_ALL_REPLIES = 14,
             STATUS_ADD_YOURS_AI_IMAGINE = 15,
             STATUS_QUESTION = 16,
-            STATUS_ADD_YOURS_DIWALI = 17
+            STATUS_ADD_YOURS_DIWALI = 17,
+            STATUS_REACTION = 18,
+            HEVC_VIDEO_DUAL_UPLOAD = 19
         }
     }
 
@@ -42270,7 +42751,9 @@ export namespace proto {
             UWP = 5,
             DARWIN = 6,
             IPAD = 7,
-            WEAROS = 8
+            WEAROS = 8,
+            WASG = 9,
+            WEARM = 10
         }
     }
 
@@ -47110,7 +47593,8 @@ export namespace proto {
                 YOUTUBE = 5,
                 PINTEREST = 6,
                 THREADS = 7,
-                APPLE_MUSIC = 8
+                APPLE_MUSIC = 8,
+                SHARECHAT = 9
             }
         }
 
@@ -48373,6 +48857,12 @@ export namespace proto {
 
         /** SyncActionValue statusPostOptInNotificationPreferencesAction */
         statusPostOptInNotificationPreferencesAction?: (proto.SyncActionValue.IStatusPostOptInNotificationPreferencesAction|null);
+
+        /** SyncActionValue avatarUpdatedAction */
+        avatarUpdatedAction?: (proto.SyncActionValue.IAvatarUpdatedAction|null);
+
+        /** SyncActionValue galaxyFlowAction */
+        galaxyFlowAction?: (proto.SyncActionValue.IGalaxyFlowAction|null);
     }
 
     /** Represents a SyncActionValue. */
@@ -48575,6 +49065,12 @@ export namespace proto {
 
         /** SyncActionValue statusPostOptInNotificationPreferencesAction. */
         public statusPostOptInNotificationPreferencesAction?: (proto.SyncActionValue.IStatusPostOptInNotificationPreferencesAction|null);
+
+        /** SyncActionValue avatarUpdatedAction. */
+        public avatarUpdatedAction?: (proto.SyncActionValue.IAvatarUpdatedAction|null);
+
+        /** SyncActionValue galaxyFlowAction. */
+        public galaxyFlowAction?: (proto.SyncActionValue.IGalaxyFlowAction|null);
 
         /**
          * Creates a new SyncActionValue instance using the specified properties.
@@ -48963,6 +49459,119 @@ export namespace proto {
              * @returns The default type url
              */
             public static getTypeUrl(typeUrlPrefix?: string): string;
+        }
+
+        /** Properties of an AvatarUpdatedAction. */
+        interface IAvatarUpdatedAction {
+
+            /** AvatarUpdatedAction eventType */
+            eventType?: (proto.SyncActionValue.AvatarUpdatedAction.AvatarEventType|null);
+
+            /** AvatarUpdatedAction recentAvatarStickers */
+            recentAvatarStickers?: (proto.SyncActionValue.IStickerAction[]|null);
+        }
+
+        /** Represents an AvatarUpdatedAction. */
+        class AvatarUpdatedAction implements IAvatarUpdatedAction {
+
+            /**
+             * Constructs a new AvatarUpdatedAction.
+             * @param [properties] Properties to set
+             */
+            constructor(properties?: proto.SyncActionValue.IAvatarUpdatedAction);
+
+            /** AvatarUpdatedAction eventType. */
+            public eventType?: (proto.SyncActionValue.AvatarUpdatedAction.AvatarEventType|null);
+
+            /** AvatarUpdatedAction recentAvatarStickers. */
+            public recentAvatarStickers: proto.SyncActionValue.IStickerAction[];
+
+            /**
+             * Creates a new AvatarUpdatedAction instance using the specified properties.
+             * @param [properties] Properties to set
+             * @returns AvatarUpdatedAction instance
+             */
+            public static create(properties?: proto.SyncActionValue.IAvatarUpdatedAction): proto.SyncActionValue.AvatarUpdatedAction;
+
+            /**
+             * Encodes the specified AvatarUpdatedAction message. Does not implicitly {@link proto.SyncActionValue.AvatarUpdatedAction.verify|verify} messages.
+             * @param message AvatarUpdatedAction message or plain object to encode
+             * @param [writer] Writer to encode to
+             * @returns Writer
+             */
+            public static encode(message: proto.SyncActionValue.IAvatarUpdatedAction, writer?: $protobuf.Writer): $protobuf.Writer;
+
+            /**
+             * Encodes the specified AvatarUpdatedAction message, length delimited. Does not implicitly {@link proto.SyncActionValue.AvatarUpdatedAction.verify|verify} messages.
+             * @param message AvatarUpdatedAction message or plain object to encode
+             * @param [writer] Writer to encode to
+             * @returns Writer
+             */
+            public static encodeDelimited(message: proto.SyncActionValue.IAvatarUpdatedAction, writer?: $protobuf.Writer): $protobuf.Writer;
+
+            /**
+             * Decodes an AvatarUpdatedAction message from the specified reader or buffer.
+             * @param reader Reader or buffer to decode from
+             * @param [length] Message length if known beforehand
+             * @returns AvatarUpdatedAction
+             * @throws {Error} If the payload is not a reader or valid buffer
+             * @throws {$protobuf.util.ProtocolError} If required fields are missing
+             */
+            public static decode(reader: ($protobuf.Reader|Uint8Array), length?: number): proto.SyncActionValue.AvatarUpdatedAction;
+
+            /**
+             * Decodes an AvatarUpdatedAction message from the specified reader or buffer, length delimited.
+             * @param reader Reader or buffer to decode from
+             * @returns AvatarUpdatedAction
+             * @throws {Error} If the payload is not a reader or valid buffer
+             * @throws {$protobuf.util.ProtocolError} If required fields are missing
+             */
+            public static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): proto.SyncActionValue.AvatarUpdatedAction;
+
+            /**
+             * Verifies an AvatarUpdatedAction message.
+             * @param message Plain object to verify
+             * @returns `null` if valid, otherwise the reason why it is not
+             */
+            public static verify(message: { [k: string]: any }): (string|null);
+
+            /**
+             * Creates an AvatarUpdatedAction message from a plain object. Also converts values to their respective internal types.
+             * @param object Plain object
+             * @returns AvatarUpdatedAction
+             */
+            public static fromObject(object: { [k: string]: any }): proto.SyncActionValue.AvatarUpdatedAction;
+
+            /**
+             * Creates a plain object from an AvatarUpdatedAction message. Also converts values to other types if specified.
+             * @param message AvatarUpdatedAction
+             * @param [options] Conversion options
+             * @returns Plain object
+             */
+            public static toObject(message: proto.SyncActionValue.AvatarUpdatedAction, options?: $protobuf.IConversionOptions): { [k: string]: any };
+
+            /**
+             * Converts this AvatarUpdatedAction to JSON.
+             * @returns JSON object
+             */
+            public toJSON(): { [k: string]: any };
+
+            /**
+             * Gets the default type url for AvatarUpdatedAction
+             * @param [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+             * @returns The default type url
+             */
+            public static getTypeUrl(typeUrlPrefix?: string): string;
+        }
+
+        namespace AvatarUpdatedAction {
+
+            /** AvatarEventType enum. */
+            enum AvatarEventType {
+                UPDATED = 0,
+                CREATED = 1,
+                DELETED = 2
+            }
         }
 
         /** Properties of a BotWelcomeRequestAction. */
@@ -50989,6 +51598,111 @@ export namespace proto {
                  * @returns The default type url
                  */
                 public static getTypeUrl(typeUrlPrefix?: string): string;
+            }
+        }
+
+        /** Properties of a GalaxyFlowAction. */
+        interface IGalaxyFlowAction {
+
+            /** GalaxyFlowAction type */
+            type?: (proto.SyncActionValue.GalaxyFlowAction.GalaxyFlowActionType|null);
+        }
+
+        /** Represents a GalaxyFlowAction. */
+        class GalaxyFlowAction implements IGalaxyFlowAction {
+
+            /**
+             * Constructs a new GalaxyFlowAction.
+             * @param [properties] Properties to set
+             */
+            constructor(properties?: proto.SyncActionValue.IGalaxyFlowAction);
+
+            /** GalaxyFlowAction type. */
+            public type?: (proto.SyncActionValue.GalaxyFlowAction.GalaxyFlowActionType|null);
+
+            /**
+             * Creates a new GalaxyFlowAction instance using the specified properties.
+             * @param [properties] Properties to set
+             * @returns GalaxyFlowAction instance
+             */
+            public static create(properties?: proto.SyncActionValue.IGalaxyFlowAction): proto.SyncActionValue.GalaxyFlowAction;
+
+            /**
+             * Encodes the specified GalaxyFlowAction message. Does not implicitly {@link proto.SyncActionValue.GalaxyFlowAction.verify|verify} messages.
+             * @param message GalaxyFlowAction message or plain object to encode
+             * @param [writer] Writer to encode to
+             * @returns Writer
+             */
+            public static encode(message: proto.SyncActionValue.IGalaxyFlowAction, writer?: $protobuf.Writer): $protobuf.Writer;
+
+            /**
+             * Encodes the specified GalaxyFlowAction message, length delimited. Does not implicitly {@link proto.SyncActionValue.GalaxyFlowAction.verify|verify} messages.
+             * @param message GalaxyFlowAction message or plain object to encode
+             * @param [writer] Writer to encode to
+             * @returns Writer
+             */
+            public static encodeDelimited(message: proto.SyncActionValue.IGalaxyFlowAction, writer?: $protobuf.Writer): $protobuf.Writer;
+
+            /**
+             * Decodes a GalaxyFlowAction message from the specified reader or buffer.
+             * @param reader Reader or buffer to decode from
+             * @param [length] Message length if known beforehand
+             * @returns GalaxyFlowAction
+             * @throws {Error} If the payload is not a reader or valid buffer
+             * @throws {$protobuf.util.ProtocolError} If required fields are missing
+             */
+            public static decode(reader: ($protobuf.Reader|Uint8Array), length?: number): proto.SyncActionValue.GalaxyFlowAction;
+
+            /**
+             * Decodes a GalaxyFlowAction message from the specified reader or buffer, length delimited.
+             * @param reader Reader or buffer to decode from
+             * @returns GalaxyFlowAction
+             * @throws {Error} If the payload is not a reader or valid buffer
+             * @throws {$protobuf.util.ProtocolError} If required fields are missing
+             */
+            public static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): proto.SyncActionValue.GalaxyFlowAction;
+
+            /**
+             * Verifies a GalaxyFlowAction message.
+             * @param message Plain object to verify
+             * @returns `null` if valid, otherwise the reason why it is not
+             */
+            public static verify(message: { [k: string]: any }): (string|null);
+
+            /**
+             * Creates a GalaxyFlowAction message from a plain object. Also converts values to their respective internal types.
+             * @param object Plain object
+             * @returns GalaxyFlowAction
+             */
+            public static fromObject(object: { [k: string]: any }): proto.SyncActionValue.GalaxyFlowAction;
+
+            /**
+             * Creates a plain object from a GalaxyFlowAction message. Also converts values to other types if specified.
+             * @param message GalaxyFlowAction
+             * @param [options] Conversion options
+             * @returns Plain object
+             */
+            public static toObject(message: proto.SyncActionValue.GalaxyFlowAction, options?: $protobuf.IConversionOptions): { [k: string]: any };
+
+            /**
+             * Converts this GalaxyFlowAction to JSON.
+             * @returns JSON object
+             */
+            public toJSON(): { [k: string]: any };
+
+            /**
+             * Gets the default type url for GalaxyFlowAction
+             * @param [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+             * @returns The default type url
+             */
+            public static getTypeUrl(typeUrlPrefix?: string): string;
+        }
+
+        namespace GalaxyFlowAction {
+
+            /** GalaxyFlowActionType enum. */
+            enum GalaxyFlowActionType {
+                LAUNCH = 1
             }
         }
 
@@ -58754,6 +59468,9 @@ export namespace proto {
 
         /** WebMessageInfo groupHistoryBundleInfo */
         groupHistoryBundleInfo?: (proto.IGroupHistoryBundleInfo|null);
+
+        /** WebMessageInfo interactiveMessageAdditionalMetadata */
+        interactiveMessageAdditionalMetadata?: (proto.IInteractiveMessageAdditionalMetadata|null);
     }
 
     /** Represents a WebMessageInfo. */
@@ -58956,6 +59673,9 @@ export namespace proto {
 
         /** WebMessageInfo groupHistoryBundleInfo. */
         public groupHistoryBundleInfo?: (proto.IGroupHistoryBundleInfo|null);
+
+        /** WebMessageInfo interactiveMessageAdditionalMetadata. */
+        public interactiveMessageAdditionalMetadata?: (proto.IInteractiveMessageAdditionalMetadata|null);
 
         /**
          * Creates a new WebMessageInfo instance using the specified properties.

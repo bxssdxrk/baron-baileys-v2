@@ -1,7 +1,7 @@
 syntax = "proto3";
 package proto;
 
-/// WhatsApp Version: 2.3000.1027627305
+/// WhatsApp Version: 2.3000.1027939320
 
 message ADVDeviceIdentity {
     optional uint32 rawId = 1;
@@ -296,6 +296,11 @@ message BizIdentityInfo {
 message BotAgeCollectionMetadata {
     optional bool ageCollectionEligible = 1;
     optional bool shouldTriggerAgeCollectionOnClient = 2;
+    optional AgeCollectionType ageCollectionType = 3;
+    enum AgeCollectionType {
+        O18_BINARY = 0;
+        WAFFLE = 1;
+    }
 }
 
 message BotAvatarMetadata {
@@ -484,6 +489,11 @@ message BotMessageOriginMetadata {
     repeated BotMessageOrigin origins = 1;
 }
 
+message BotMessageSharingInfo {
+    optional BotMetricsEntryPoint botEntryPointOrigin = 1;
+    optional uint32 forwardScore = 2;
+}
+
 message BotMetadata {
     optional BotAvatarMetadata avatarMetadata = 1;
     optional string personaId = 2;
@@ -553,8 +563,10 @@ enum BotMetricsEntryPoint {
     INVOKE_META_AI_GROUP = 30;
     META_AI_FORWARD = 31;
     NEW_CHAT_AI_CONTACT = 32;
-    MESSAGE_QUICK_ACTION = 33;
-    ATTACHMENT_TRAY = 34;
+    MESSAGE_QUICK_ACTION_1_ON_1_CHAT = 33;
+    MESSAGE_QUICK_ACTION_GROUP_CHAT = 34;
+    ATTACHMENT_TRAY_1_ON_1_CHAT = 35;
+    ATTACHMENT_TRAY_GROUP_CHAT = 36;
 }
 message BotMetricsMetadata {
     optional string destinationId = 1;
@@ -960,6 +972,8 @@ message ClientPayload {
     optional AccountType accountType = 42;
     optional sfixed32 connectionSequenceInfo = 43;
     optional bool paaLink = 44;
+    optional int32 preacksCount = 45;
+    optional int32 processingQueueSize = 46;
     enum AccountType {
         DEFAULT = 0;
         GUEST = 1;
@@ -1221,6 +1235,7 @@ message ContextInfo {
     optional StatusAudienceMetadata statusAudienceMetadata = 69;
     optional uint32 nonJidMentions = 70;
     optional QuotedType quotedType = 71;
+    optional BotMessageSharingInfo botMessageSharingInfo = 72;
     message AdReplyInfo {
         optional string advertiserName = 1;
         optional MediaType mediaType = 2;
@@ -1332,6 +1347,8 @@ message ContextInfo {
         HD_IMAGE_CHILD = 4;
         MOTION_PHOTO_PARENT = 5;
         MOTION_PHOTO_CHILD = 6;
+        HEVC_VIDEO_PARENT = 7;
+        HEVC_VIDEO_CHILD = 8;
     }
     message QuestionReplyQuotedMessage {
         optional int32 serverQuestionId = 1;
@@ -1439,6 +1456,7 @@ message DeviceCapabilities {
     optional ChatLockSupportLevel chatLockSupportLevel = 1;
     optional LIDMigration lidMigration = 2;
     optional BusinessBroadcast businessBroadcast = 3;
+    optional UserHasAvatar userHasAvatar = 4;
     message BusinessBroadcast {
         optional bool importListEnabled = 1;
     }
@@ -1450,6 +1468,10 @@ message DeviceCapabilities {
     }
     message LIDMigration {
         optional uint64 chatDbMigrationTimestamp = 1;
+    }
+    
+    message UserHasAvatar {
+        optional bool userHasAvatar = 1;
     }
     
 }
@@ -1838,6 +1860,10 @@ message InteractiveAnnotation {
     }
 }
 
+message InteractiveMessageAdditionalMetadata {
+    optional bool isGalaxyFlowCompleted = 1;
+}
+
 message KeepInChat {
     optional KeepType keepType = 1;
     optional int64 serverTimestamp = 2;
@@ -2036,6 +2062,7 @@ message Message {
     optional QuestionResponseMessage questionResponseMessage = 107;
     optional NewsletterFollowerInviteMessage newsletterFollowerInviteMessage = 108;
     optional StatusQuotedMessage statusQuotedMessage = 109;
+    optional StatusStickerInteractionMessage statusStickerInteractionMessage = 110;
     message AlbumMessage {
         optional uint32 expectedImageCount = 2;
         optional uint32 expectedVideoCount = 3;
@@ -2575,6 +2602,10 @@ message Message {
         
         message Footer {
             optional string text = 1;
+            optional bool hasMediaAttachment = 3;
+            oneof media {
+                Message.AudioMessage audioMessage = 2;
+            }
         }
         
         message Header {
@@ -3311,6 +3342,16 @@ message Message {
         }
     }
     
+    message StatusStickerInteractionMessage {
+        optional MessageKey key = 1;
+        optional string stickerKey = 2;
+        optional StatusStickerType type = 3;
+        enum StatusStickerType {
+            UNKNOWN = 0;
+            REACTION = 1;
+        }
+    }
+    
     message StickerMessage {
         optional string url = 1;
         optional bytes fileSha256 = 2;
@@ -3530,6 +3571,8 @@ message MessageAssociation {
         STATUS_ADD_YOURS_AI_IMAGINE = 15;
         STATUS_QUESTION = 16;
         STATUS_ADD_YOURS_DIWALI = 17;
+        STATUS_REACTION = 18;
+        HEVC_VIDEO_DUAL_UPLOAD = 19;
     }
 }
 
@@ -3723,6 +3766,8 @@ message PatchDebugData {
         DARWIN = 6;
         IPAD = 7;
         WEAROS = 8;
+        WASG = 9;
+        WEARM = 10;
     }
 }
 
@@ -4095,6 +4140,7 @@ message StatusAttribution {
             PINTEREST = 6;
             THREADS = 7;
             APPLE_MUSIC = 8;
+            SHARECHAT = 9;
         }
     }
     
@@ -4250,6 +4296,8 @@ message SyncActionValue {
     optional BusinessBroadcastListAction businessBroadcastListAction = 69;
     optional MusicUserIdAction musicUserIdAction = 70;
     optional StatusPostOptInNotificationPreferencesAction statusPostOptInNotificationPreferencesAction = 71;
+    optional AvatarUpdatedAction avatarUpdatedAction = 72;
+    optional GalaxyFlowAction galaxyFlowAction = 73;
     message AgentAction {
         optional string name = 1;
         optional int32 deviceID = 2;
@@ -4263,6 +4311,16 @@ message SyncActionValue {
     message ArchiveChatAction {
         optional bool archived = 1;
         optional SyncActionValue.SyncActionMessageRange messageRange = 2;
+    }
+    
+    message AvatarUpdatedAction {
+        optional AvatarEventType eventType = 1;
+        repeated SyncActionValue.StickerAction recentAvatarStickers = 2;
+        enum AvatarEventType {
+            UPDATED = 0;
+            CREATED = 1;
+            DELETED = 2;
+        }
     }
     
     message BotWelcomeRequestAction {
@@ -4357,6 +4415,13 @@ message SyncActionValue {
             optional string id = 1;
         }
         
+    }
+    
+    message GalaxyFlowAction {
+        optional GalaxyFlowActionType type = 1;
+        enum GalaxyFlowActionType {
+            LAUNCH = 1;
+        }
     }
     
     message KeyExpiration {
@@ -4908,6 +4973,7 @@ message WebMessageInfo {
     optional string botTargetId = 73;
     optional GroupHistoryIndividualMessageInfo groupHistoryIndividualMessageInfo = 74;
     optional GroupHistoryBundleInfo groupHistoryBundleInfo = 75;
+    optional InteractiveMessageAdditionalMetadata interactiveMessageAdditionalMetadata = 76;
     enum BizPrivacyStatus {
         E2EE = 0;
         FB = 2;
