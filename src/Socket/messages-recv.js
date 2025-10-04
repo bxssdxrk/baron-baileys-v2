@@ -1003,7 +1003,8 @@ const makeMessagesRecvSocket = (config) => {
         }
         
         let response
-        
+        const groupJid = node.attrs.from;
+        const communityJid = linkedParentMap[groupJid];
         const encNode = WABinary_1.getBinaryNodeChild(node, 'enc')
         
         // TODO: temporary fix for crashes and issues resulting of failed msmsg decryption
@@ -1137,7 +1138,9 @@ const makeMessagesRecvSocket = (config) => {
                         let type = undefined
                         
                         let participant = msg.key.participant
-                        
+                        if (communityJid) {
+    msg.communityJid = communityJid;
+}
                         if (category === 'peer') {
                             // special peer message
                             type = 'peer_msg'
@@ -1391,24 +1394,61 @@ const makeMessagesRecvSocket = (config) => {
             processNodeWithBuffer(node, identifier, exec)
         }
     }
-    
+    let latestNodeInMemory = null;  
+const nodelogger = (node) => {
+  if (!node) return null;
+   latestNodeInMemory = node
+  return latestNodeInMemory;
+};
+const setNodeLoggerListener = () => {
+  return latestNodeInMemory;
+};
     // recv a message
     ws.on('CB:message', (node) => {
         processNode('message', node, 'processing message', handleMessage)
+        nodelogger(node)
     })
     ws.on('CB:call', async (node) => {
         processNode('call', node, 'handling call', handleCall)
     })
     ws.on('CB:receipt', node => {
         processNode('receipt', node, 'handling receipt', handleReceipt)
+        nodelogger(node)
     })
     ws.on('CB:notification', async (node) => {
         processNode('notification', node, 'handling notification', handleNotification)
+        nodelogger(node)
     })
     ws.on('CB:ack,class:message', (node) => {
+        nodelogger(node)
         handleBadAck(node)
             .catch(error => onUnexpectedError(error, 'handling bad ack'))
     })
+
+const linkedParentMap = {};
+ws.on("CB:iq", (node) => {
+    if (node && node.tag === "iq" && node.attrs.type === "result") {
+        const groups = node.content;
+
+        if (Array.isArray(groups)) {
+            for (const group of groups) {
+                const groupId = group.attrs.id + "@g.us";
+
+                if (group && Array.isArray(group.content)) {
+                    for (const item of group.content) {
+                        if (
+                            item.tag === "linked_parent" &&
+                            item.attrs &&
+                            item.attrs.jid
+                        ) {
+                            linkedParentMap[groupId] = item.attrs.jid;
+                        }
+                    }
+                }
+            }
+        }
+    }
+});
     ev.on('call', ([call]) => {
         // missed call + group call notification message generation
         if (call.status === 'timeout' || (call.status === 'offer' && call.isGroup)) {
@@ -1453,6 +1493,8 @@ const makeMessagesRecvSocket = (config) => {
         sendRetryRequest,
         offerCall, 
         rejectCall,
+        nodelogger,
+        setNodeLoggerListener,
         fetchMessageHistory,
         requestPlaceholderResend,
         messageRetryManager
