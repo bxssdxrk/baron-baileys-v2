@@ -325,12 +325,12 @@ const processMessage = async (message, { shouldProcessHistoryMsg, placeholderRes
                 emitParticipantsUpdate('add')
                 break
             case Types_1.WAMessageStubType.GROUP_PARTICIPANT_DEMOTE:
-            case Types_1.WAMessageStubType.COMMUNITY_PARTICIPANT_DEMOTE:
+            // case Types_1.WAMessageStubType.COMMUNITY_PARTICIPANT_DEMOTE:
                 participants = message.messageStubParameters || []
                 emitParticipantsUpdate('demote')
                 break
             case Types_1.WAMessageStubType.GROUP_PARTICIPANT_PROMOTE:
-            case Types_1.WAMessageStubType.COMMUNITY_PARTICIPANT_PROMOTE:
+            // case Types_1.WAMessageStubType.COMMUNITY_PARTICIPANT_PROMOTE:
                 participants = message.messageStubParameters || []
                 emitParticipantsUpdate('promote')
                 break

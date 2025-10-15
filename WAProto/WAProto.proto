@@ -1,7 +1,7 @@
 syntax = "proto3";
 package proto;
 
-/// WhatsApp Version: 2.3000.1027939320
+/// WhatsApp Version: 2.3000.1028457684
 
 message ADVDeviceIdentity {
     optional uint32 rawId = 1;
@@ -360,6 +360,8 @@ message BotCapabilityMetadata {
         RICH_RESPONSE_UR_INLINE_REELS_ENABLED = 43;
         RICH_RESPONSE_UR_MEDIA_GRID_ENABLED = 44;
         RICH_RESPONSE_UR_TIMESTAMP_PLACEHOLDER = 45;
+        RICH_RESPONSE_IN_APP_SURVEY = 46;
+        AI_RESPONSE_MODEL_BRANDING = 47;
     }
 }
 
@@ -415,9 +417,42 @@ message BotFeedbackMessage {
         optional bool isSelectedResponsePrimary = 6;
         optional string messageIdToEdit = 7;
         optional SideBySideSurveyAnalyticsData analyticsData = 8;
+        optional SidebySideSurveyMetaAiAnalyticsData metaAiAnalyticsData = 9;
         message SideBySideSurveyAnalyticsData {
             optional string tessaEvent = 1;
             optional string tessaSessionFbid = 2;
+        }
+        
+        message SidebySideSurveyMetaAiAnalyticsData {
+            optional uint32 surveyId = 1;
+            optional string primaryResponseId = 2;
+            optional string testArmName = 3;
+            optional string timestampMsString = 4;
+            optional SideBySideSurveyCTAImpressionEventData ctaImpressionEvent = 5;
+            optional SideBySideSurveyCTAClickEventData ctaClickEvent = 6;
+            optional SideBySideSurveyCardImpressionEventData cardImpressionEvent = 7;
+            optional SideBySideSurveyResponseEventData responseEvent = 8;
+            optional SideBySideSurveyAbandonEventData abandonEvent = 9;
+            message SideBySideSurveyAbandonEventData {
+                optional string abandonDwellTimeMsString = 1;
+            }
+            
+            message SideBySideSurveyCTAClickEventData {
+                optional bool isSurveyExpired = 1;
+                optional string clickDwellTimeMsString = 2;
+            }
+            
+            message SideBySideSurveyCTAImpressionEventData {
+                optional bool isSurveyExpired = 1;
+            }
+            
+            message SideBySideSurveyCardImpressionEventData {
+            }
+            
+            message SideBySideSurveyResponseEventData {
+                optional string responseDwellTimeMsString = 1;
+            }
+            
         }
         
     }
@@ -592,6 +627,7 @@ message BotModeSelectionMetadata {
 message BotModelMetadata {
     optional ModelType modelType = 1;
     optional PremiumModelStatus premiumModelStatus = 2;
+    optional string modelNameOverride = 3;
     enum ModelType {
         UNKNOWN_TYPE = 0;
         LLAMA_PROD = 1;
@@ -1596,10 +1632,13 @@ message EmbeddedMusic {
     optional string artworkDirectPath = 5;
     optional bytes artworkSha256 = 6;
     optional bytes artworkEncSha256 = 7;
-    optional bytes artworkMediaKey = 11;
     optional string artistAttribution = 8;
     optional bytes countryBlocklist = 9;
     optional bool isExplicit = 10;
+    optional bytes artworkMediaKey = 11;
+    optional int64 musicSongStartTimeInMs = 12;
+    optional int64 derivedContentStartTimeInMs = 13;
+    optional int64 overlapDurationInMs = 14;
 }
 
 message EncryptedPairingRequest {
@@ -1678,14 +1717,16 @@ message GroupHistoryBundleInfo {
     optional Message.MessageHistoryBundle deprecatedMessageHistoryBundle = 1;
     optional ProcessState processState = 2;
     enum ProcessState {
-        NOT_DOWNLOADED = 0;
-        DOWNLOADED = 1;
-        DOWNLOAD_FAILED = 2;
+        NOT_INJECTED = 0;
+        INJECTED = 1;
+        INJECTED_PARTIAL = 2;
+        INJECTION_FAILED = 3;
     }
 }
 
 message GroupHistoryIndividualMessageInfo {
     optional MessageKey bundleMessageKey = 1;
+    optional bool editedAfterReceivedAsHistory = 2;
 }
 
 message GroupMention {
@@ -2046,7 +2087,6 @@ message Message {
     optional FutureProofMessage associatedChildMessage = 91;
     optional FutureProofMessage groupStatusMentionMessage = 92;
     optional FutureProofMessage pollCreationMessageV4 = 93;
-    optional FutureProofMessage pollCreationMessageV5 = 94;
     optional FutureProofMessage statusAddYours = 95;
     optional FutureProofMessage groupStatusMessage = 96;
     optional AIRichResponseMessage richResponseMessage = 97;
@@ -2060,9 +2100,12 @@ message Message {
     optional StatusQuestionAnswerMessage statusQuestionAnswerMessage = 105;
     optional FutureProofMessage questionReplyMessage = 106;
     optional QuestionResponseMessage questionResponseMessage = 107;
-    optional NewsletterFollowerInviteMessage newsletterFollowerInviteMessage = 108;
     optional StatusQuotedMessage statusQuotedMessage = 109;
     optional StatusStickerInteractionMessage statusStickerInteractionMessage = 110;
+    optional PollCreationMessage pollCreationMessageV5 = 111;
+    optional PollResultSnapshotMessage pollResultSnapshotMessageV2 = 112;
+    optional NewsletterFollowerInviteMessage newsletterFollowerInviteMessageV2 = 113;
+    optional RequestContactInfoMessage requestContactInfoMessage = 114;
     message AlbumMessage {
         optional uint32 expectedImageCount = 2;
         optional uint32 expectedVideoCount = 3;
@@ -2388,6 +2431,7 @@ message Message {
         repeated Message.VideoEndCard endCardTiles = 36;
         optional string videoContentUrl = 37;
         optional EmbeddedMusic musicMetadata = 38;
+        optional Message.PaymentExtendedMetadata paymentExtendedMetadata = 39;
         enum FontType {
             SYSTEM = 0;
             SYSTEM_TEXT = 1;
@@ -2700,6 +2744,9 @@ message Message {
         optional uint32 linkMediaDuration = 4;
         optional SocialMediaPostType socialMediaPostType = 5;
         optional bool linkInlineVideoMuted = 6;
+        optional string videoContentUrl = 7;
+        optional EmbeddedMusic musicMetadata = 8;
+        optional string videoContentCaption = 9;
         enum SocialMediaPostType {
             NONE = 0;
             REEL = 1;
@@ -2884,6 +2931,12 @@ message Message {
         }
     }
     
+    message PaymentExtendedMetadata {
+        optional uint32 type = 1;
+        optional string platform = 2;
+        optional string messageParamsJson = 3;
+    }
+    
     message PaymentInviteMessage {
         optional ServiceType serviceType = 1;
         optional int64 expiryTimestamp = 2;
@@ -2926,9 +2979,19 @@ message Message {
         optional FullHistorySyncOnDemandRequest fullHistorySyncOnDemandRequest = 6;
         optional SyncDCollectionFatalRecoveryRequest syncdCollectionFatalRecoveryRequest = 7;
         optional HistorySyncChunkRetryRequest historySyncChunkRetryRequest = 8;
+        optional GalaxyFlowAction galaxyFlowAction = 9;
         message FullHistorySyncOnDemandRequest {
             optional Message.FullHistorySyncOnDemandRequestMetadata requestMetadata = 1;
             optional DeviceProps.HistorySyncConfig historySyncConfig = 2;
+        }
+        
+        message GalaxyFlowAction {
+            optional GalaxyFlowActionType type = 1;
+            optional string flowId = 2;
+            optional string stanzaId = 3;
+            enum GalaxyFlowActionType {
+                NOTIFY_LAUNCH = 1;
+            }
         }
         
         message HistorySyncChunkRetryRequest {
@@ -3078,6 +3141,7 @@ message Message {
         COMPANION_SYNCD_SNAPSHOT_FATAL_RECOVERY = 8;
         COMPANION_CANONICAL_USER_NONCE_FETCH = 9;
         HISTORY_SYNC_CHUNK_RETRY = 10;
+        GALAXY_FLOW_ACTION = 11;
     }
     message PinInChatMessage {
         optional MessageKey key = 1;
@@ -3109,17 +3173,13 @@ message Message {
         optional uint32 selectableOptionsCount = 4;
         optional ContextInfo contextInfo = 5;
         optional Message.PollContentType pollContentType = 6;
-        optional PollType pollType = 7;
+        optional Message.PollType pollType = 7;
         optional Option correctAnswer = 8;
         message Option {
             optional string optionName = 1;
             optional string optionHash = 2;
         }
         
-        enum PollType {
-            POLL = 0;
-            QUIZ = 1;
-        }
     }
     
     message PollEncValue {
@@ -3131,6 +3191,7 @@ message Message {
         optional string name = 1;
         repeated PollVote pollVotes = 2;
         optional ContextInfo contextInfo = 3;
+        optional Message.PollType pollType = 4;
         message PollVote {
             optional string optionName = 1;
             optional int64 optionVoteCount = 2;
@@ -3138,6 +3199,10 @@ message Message {
         
     }
     
+    enum PollType {
+        POLL = 0;
+        QUIZ = 1;
+    }
     message PollUpdateMessage {
         optional MessageKey pollCreationMessageKey = 1;
         optional Message.PollEncValue vote = 2;
@@ -3247,6 +3312,12 @@ message Message {
         optional string text = 2;
         optional string groupingKey = 3;
         optional int64 senderTimestampMs = 4;
+    }
+    
+    message RequestContactInfoMessage {
+        optional string text = 1;
+        optional string ctaButtonText = 2;
+        optional ContextInfo contextInfo = 3;
     }
     
     message RequestPaymentMessage {
@@ -3641,6 +3712,7 @@ message MsgOpaqueData {
     optional PollEncValue encPollVote = 24;
     optional bool isSentCagPollCreation = 28;
     optional PollContentType pollContentType = 42;
+    optional PollType pollType = 46;
     optional PollVotesSnapshot pollVotesSnapshot = 41;
     optional string encReactionTargetMessageKey = 25;
     optional bytes encReactionEncPayload = 26;
@@ -3678,6 +3750,10 @@ message MsgOpaqueData {
         optional string hash = 2;
     }
     
+    enum PollType {
+        POLL = 0;
+        QUIZ = 1;
+    }
     message PollVoteSnapshot {
         optional MsgOpaqueData.PollOption option = 1;
         optional int32 optionVoteCount = 2;
@@ -3768,6 +3844,7 @@ message PatchDebugData {
         WEAROS = 8;
         WASG = 9;
         WEARM = 10;
+        CAPI = 11;
     }
 }
 
@@ -3966,6 +4043,11 @@ message ProloguePayload {
 message Pushname {
     optional string id = 1;
     optional string pushname = 2;
+}
+
+message QuarantinedMessage {
+    optional bytes originalData = 1;
+    optional string extractedText = 2;
 }
 
 message Reaction {
@@ -4195,6 +4277,7 @@ message StatusAttribution {
         GROUP_STATUS = 5;
         RL_ATTRIBUTION = 6;
         AI_CREATED = 7;
+        LAYOUTS = 8;
     }
 }
 
@@ -4237,7 +4320,6 @@ message SyncActionValue {
     optional ContactAction contactAction = 3;
     optional MuteAction muteAction = 4;
     optional PinAction pinAction = 5;
-    optional SecurityNotificationSetting securityNotificationSetting = 6;
     optional PushNameSetting pushNameSetting = 7;
     optional QuickReplyAction quickReplyAction = 8;
     optional RecentEmojiWeightsAction recentEmojiWeightsAction = 11;
@@ -4269,6 +4351,7 @@ message SyncActionValue {
     optional ExternalWebBetaAction externalWebBetaAction = 40;
     optional PrivacySettingRelayAllCalls privacySettingRelayAllCalls = 41;
     optional CallLogAction callLogAction = 42;
+    optional UGCBot ugcBot = 43;
     optional StatusPrivacyAction statusPrivacy = 44;
     optional BotWelcomeRequestAction botWelcomeRequestAction = 45;
     optional DeleteIndividualCallLogAction deleteIndividualCallLog = 46;
@@ -4297,7 +4380,7 @@ message SyncActionValue {
     optional MusicUserIdAction musicUserIdAction = 70;
     optional StatusPostOptInNotificationPreferencesAction statusPostOptInNotificationPreferencesAction = 71;
     optional AvatarUpdatedAction avatarUpdatedAction = 72;
-    optional GalaxyFlowAction galaxyFlowAction = 73;
+    optional PrivateProcessingSettingAction privateProcessingSettingAction = 74;
     message AgentAction {
         optional string name = 1;
         optional int32 deviceID = 2;
@@ -4417,13 +4500,6 @@ message SyncActionValue {
         
     }
     
-    message GalaxyFlowAction {
-        optional GalaxyFlowActionType type = 1;
-        enum GalaxyFlowActionType {
-            LAUNCH = 1;
-        }
-    }
-    
     message KeyExpiration {
         optional int32 expiredKeyEpoch = 1;
     }
@@ -4461,7 +4537,6 @@ message SyncActionValue {
         optional string fullName = 1;
         optional string firstName = 2;
         optional string username = 3;
-        optional bool saveOnPrimaryAddressbook = 4;
     }
     
     message LocaleSetting {
@@ -4590,6 +4665,14 @@ message SyncActionValue {
         optional bool isEnabled = 1;
     }
     
+    message PrivateProcessingSettingAction {
+        optional PrivateProcessingStatus privateProcessingStatus = 1;
+        enum PrivateProcessingStatus {
+            ENABLED = 0;
+            DISABLED = 1;
+        }
+    }
+    
     message PushNameSetting {
         optional string name = 1;
     }
@@ -4610,10 +4693,6 @@ message SyncActionValue {
         optional int64 lastStickerSentTs = 1;
     }
     
-    message SecurityNotificationSetting {
-        optional bool showNotification = 1;
-    }
-    
     message StarAction {
         optional bool starred = 1;
     }
@@ -4629,6 +4708,7 @@ message SyncActionValue {
             ALLOW_LIST = 0;
             DENY_LIST = 1;
             CONTACTS = 2;
+            CLOSE_FRIENDS = 3;
         }
     }
     
@@ -4669,6 +4749,10 @@ message SyncActionValue {
         optional bool isTwentyFourHourFormatEnabled = 1;
     }
     
+    message UGCBot {
+        optional bytes definition = 1;
+    }
+    
     message UnarchiveChatsSetting {
         optional bool unarchiveChats = 1;
     }
@@ -4689,6 +4773,8 @@ message SyncActionValue {
         optional AccountLinkState linkState = 2;
         enum AccountLinkState {
             ACTIVE = 0;
+            PAUSED = 1;
+            UNLINKED = 2;
         }
     }
     
@@ -4974,6 +5060,7 @@ message WebMessageInfo {
     optional GroupHistoryIndividualMessageInfo groupHistoryIndividualMessageInfo = 74;
     optional GroupHistoryBundleInfo groupHistoryBundleInfo = 75;
     optional InteractiveMessageAdditionalMetadata interactiveMessageAdditionalMetadata = 76;
+    optional QuarantinedMessage quarantinedMessage = 77;
     enum BizPrivacyStatus {
         E2EE = 0;
         FB = 2;
@@ -5209,6 +5296,7 @@ message WebMessageInfo {
         GROUP_MEMBER_LINK_MODE = 217;
         BIZ_AUTOMATICALLY_LABELED_CHAT_SYSTEM_MESSAGE = 218;
         PHONE_NUMBER_HIDING_CHAT_DEPRECATED_MESSAGE = 219;
+        QUARANTINED_MESSAGE = 220;
     }
 }
 

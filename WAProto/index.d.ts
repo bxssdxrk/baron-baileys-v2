@@ -4325,7 +4325,9 @@ export namespace proto {
             RICH_RESPONSE_UNIFIED_DOMAIN_CITATIONS = 42,
             RICH_RESPONSE_UR_INLINE_REELS_ENABLED = 43,
             RICH_RESPONSE_UR_MEDIA_GRID_ENABLED = 44,
-            RICH_RESPONSE_UR_TIMESTAMP_PLACEHOLDER = 45
+            RICH_RESPONSE_UR_TIMESTAMP_PLACEHOLDER = 45,
+            RICH_RESPONSE_IN_APP_SURVEY = 46,
+            AI_RESPONSE_MODEL_BRANDING = 47
         }
     }
 
@@ -4533,6 +4535,9 @@ export namespace proto {
 
             /** SideBySideSurveyMetadata analyticsData */
             analyticsData?: (proto.BotFeedbackMessage.SideBySideSurveyMetadata.ISideBySideSurveyAnalyticsData|null);
+
+            /** SideBySideSurveyMetadata metaAiAnalyticsData */
+            metaAiAnalyticsData?: (proto.BotFeedbackMessage.SideBySideSurveyMetadata.ISidebySideSurveyMetaAiAnalyticsData|null);
         }
 
         /** Represents a SideBySideSurveyMetadata. */
@@ -4567,6 +4572,9 @@ export namespace proto {
 
             /** SideBySideSurveyMetadata analyticsData. */
             public analyticsData?: (proto.BotFeedbackMessage.SideBySideSurveyMetadata.ISideBySideSurveyAnalyticsData|null);
+
+            /** SideBySideSurveyMetadata metaAiAnalyticsData. */
+            public metaAiAnalyticsData?: (proto.BotFeedbackMessage.SideBySideSurveyMetadata.ISidebySideSurveyMetaAiAnalyticsData|null);
 
             /**
              * Creates a new SideBySideSurveyMetadata instance using the specified properties.
@@ -4749,6 +4757,639 @@ export namespace proto {
                  * @returns The default type url
                  */
                 public static getTypeUrl(typeUrlPrefix?: string): string;
+            }
+
+            /** Properties of a SidebySideSurveyMetaAiAnalyticsData. */
+            interface ISidebySideSurveyMetaAiAnalyticsData {
+
+                /** SidebySideSurveyMetaAiAnalyticsData surveyId */
+                surveyId?: (number|null);
+
+                /** SidebySideSurveyMetaAiAnalyticsData primaryResponseId */
+                primaryResponseId?: (string|null);
+
+                /** SidebySideSurveyMetaAiAnalyticsData testArmName */
+                testArmName?: (string|null);
+
+                /** SidebySideSurveyMetaAiAnalyticsData timestampMsString */
+                timestampMsString?: (string|null);
+
+                /** SidebySideSurveyMetaAiAnalyticsData ctaImpressionEvent */
+                ctaImpressionEvent?: (proto.BotFeedbackMessage.SideBySideSurveyMetadata.SidebySideSurveyMetaAiAnalyticsData.ISideBySideSurveyCTAImpressionEventData|null);
+
+                /** SidebySideSurveyMetaAiAnalyticsData ctaClickEvent */
+                ctaClickEvent?: (proto.BotFeedbackMessage.SideBySideSurveyMetadata.SidebySideSurveyMetaAiAnalyticsData.ISideBySideSurveyCTAClickEventData|null);
+
+                /** SidebySideSurveyMetaAiAnalyticsData cardImpressionEvent */
+                cardImpressionEvent?: (proto.BotFeedbackMessage.SideBySideSurveyMetadata.SidebySideSurveyMetaAiAnalyticsData.ISideBySideSurveyCardImpressionEventData|null);
+
+                /** SidebySideSurveyMetaAiAnalyticsData responseEvent */
+                responseEvent?: (proto.BotFeedbackMessage.SideBySideSurveyMetadata.SidebySideSurveyMetaAiAnalyticsData.ISideBySideSurveyResponseEventData|null);
+
+                /** SidebySideSurveyMetaAiAnalyticsData abandonEvent */
+                abandonEvent?: (proto.BotFeedbackMessage.SideBySideSurveyMetadata.SidebySideSurveyMetaAiAnalyticsData.ISideBySideSurveyAbandonEventData|null);
+            }
+
+            /** Represents a SidebySideSurveyMetaAiAnalyticsData. */
+            class SidebySideSurveyMetaAiAnalyticsData implements ISidebySideSurveyMetaAiAnalyticsData {
+
+                /**
+                 * Constructs a new SidebySideSurveyMetaAiAnalyticsData.
+                 * @param [properties] Properties to set
+                 */
+                constructor(properties?: proto.BotFeedbackMessage.SideBySideSurveyMetadata.ISidebySideSurveyMetaAiAnalyticsData);
+
+                /** SidebySideSurveyMetaAiAnalyticsData surveyId. */
+                public surveyId?: (number|null);
+
+                /** SidebySideSurveyMetaAiAnalyticsData primaryResponseId. */
+                public primaryResponseId?: (string|null);
+
+                /** SidebySideSurveyMetaAiAnalyticsData testArmName. */
+                public testArmName?: (string|null);
+
+                /** SidebySideSurveyMetaAiAnalyticsData timestampMsString. */
+                public timestampMsString?: (string|null);
+
+                /** SidebySideSurveyMetaAiAnalyticsData ctaImpressionEvent. */
+                public ctaImpressionEvent?: (proto.BotFeedbackMessage.SideBySideSurveyMetadata.SidebySideSurveyMetaAiAnalyticsData.ISideBySideSurveyCTAImpressionEventData|null);
+
+                /** SidebySideSurveyMetaAiAnalyticsData ctaClickEvent. */
+                public ctaClickEvent?: (proto.BotFeedbackMessage.SideBySideSurveyMetadata.SidebySideSurveyMetaAiAnalyticsData.ISideBySideSurveyCTAClickEventData|null);
+
+                /** SidebySideSurveyMetaAiAnalyticsData cardImpressionEvent. */
+                public cardImpressionEvent?: (proto.BotFeedbackMessage.SideBySideSurveyMetadata.SidebySideSurveyMetaAiAnalyticsData.ISideBySideSurveyCardImpressionEventData|null);
+
+                /** SidebySideSurveyMetaAiAnalyticsData responseEvent. */
+                public responseEvent?: (proto.BotFeedbackMessage.SideBySideSurveyMetadata.SidebySideSurveyMetaAiAnalyticsData.ISideBySideSurveyResponseEventData|null);
+
+                /** SidebySideSurveyMetaAiAnalyticsData abandonEvent. */
+                public abandonEvent?: (proto.BotFeedbackMessage.SideBySideSurveyMetadata.SidebySideSurveyMetaAiAnalyticsData.ISideBySideSurveyAbandonEventData|null);
+
+                /**
+                 * Creates a new SidebySideSurveyMetaAiAnalyticsData instance using the specified properties.
+                 * @param [properties] Properties to set
+                 * @returns SidebySideSurveyMetaAiAnalyticsData instance
+                 */
+                public static create(properties?: proto.BotFeedbackMessage.SideBySideSurveyMetadata.ISidebySideSurveyMetaAiAnalyticsData): proto.BotFeedbackMessage.SideBySideSurveyMetadata.SidebySideSurveyMetaAiAnalyticsData;
+
+                /**
+                 * Encodes the specified SidebySideSurveyMetaAiAnalyticsData message. Does not implicitly {@link proto.BotFeedbackMessage.SideBySideSurveyMetadata.SidebySideSurveyMetaAiAnalyticsData.verify|verify} messages.
+                 * @param message SidebySideSurveyMetaAiAnalyticsData message or plain object to encode
+                 * @param [writer] Writer to encode to
+                 * @returns Writer
+                 */
+                public static encode(message: proto.BotFeedbackMessage.SideBySideSurveyMetadata.ISidebySideSurveyMetaAiAnalyticsData, writer?: $protobuf.Writer): $protobuf.Writer;
+
+                /**
+                 * Encodes the specified SidebySideSurveyMetaAiAnalyticsData message, length delimited. Does not implicitly {@link proto.BotFeedbackMessage.SideBySideSurveyMetadata.SidebySideSurveyMetaAiAnalyticsData.verify|verify} messages.
+                 * @param message SidebySideSurveyMetaAiAnalyticsData message or plain object to encode
+                 * @param [writer] Writer to encode to
+                 * @returns Writer
+                 */
+                public static encodeDelimited(message: proto.BotFeedbackMessage.SideBySideSurveyMetadata.ISidebySideSurveyMetaAiAnalyticsData, writer?: $protobuf.Writer): $protobuf.Writer;
+
+                /**
+                 * Decodes a SidebySideSurveyMetaAiAnalyticsData message from the specified reader or buffer.
+                 * @param reader Reader or buffer to decode from
+                 * @param [length] Message length if known beforehand
+                 * @returns SidebySideSurveyMetaAiAnalyticsData
+                 * @throws {Error} If the payload is not a reader or valid buffer
+                 * @throws {$protobuf.util.ProtocolError} If required fields are missing
+                 */
+                public static decode(reader: ($protobuf.Reader|Uint8Array), length?: number): proto.BotFeedbackMessage.SideBySideSurveyMetadata.SidebySideSurveyMetaAiAnalyticsData;
+
+                /**
+                 * Decodes a SidebySideSurveyMetaAiAnalyticsData message from the specified reader or buffer, length delimited.
+                 * @param reader Reader or buffer to decode from
+                 * @returns SidebySideSurveyMetaAiAnalyticsData
+                 * @throws {Error} If the payload is not a reader or valid buffer
+                 * @throws {$protobuf.util.ProtocolError} If required fields are missing
+                 */
+                public static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): proto.BotFeedbackMessage.SideBySideSurveyMetadata.SidebySideSurveyMetaAiAnalyticsData;
+
+                /**
+                 * Verifies a SidebySideSurveyMetaAiAnalyticsData message.
+                 * @param message Plain object to verify
+                 * @returns `null` if valid, otherwise the reason why it is not
+                 */
+                public static verify(message: { [k: string]: any }): (string|null);
+
+                /**
+                 * Creates a SidebySideSurveyMetaAiAnalyticsData message from a plain object. Also converts values to their respective internal types.
+                 * @param object Plain object
+                 * @returns SidebySideSurveyMetaAiAnalyticsData
+                 */
+                public static fromObject(object: { [k: string]: any }): proto.BotFeedbackMessage.SideBySideSurveyMetadata.SidebySideSurveyMetaAiAnalyticsData;
+
+                /**
+                 * Creates a plain object from a SidebySideSurveyMetaAiAnalyticsData message. Also converts values to other types if specified.
+                 * @param message SidebySideSurveyMetaAiAnalyticsData
+                 * @param [options] Conversion options
+                 * @returns Plain object
+                 */
+                public static toObject(message: proto.BotFeedbackMessage.SideBySideSurveyMetadata.SidebySideSurveyMetaAiAnalyticsData, options?: $protobuf.IConversionOptions): { [k: string]: any };
+
+                /**
+                 * Converts this SidebySideSurveyMetaAiAnalyticsData to JSON.
+                 * @returns JSON object
+                 */
+                public toJSON(): { [k: string]: any };
+
+                /**
+                 * Gets the default type url for SidebySideSurveyMetaAiAnalyticsData
+                 * @param [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+                 * @returns The default type url
+                 */
+                public static getTypeUrl(typeUrlPrefix?: string): string;
+            }
+
+            namespace SidebySideSurveyMetaAiAnalyticsData {
+
+                /** Properties of a SideBySideSurveyAbandonEventData. */
+                interface ISideBySideSurveyAbandonEventData {
+
+                    /** SideBySideSurveyAbandonEventData abandonDwellTimeMsString */
+                    abandonDwellTimeMsString?: (string|null);
+                }
+
+                /** Represents a SideBySideSurveyAbandonEventData. */
+                class SideBySideSurveyAbandonEventData implements ISideBySideSurveyAbandonEventData {
+
+                    /**
+                     * Constructs a new SideBySideSurveyAbandonEventData.
+                     * @param [properties] Properties to set
+                     */
+                    constructor(properties?: proto.BotFeedbackMessage.SideBySideSurveyMetadata.SidebySideSurveyMetaAiAnalyticsData.ISideBySideSurveyAbandonEventData);
+
+                    /** SideBySideSurveyAbandonEventData abandonDwellTimeMsString. */
+                    public abandonDwellTimeMsString?: (string|null);
+
+                    /**
+                     * Creates a new SideBySideSurveyAbandonEventData instance using the specified properties.
+                     * @param [properties] Properties to set
+                     * @returns SideBySideSurveyAbandonEventData instance
+                     */
+                    public static create(properties?: proto.BotFeedbackMessage.SideBySideSurveyMetadata.SidebySideSurveyMetaAiAnalyticsData.ISideBySideSurveyAbandonEventData): proto.BotFeedbackMessage.SideBySideSurveyMetadata.SidebySideSurveyMetaAiAnalyticsData.SideBySideSurveyAbandonEventData;
+
+                    /**
+                     * Encodes the specified SideBySideSurveyAbandonEventData message. Does not implicitly {@link proto.BotFeedbackMessage.SideBySideSurveyMetadata.SidebySideSurveyMetaAiAnalyticsData.SideBySideSurveyAbandonEventData.verify|verify} messages.
+                     * @param message SideBySideSurveyAbandonEventData message or plain object to encode
+                     * @param [writer] Writer to encode to
+                     * @returns Writer
+                     */
+                    public static encode(message: proto.BotFeedbackMessage.SideBySideSurveyMetadata.SidebySideSurveyMetaAiAnalyticsData.ISideBySideSurveyAbandonEventData, writer?: $protobuf.Writer): $protobuf.Writer;
+
+                    /**
+                     * Encodes the specified SideBySideSurveyAbandonEventData message, length delimited. Does not implicitly {@link proto.BotFeedbackMessage.SideBySideSurveyMetadata.SidebySideSurveyMetaAiAnalyticsData.SideBySideSurveyAbandonEventData.verify|verify} messages.
+                     * @param message SideBySideSurveyAbandonEventData message or plain object to encode
+                     * @param [writer] Writer to encode to
+                     * @returns Writer
+                     */
+                    public static encodeDelimited(message: proto.BotFeedbackMessage.SideBySideSurveyMetadata.SidebySideSurveyMetaAiAnalyticsData.ISideBySideSurveyAbandonEventData, writer?: $protobuf.Writer): $protobuf.Writer;
+
+                    /**
+                     * Decodes a SideBySideSurveyAbandonEventData message from the specified reader or buffer.
+                     * @param reader Reader or buffer to decode from
+                     * @param [length] Message length if known beforehand
+                     * @returns SideBySideSurveyAbandonEventData
+                     * @throws {Error} If the payload is not a reader or valid buffer
+                     * @throws {$protobuf.util.ProtocolError} If required fields are missing
+                     */
+                    public static decode(reader: ($protobuf.Reader|Uint8Array), length?: number): proto.BotFeedbackMessage.SideBySideSurveyMetadata.SidebySideSurveyMetaAiAnalyticsData.SideBySideSurveyAbandonEventData;
+
+                    /**
+                     * Decodes a SideBySideSurveyAbandonEventData message from the specified reader or buffer, length delimited.
+                     * @param reader Reader or buffer to decode from
+                     * @returns SideBySideSurveyAbandonEventData
+                     * @throws {Error} If the payload is not a reader or valid buffer
+                     * @throws {$protobuf.util.ProtocolError} If required fields are missing
+                     */
+                    public static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): proto.BotFeedbackMessage.SideBySideSurveyMetadata.SidebySideSurveyMetaAiAnalyticsData.SideBySideSurveyAbandonEventData;
+
+                    /**
+                     * Verifies a SideBySideSurveyAbandonEventData message.
+                     * @param message Plain object to verify
+                     * @returns `null` if valid, otherwise the reason why it is not
+                     */
+                    public static verify(message: { [k: string]: any }): (string|null);
+
+                    /**
+                     * Creates a SideBySideSurveyAbandonEventData message from a plain object. Also converts values to their respective internal types.
+                     * @param object Plain object
+                     * @returns SideBySideSurveyAbandonEventData
+                     */
+                    public static fromObject(object: { [k: string]: any }): proto.BotFeedbackMessage.SideBySideSurveyMetadata.SidebySideSurveyMetaAiAnalyticsData.SideBySideSurveyAbandonEventData;
+
+                    /**
+                     * Creates a plain object from a SideBySideSurveyAbandonEventData message. Also converts values to other types if specified.
+                     * @param message SideBySideSurveyAbandonEventData
+                     * @param [options] Conversion options
+                     * @returns Plain object
+                     */
+                    public static toObject(message: proto.BotFeedbackMessage.SideBySideSurveyMetadata.SidebySideSurveyMetaAiAnalyticsData.SideBySideSurveyAbandonEventData, options?: $protobuf.IConversionOptions): { [k: string]: any };
+
+                    /**
+                     * Converts this SideBySideSurveyAbandonEventData to JSON.
+                     * @returns JSON object
+                     */
+                    public toJSON(): { [k: string]: any };
+
+                    /**
+                     * Gets the default type url for SideBySideSurveyAbandonEventData
+                     * @param [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+                     * @returns The default type url
+                     */
+                    public static getTypeUrl(typeUrlPrefix?: string): string;
+                }
+
+                /** Properties of a SideBySideSurveyCTAClickEventData. */
+                interface ISideBySideSurveyCTAClickEventData {
+
+                    /** SideBySideSurveyCTAClickEventData isSurveyExpired */
+                    isSurveyExpired?: (boolean|null);
+
+                    /** SideBySideSurveyCTAClickEventData clickDwellTimeMsString */
+                    clickDwellTimeMsString?: (string|null);
+                }
+
+                /** Represents a SideBySideSurveyCTAClickEventData. */
+                class SideBySideSurveyCTAClickEventData implements ISideBySideSurveyCTAClickEventData {
+
+                    /**
+                     * Constructs a new SideBySideSurveyCTAClickEventData.
+                     * @param [properties] Properties to set
+                     */
+                    constructor(properties?: proto.BotFeedbackMessage.SideBySideSurveyMetadata.SidebySideSurveyMetaAiAnalyticsData.ISideBySideSurveyCTAClickEventData);
+
+                    /** SideBySideSurveyCTAClickEventData isSurveyExpired. */
+                    public isSurveyExpired?: (boolean|null);
+
+                    /** SideBySideSurveyCTAClickEventData clickDwellTimeMsString. */
+                    public clickDwellTimeMsString?: (string|null);
+
+                    /**
+                     * Creates a new SideBySideSurveyCTAClickEventData instance using the specified properties.
+                     * @param [properties] Properties to set
+                     * @returns SideBySideSurveyCTAClickEventData instance
+                     */
+                    public static create(properties?: proto.BotFeedbackMessage.SideBySideSurveyMetadata.SidebySideSurveyMetaAiAnalyticsData.ISideBySideSurveyCTAClickEventData): proto.BotFeedbackMessage.SideBySideSurveyMetadata.SidebySideSurveyMetaAiAnalyticsData.SideBySideSurveyCTAClickEventData;
+
+                    /**
+                     * Encodes the specified SideBySideSurveyCTAClickEventData message. Does not implicitly {@link proto.BotFeedbackMessage.SideBySideSurveyMetadata.SidebySideSurveyMetaAiAnalyticsData.SideBySideSurveyCTAClickEventData.verify|verify} messages.
+                     * @param message SideBySideSurveyCTAClickEventData message or plain object to encode
+                     * @param [writer] Writer to encode to
+                     * @returns Writer
+                     */
+                    public static encode(message: proto.BotFeedbackMessage.SideBySideSurveyMetadata.SidebySideSurveyMetaAiAnalyticsData.ISideBySideSurveyCTAClickEventData, writer?: $protobuf.Writer): $protobuf.Writer;
+
+                    /**
+                     * Encodes the specified SideBySideSurveyCTAClickEventData message, length delimited. Does not implicitly {@link proto.BotFeedbackMessage.SideBySideSurveyMetadata.SidebySideSurveyMetaAiAnalyticsData.SideBySideSurveyCTAClickEventData.verify|verify} messages.
+                     * @param message SideBySideSurveyCTAClickEventData message or plain object to encode
+                     * @param [writer] Writer to encode to
+                     * @returns Writer
+                     */
+                    public static encodeDelimited(message: proto.BotFeedbackMessage.SideBySideSurveyMetadata.SidebySideSurveyMetaAiAnalyticsData.ISideBySideSurveyCTAClickEventData, writer?: $protobuf.Writer): $protobuf.Writer;
+
+                    /**
+                     * Decodes a SideBySideSurveyCTAClickEventData message from the specified reader or buffer.
+                     * @param reader Reader or buffer to decode from
+                     * @param [length] Message length if known beforehand
+                     * @returns SideBySideSurveyCTAClickEventData
+                     * @throws {Error} If the payload is not a reader or valid buffer
+                     * @throws {$protobuf.util.ProtocolError} If required fields are missing
+                     */
+                    public static decode(reader: ($protobuf.Reader|Uint8Array), length?: number): proto.BotFeedbackMessage.SideBySideSurveyMetadata.SidebySideSurveyMetaAiAnalyticsData.SideBySideSurveyCTAClickEventData;
+
+                    /**
+                     * Decodes a SideBySideSurveyCTAClickEventData message from the specified reader or buffer, length delimited.
+                     * @param reader Reader or buffer to decode from
+                     * @returns SideBySideSurveyCTAClickEventData
+                     * @throws {Error} If the payload is not a reader or valid buffer
+                     * @throws {$protobuf.util.ProtocolError} If required fields are missing
+                     */
+                    public static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): proto.BotFeedbackMessage.SideBySideSurveyMetadata.SidebySideSurveyMetaAiAnalyticsData.SideBySideSurveyCTAClickEventData;
+
+                    /**
+                     * Verifies a SideBySideSurveyCTAClickEventData message.
+                     * @param message Plain object to verify
+                     * @returns `null` if valid, otherwise the reason why it is not
+                     */
+                    public static verify(message: { [k: string]: any }): (string|null);
+
+                    /**
+                     * Creates a SideBySideSurveyCTAClickEventData message from a plain object. Also converts values to their respective internal types.
+                     * @param object Plain object
+                     * @returns SideBySideSurveyCTAClickEventData
+                     */
+                    public static fromObject(object: { [k: string]: any }): proto.BotFeedbackMessage.SideBySideSurveyMetadata.SidebySideSurveyMetaAiAnalyticsData.SideBySideSurveyCTAClickEventData;
+
+                    /**
+                     * Creates a plain object from a SideBySideSurveyCTAClickEventData message. Also converts values to other types if specified.
+                     * @param message SideBySideSurveyCTAClickEventData
+                     * @param [options] Conversion options
+                     * @returns Plain object
+                     */
+                    public static toObject(message: proto.BotFeedbackMessage.SideBySideSurveyMetadata.SidebySideSurveyMetaAiAnalyticsData.SideBySideSurveyCTAClickEventData, options?: $protobuf.IConversionOptions): { [k: string]: any };
+
+                    /**
+                     * Converts this SideBySideSurveyCTAClickEventData to JSON.
+                     * @returns JSON object
+                     */
+                    public toJSON(): { [k: string]: any };
+
+                    /**
+                     * Gets the default type url for SideBySideSurveyCTAClickEventData
+                     * @param [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+                     * @returns The default type url
+                     */
+                    public static getTypeUrl(typeUrlPrefix?: string): string;
+                }
+
+                /** Properties of a SideBySideSurveyCTAImpressionEventData. */
+                interface ISideBySideSurveyCTAImpressionEventData {
+
+                    /** SideBySideSurveyCTAImpressionEventData isSurveyExpired */
+                    isSurveyExpired?: (boolean|null);
+                }
+
+                /** Represents a SideBySideSurveyCTAImpressionEventData. */
+                class SideBySideSurveyCTAImpressionEventData implements ISideBySideSurveyCTAImpressionEventData {
+
+                    /**
+                     * Constructs a new SideBySideSurveyCTAImpressionEventData.
+                     * @param [properties] Properties to set
+                     */
+                    constructor(properties?: proto.BotFeedbackMessage.SideBySideSurveyMetadata.SidebySideSurveyMetaAiAnalyticsData.ISideBySideSurveyCTAImpressionEventData);
+
+                    /** SideBySideSurveyCTAImpressionEventData isSurveyExpired. */
+                    public isSurveyExpired?: (boolean|null);
+
+                    /**
+                     * Creates a new SideBySideSurveyCTAImpressionEventData instance using the specified properties.
+                     * @param [properties] Properties to set
+                     * @returns SideBySideSurveyCTAImpressionEventData instance
+                     */
+                    public static create(properties?: proto.BotFeedbackMessage.SideBySideSurveyMetadata.SidebySideSurveyMetaAiAnalyticsData.ISideBySideSurveyCTAImpressionEventData): proto.BotFeedbackMessage.SideBySideSurveyMetadata.SidebySideSurveyMetaAiAnalyticsData.SideBySideSurveyCTAImpressionEventData;
+
+                    /**
+                     * Encodes the specified SideBySideSurveyCTAImpressionEventData message. Does not implicitly {@link proto.BotFeedbackMessage.SideBySideSurveyMetadata.SidebySideSurveyMetaAiAnalyticsData.SideBySideSurveyCTAImpressionEventData.verify|verify} messages.
+                     * @param message SideBySideSurveyCTAImpressionEventData message or plain object to encode
+                     * @param [writer] Writer to encode to
+                     * @returns Writer
+                     */
+                    public static encode(message: proto.BotFeedbackMessage.SideBySideSurveyMetadata.SidebySideSurveyMetaAiAnalyticsData.ISideBySideSurveyCTAImpressionEventData, writer?: $protobuf.Writer): $protobuf.Writer;
+
+                    /**
+                     * Encodes the specified SideBySideSurveyCTAImpressionEventData message, length delimited. Does not implicitly {@link proto.BotFeedbackMessage.SideBySideSurveyMetadata.SidebySideSurveyMetaAiAnalyticsData.SideBySideSurveyCTAImpressionEventData.verify|verify} messages.
+                     * @param message SideBySideSurveyCTAImpressionEventData message or plain object to encode
+                     * @param [writer] Writer to encode to
+                     * @returns Writer
+                     */
+                    public static encodeDelimited(message: proto.BotFeedbackMessage.SideBySideSurveyMetadata.SidebySideSurveyMetaAiAnalyticsData.ISideBySideSurveyCTAImpressionEventData, writer?: $protobuf.Writer): $protobuf.Writer;
+
+                    /**
+                     * Decodes a SideBySideSurveyCTAImpressionEventData message from the specified reader or buffer.
+                     * @param reader Reader or buffer to decode from
+                     * @param [length] Message length if known beforehand
+                     * @returns SideBySideSurveyCTAImpressionEventData
+                     * @throws {Error} If the payload is not a reader or valid buffer
+                     * @throws {$protobuf.util.ProtocolError} If required fields are missing
+                     */
+                    public static decode(reader: ($protobuf.Reader|Uint8Array), length?: number): proto.BotFeedbackMessage.SideBySideSurveyMetadata.SidebySideSurveyMetaAiAnalyticsData.SideBySideSurveyCTAImpressionEventData;
+
+                    /**
+                     * Decodes a SideBySideSurveyCTAImpressionEventData message from the specified reader or buffer, length delimited.
+                     * @param reader Reader or buffer to decode from
+                     * @returns SideBySideSurveyCTAImpressionEventData
+                     * @throws {Error} If the payload is not a reader or valid buffer
+                     * @throws {$protobuf.util.ProtocolError} If required fields are missing
+                     */
+                    public static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): proto.BotFeedbackMessage.SideBySideSurveyMetadata.SidebySideSurveyMetaAiAnalyticsData.SideBySideSurveyCTAImpressionEventData;
+
+                    /**
+                     * Verifies a SideBySideSurveyCTAImpressionEventData message.
+                     * @param message Plain object to verify
+                     * @returns `null` if valid, otherwise the reason why it is not
+                     */
+                    public static verify(message: { [k: string]: any }): (string|null);
+
+                    /**
+                     * Creates a SideBySideSurveyCTAImpressionEventData message from a plain object. Also converts values to their respective internal types.
+                     * @param object Plain object
+                     * @returns SideBySideSurveyCTAImpressionEventData
+                     */
+                    public static fromObject(object: { [k: string]: any }): proto.BotFeedbackMessage.SideBySideSurveyMetadata.SidebySideSurveyMetaAiAnalyticsData.SideBySideSurveyCTAImpressionEventData;
+
+                    /**
+                     * Creates a plain object from a SideBySideSurveyCTAImpressionEventData message. Also converts values to other types if specified.
+                     * @param message SideBySideSurveyCTAImpressionEventData
+                     * @param [options] Conversion options
+                     * @returns Plain object
+                     */
+                    public static toObject(message: proto.BotFeedbackMessage.SideBySideSurveyMetadata.SidebySideSurveyMetaAiAnalyticsData.SideBySideSurveyCTAImpressionEventData, options?: $protobuf.IConversionOptions): { [k: string]: any };
+
+                    /**
+                     * Converts this SideBySideSurveyCTAImpressionEventData to JSON.
+                     * @returns JSON object
+                     */
+                    public toJSON(): { [k: string]: any };
+
+                    /**
+                     * Gets the default type url for SideBySideSurveyCTAImpressionEventData
+                     * @param [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+                     * @returns The default type url
+                     */
+                    public static getTypeUrl(typeUrlPrefix?: string): string;
+                }
+
+                /** Properties of a SideBySideSurveyCardImpressionEventData. */
+                interface ISideBySideSurveyCardImpressionEventData {
+                }
+
+                /** Represents a SideBySideSurveyCardImpressionEventData. */
+                class SideBySideSurveyCardImpressionEventData implements ISideBySideSurveyCardImpressionEventData {
+
+                    /**
+                     * Constructs a new SideBySideSurveyCardImpressionEventData.
+                     * @param [properties] Properties to set
+                     */
+                    constructor(properties?: proto.BotFeedbackMessage.SideBySideSurveyMetadata.SidebySideSurveyMetaAiAnalyticsData.ISideBySideSurveyCardImpressionEventData);
+
+                    /**
+                     * Creates a new SideBySideSurveyCardImpressionEventData instance using the specified properties.
+                     * @param [properties] Properties to set
+                     * @returns SideBySideSurveyCardImpressionEventData instance
+                     */
+                    public static create(properties?: proto.BotFeedbackMessage.SideBySideSurveyMetadata.SidebySideSurveyMetaAiAnalyticsData.ISideBySideSurveyCardImpressionEventData): proto.BotFeedbackMessage.SideBySideSurveyMetadata.SidebySideSurveyMetaAiAnalyticsData.SideBySideSurveyCardImpressionEventData;
+
+                    /**
+                     * Encodes the specified SideBySideSurveyCardImpressionEventData message. Does not implicitly {@link proto.BotFeedbackMessage.SideBySideSurveyMetadata.SidebySideSurveyMetaAiAnalyticsData.SideBySideSurveyCardImpressionEventData.verify|verify} messages.
+                     * @param message SideBySideSurveyCardImpressionEventData message or plain object to encode
+                     * @param [writer] Writer to encode to
+                     * @returns Writer
+                     */
+                    public static encode(message: proto.BotFeedbackMessage.SideBySideSurveyMetadata.SidebySideSurveyMetaAiAnalyticsData.ISideBySideSurveyCardImpressionEventData, writer?: $protobuf.Writer): $protobuf.Writer;
+
+                    /**
+                     * Encodes the specified SideBySideSurveyCardImpressionEventData message, length delimited. Does not implicitly {@link proto.BotFeedbackMessage.SideBySideSurveyMetadata.SidebySideSurveyMetaAiAnalyticsData.SideBySideSurveyCardImpressionEventData.verify|verify} messages.
+                     * @param message SideBySideSurveyCardImpressionEventData message or plain object to encode
+                     * @param [writer] Writer to encode to
+                     * @returns Writer
+                     */
+                    public static encodeDelimited(message: proto.BotFeedbackMessage.SideBySideSurveyMetadata.SidebySideSurveyMetaAiAnalyticsData.ISideBySideSurveyCardImpressionEventData, writer?: $protobuf.Writer): $protobuf.Writer;
+
+                    /**
+                     * Decodes a SideBySideSurveyCardImpressionEventData message from the specified reader or buffer.
+                     * @param reader Reader or buffer to decode from
+                     * @param [length] Message length if known beforehand
+                     * @returns SideBySideSurveyCardImpressionEventData
+                     * @throws {Error} If the payload is not a reader or valid buffer
+                     * @throws {$protobuf.util.ProtocolError} If required fields are missing
+                     */
+                    public static decode(reader: ($protobuf.Reader|Uint8Array), length?: number): proto.BotFeedbackMessage.SideBySideSurveyMetadata.SidebySideSurveyMetaAiAnalyticsData.SideBySideSurveyCardImpressionEventData;
+
+                    /**
+                     * Decodes a SideBySideSurveyCardImpressionEventData message from the specified reader or buffer, length delimited.
+                     * @param reader Reader or buffer to decode from
+                     * @returns SideBySideSurveyCardImpressionEventData
+                     * @throws {Error} If the payload is not a reader or valid buffer
+                     * @throws {$protobuf.util.ProtocolError} If required fields are missing
+                     */
+                    public static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): proto.BotFeedbackMessage.SideBySideSurveyMetadata.SidebySideSurveyMetaAiAnalyticsData.SideBySideSurveyCardImpressionEventData;
+
+                    /**
+                     * Verifies a SideBySideSurveyCardImpressionEventData message.
+                     * @param message Plain object to verify
+                     * @returns `null` if valid, otherwise the reason why it is not
+                     */
+                    public static verify(message: { [k: string]: any }): (string|null);
+
+                    /**
+                     * Creates a SideBySideSurveyCardImpressionEventData message from a plain object. Also converts values to their respective internal types.
+                     * @param object Plain object
+                     * @returns SideBySideSurveyCardImpressionEventData
+                     */
+                    public static fromObject(object: { [k: string]: any }): proto.BotFeedbackMessage.SideBySideSurveyMetadata.SidebySideSurveyMetaAiAnalyticsData.SideBySideSurveyCardImpressionEventData;
+
+                    /**
+                     * Creates a plain object from a SideBySideSurveyCardImpressionEventData message. Also converts values to other types if specified.
+                     * @param message SideBySideSurveyCardImpressionEventData
+                     * @param [options] Conversion options
+                     * @returns Plain object
+                     */
+                    public static toObject(message: proto.BotFeedbackMessage.SideBySideSurveyMetadata.SidebySideSurveyMetaAiAnalyticsData.SideBySideSurveyCardImpressionEventData, options?: $protobuf.IConversionOptions): { [k: string]: any };
+
+                    /**
+                     * Converts this SideBySideSurveyCardImpressionEventData to JSON.
+                     * @returns JSON object
+                     */
+                    public toJSON(): { [k: string]: any };
+
+                    /**
+                     * Gets the default type url for SideBySideSurveyCardImpressionEventData
+                     * @param [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+                     * @returns The default type url
+                     */
+                    public static getTypeUrl(typeUrlPrefix?: string): string;
+                }
+
+                /** Properties of a SideBySideSurveyResponseEventData. */
+                interface ISideBySideSurveyResponseEventData {
+
+                    /** SideBySideSurveyResponseEventData responseDwellTimeMsString */
+                    responseDwellTimeMsString?: (string|null);
+                }
+
+                /** Represents a SideBySideSurveyResponseEventData. */
+                class SideBySideSurveyResponseEventData implements ISideBySideSurveyResponseEventData {
+
+                    /**
+                     * Constructs a new SideBySideSurveyResponseEventData.
+                     * @param [properties] Properties to set
+                     */
+                    constructor(properties?: proto.BotFeedbackMessage.SideBySideSurveyMetadata.SidebySideSurveyMetaAiAnalyticsData.ISideBySideSurveyResponseEventData);
+
+                    /** SideBySideSurveyResponseEventData responseDwellTimeMsString. */
+                    public responseDwellTimeMsString?: (string|null);
+
+                    /**
+                     * Creates a new SideBySideSurveyResponseEventData instance using the specified properties.
+                     * @param [properties] Properties to set
+                     * @returns SideBySideSurveyResponseEventData instance
+                     */
+                    public static create(properties?: proto.BotFeedbackMessage.SideBySideSurveyMetadata.SidebySideSurveyMetaAiAnalyticsData.ISideBySideSurveyResponseEventData): proto.BotFeedbackMessage.SideBySideSurveyMetadata.SidebySideSurveyMetaAiAnalyticsData.SideBySideSurveyResponseEventData;
+
+                    /**
+                     * Encodes the specified SideBySideSurveyResponseEventData message. Does not implicitly {@link proto.BotFeedbackMessage.SideBySideSurveyMetadata.SidebySideSurveyMetaAiAnalyticsData.SideBySideSurveyResponseEventData.verify|verify} messages.
+                     * @param message SideBySideSurveyResponseEventData message or plain object to encode
+                     * @param [writer] Writer to encode to
+                     * @returns Writer
+                     */
+                    public static encode(message: proto.BotFeedbackMessage.SideBySideSurveyMetadata.SidebySideSurveyMetaAiAnalyticsData.ISideBySideSurveyResponseEventData, writer?: $protobuf.Writer): $protobuf.Writer;
+
+                    /**
+                     * Encodes the specified SideBySideSurveyResponseEventData message, length delimited. Does not implicitly {@link proto.BotFeedbackMessage.SideBySideSurveyMetadata.SidebySideSurveyMetaAiAnalyticsData.SideBySideSurveyResponseEventData.verify|verify} messages.
+                     * @param message SideBySideSurveyResponseEventData message or plain object to encode
+                     * @param [writer] Writer to encode to
+                     * @returns Writer
+                     */
+                    public static encodeDelimited(message: proto.BotFeedbackMessage.SideBySideSurveyMetadata.SidebySideSurveyMetaAiAnalyticsData.ISideBySideSurveyResponseEventData, writer?: $protobuf.Writer): $protobuf.Writer;
+
+                    /**
+                     * Decodes a SideBySideSurveyResponseEventData message from the specified reader or buffer.
+                     * @param reader Reader or buffer to decode from
+                     * @param [length] Message length if known beforehand
+                     * @returns SideBySideSurveyResponseEventData
+                     * @throws {Error} If the payload is not a reader or valid buffer
+                     * @throws {$protobuf.util.ProtocolError} If required fields are missing
+                     */
+                    public static decode(reader: ($protobuf.Reader|Uint8Array), length?: number): proto.BotFeedbackMessage.SideBySideSurveyMetadata.SidebySideSurveyMetaAiAnalyticsData.SideBySideSurveyResponseEventData;
+
+                    /**
+                     * Decodes a SideBySideSurveyResponseEventData message from the specified reader or buffer, length delimited.
+                     * @param reader Reader or buffer to decode from
+                     * @returns SideBySideSurveyResponseEventData
+                     * @throws {Error} If the payload is not a reader or valid buffer
+                     * @throws {$protobuf.util.ProtocolError} If required fields are missing
+                     */
+                    public static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): proto.BotFeedbackMessage.SideBySideSurveyMetadata.SidebySideSurveyMetaAiAnalyticsData.SideBySideSurveyResponseEventData;
+
+                    /**
+                     * Verifies a SideBySideSurveyResponseEventData message.
+                     * @param message Plain object to verify
+                     * @returns `null` if valid, otherwise the reason why it is not
+                     */
+                    public static verify(message: { [k: string]: any }): (string|null);
+
+                    /**
+                     * Creates a SideBySideSurveyResponseEventData message from a plain object. Also converts values to their respective internal types.
+                     * @param object Plain object
+                     * @returns SideBySideSurveyResponseEventData
+                     */
+                    public static fromObject(object: { [k: string]: any }): proto.BotFeedbackMessage.SideBySideSurveyMetadata.SidebySideSurveyMetaAiAnalyticsData.SideBySideSurveyResponseEventData;
+
+                    /**
+                     * Creates a plain object from a SideBySideSurveyResponseEventData message. Also converts values to other types if specified.
+                     * @param message SideBySideSurveyResponseEventData
+                     * @param [options] Conversion options
+                     * @returns Plain object
+                     */
+                    public static toObject(message: proto.BotFeedbackMessage.SideBySideSurveyMetadata.SidebySideSurveyMetaAiAnalyticsData.SideBySideSurveyResponseEventData, options?: $protobuf.IConversionOptions): { [k: string]: any };
+
+                    /**
+                     * Converts this SideBySideSurveyResponseEventData to JSON.
+                     * @returns JSON object
+                     */
+                    public toJSON(): { [k: string]: any };
+
+                    /**
+                     * Gets the default type url for SideBySideSurveyResponseEventData
+                     * @param [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+                     * @returns The default type url
+                     */
+                    public static getTypeUrl(typeUrlPrefix?: string): string;
+                }
             }
         }
     }
@@ -6389,6 +7030,9 @@ export namespace proto {
 
         /** BotModelMetadata premiumModelStatus */
         premiumModelStatus?: (proto.BotModelMetadata.PremiumModelStatus|null);
+
+        /** BotModelMetadata modelNameOverride */
+        modelNameOverride?: (string|null);
     }
 
     /** Represents a BotModelMetadata. */
@@ -6405,6 +7049,9 @@ export namespace proto {
 
         /** BotModelMetadata premiumModelStatus. */
         public premiumModelStatus?: (proto.BotModelMetadata.PremiumModelStatus|null);
+
+        /** BotModelMetadata modelNameOverride. */
+        public modelNameOverride?: (string|null);
 
         /**
          * Creates a new BotModelMetadata instance using the specified properties.
@@ -16138,9 +16785,6 @@ export namespace proto {
         /** EmbeddedMusic artworkEncSha256 */
         artworkEncSha256?: (Uint8Array|null);
 
-        /** EmbeddedMusic artworkMediaKey */
-        artworkMediaKey?: (Uint8Array|null);
-
         /** EmbeddedMusic artistAttribution */
         artistAttribution?: (string|null);
 
@@ -16149,6 +16793,18 @@ export namespace proto {
 
         /** EmbeddedMusic isExplicit */
         isExplicit?: (boolean|null);
+
+        /** EmbeddedMusic artworkMediaKey */
+        artworkMediaKey?: (Uint8Array|null);
+
+        /** EmbeddedMusic musicSongStartTimeInMs */
+        musicSongStartTimeInMs?: (number|Long|null);
+
+        /** EmbeddedMusic derivedContentStartTimeInMs */
+        derivedContentStartTimeInMs?: (number|Long|null);
+
+        /** EmbeddedMusic overlapDurationInMs */
+        overlapDurationInMs?: (number|Long|null);
     }
 
     /** Represents an EmbeddedMusic. */
@@ -16181,9 +16837,6 @@ export namespace proto {
         /** EmbeddedMusic artworkEncSha256. */
         public artworkEncSha256?: (Uint8Array|null);
 
-        /** EmbeddedMusic artworkMediaKey. */
-        public artworkMediaKey?: (Uint8Array|null);
-
         /** EmbeddedMusic artistAttribution. */
         public artistAttribution?: (string|null);
 
@@ -16192,6 +16845,18 @@ export namespace proto {
 
         /** EmbeddedMusic isExplicit. */
         public isExplicit?: (boolean|null);
+
+        /** EmbeddedMusic artworkMediaKey. */
+        public artworkMediaKey?: (Uint8Array|null);
+
+        /** EmbeddedMusic musicSongStartTimeInMs. */
+        public musicSongStartTimeInMs?: (number|Long|null);
+
+        /** EmbeddedMusic derivedContentStartTimeInMs. */
+        public derivedContentStartTimeInMs?: (number|Long|null);
+
+        /** EmbeddedMusic overlapDurationInMs. */
+        public overlapDurationInMs?: (number|Long|null);
 
         /**
          * Creates a new EmbeddedMusic instance using the specified properties.
@@ -17467,9 +18132,10 @@ export namespace proto {
 
         /** ProcessState enum. */
         enum ProcessState {
-            NOT_DOWNLOADED = 0,
-            DOWNLOADED = 1,
-            DOWNLOAD_FAILED = 2
+            NOT_INJECTED = 0,
+            INJECTED = 1,
+            INJECTED_PARTIAL = 2,
+            INJECTION_FAILED = 3
         }
     }
 
@@ -17478,6 +18144,9 @@ export namespace proto {
 
         /** GroupHistoryIndividualMessageInfo bundleMessageKey */
         bundleMessageKey?: (proto.IMessageKey|null);
+
+        /** GroupHistoryIndividualMessageInfo editedAfterReceivedAsHistory */
+        editedAfterReceivedAsHistory?: (boolean|null);
     }
 
     /** Represents a GroupHistoryIndividualMessageInfo. */
@@ -17491,6 +18160,9 @@ export namespace proto {
 
         /** GroupHistoryIndividualMessageInfo bundleMessageKey. */
         public bundleMessageKey?: (proto.IMessageKey|null);
+
+        /** GroupHistoryIndividualMessageInfo editedAfterReceivedAsHistory. */
+        public editedAfterReceivedAsHistory?: (boolean|null);
 
         /**
          * Creates a new GroupHistoryIndividualMessageInfo instance using the specified properties.
@@ -21670,9 +22342,6 @@ export namespace proto {
         /** Message pollCreationMessageV4 */
         pollCreationMessageV4?: (proto.Message.IFutureProofMessage|null);
 
-        /** Message pollCreationMessageV5 */
-        pollCreationMessageV5?: (proto.Message.IFutureProofMessage|null);
-
         /** Message statusAddYours */
         statusAddYours?: (proto.Message.IFutureProofMessage|null);
 
@@ -21712,14 +22381,23 @@ export namespace proto {
         /** Message questionResponseMessage */
         questionResponseMessage?: (proto.Message.IQuestionResponseMessage|null);
 
-        /** Message newsletterFollowerInviteMessage */
-        newsletterFollowerInviteMessage?: (proto.Message.INewsletterFollowerInviteMessage|null);
-
         /** Message statusQuotedMessage */
         statusQuotedMessage?: (proto.Message.IStatusQuotedMessage|null);
 
         /** Message statusStickerInteractionMessage */
         statusStickerInteractionMessage?: (proto.Message.IStatusStickerInteractionMessage|null);
+
+        /** Message pollCreationMessageV5 */
+        pollCreationMessageV5?: (proto.Message.IPollCreationMessage|null);
+
+        /** Message pollResultSnapshotMessageV2 */
+        pollResultSnapshotMessageV2?: (proto.Message.IPollResultSnapshotMessage|null);
+
+        /** Message newsletterFollowerInviteMessageV2 */
+        newsletterFollowerInviteMessageV2?: (proto.Message.INewsletterFollowerInviteMessage|null);
+
+        /** Message requestContactInfoMessage */
+        requestContactInfoMessage?: (proto.Message.IRequestContactInfoMessage|null);
     }
 
     /** Represents a Message. */
@@ -21962,9 +22640,6 @@ export namespace proto {
         /** Message pollCreationMessageV4. */
         public pollCreationMessageV4?: (proto.Message.IFutureProofMessage|null);
 
-        /** Message pollCreationMessageV5. */
-        public pollCreationMessageV5?: (proto.Message.IFutureProofMessage|null);
-
         /** Message statusAddYours. */
         public statusAddYours?: (proto.Message.IFutureProofMessage|null);
 
@@ -22004,14 +22679,23 @@ export namespace proto {
         /** Message questionResponseMessage. */
         public questionResponseMessage?: (proto.Message.IQuestionResponseMessage|null);
 
-        /** Message newsletterFollowerInviteMessage. */
-        public newsletterFollowerInviteMessage?: (proto.Message.INewsletterFollowerInviteMessage|null);
-
         /** Message statusQuotedMessage. */
         public statusQuotedMessage?: (proto.Message.IStatusQuotedMessage|null);
 
         /** Message statusStickerInteractionMessage. */
         public statusStickerInteractionMessage?: (proto.Message.IStatusStickerInteractionMessage|null);
+
+        /** Message pollCreationMessageV5. */
+        public pollCreationMessageV5?: (proto.Message.IPollCreationMessage|null);
+
+        /** Message pollResultSnapshotMessageV2. */
+        public pollResultSnapshotMessageV2?: (proto.Message.IPollResultSnapshotMessage|null);
+
+        /** Message newsletterFollowerInviteMessageV2. */
+        public newsletterFollowerInviteMessageV2?: (proto.Message.INewsletterFollowerInviteMessage|null);
+
+        /** Message requestContactInfoMessage. */
+        public requestContactInfoMessage?: (proto.Message.IRequestContactInfoMessage|null);
 
         /**
          * Creates a new Message instance using the specified properties.
@@ -26129,6 +26813,9 @@ export namespace proto {
 
             /** ExtendedTextMessage musicMetadata */
             musicMetadata?: (proto.IEmbeddedMusic|null);
+
+            /** ExtendedTextMessage paymentExtendedMetadata */
+            paymentExtendedMetadata?: (proto.Message.IPaymentExtendedMetadata|null);
         }
 
         /** Represents an ExtendedTextMessage. */
@@ -26232,6 +26919,9 @@ export namespace proto {
 
             /** ExtendedTextMessage musicMetadata. */
             public musicMetadata?: (proto.IEmbeddedMusic|null);
+
+            /** ExtendedTextMessage paymentExtendedMetadata. */
+            public paymentExtendedMetadata?: (proto.Message.IPaymentExtendedMetadata|null);
 
             /**
              * Creates a new ExtendedTextMessage instance using the specified properties.
@@ -29679,6 +30369,15 @@ export namespace proto {
 
             /** LinkPreviewMetadata linkInlineVideoMuted */
             linkInlineVideoMuted?: (boolean|null);
+
+            /** LinkPreviewMetadata videoContentUrl */
+            videoContentUrl?: (string|null);
+
+            /** LinkPreviewMetadata musicMetadata */
+            musicMetadata?: (proto.IEmbeddedMusic|null);
+
+            /** LinkPreviewMetadata videoContentCaption */
+            videoContentCaption?: (string|null);
         }
 
         /** Represents a LinkPreviewMetadata. */
@@ -29707,6 +30406,15 @@ export namespace proto {
 
             /** LinkPreviewMetadata linkInlineVideoMuted. */
             public linkInlineVideoMuted?: (boolean|null);
+
+            /** LinkPreviewMetadata videoContentUrl. */
+            public videoContentUrl?: (string|null);
+
+            /** LinkPreviewMetadata musicMetadata. */
+            public musicMetadata?: (proto.IEmbeddedMusic|null);
+
+            /** LinkPreviewMetadata videoContentCaption. */
+            public videoContentCaption?: (string|null);
 
             /**
              * Creates a new LinkPreviewMetadata instance using the specified properties.
@@ -32056,6 +32764,115 @@ export namespace proto {
             }
         }
 
+        /** Properties of a PaymentExtendedMetadata. */
+        interface IPaymentExtendedMetadata {
+
+            /** PaymentExtendedMetadata type */
+            type?: (number|null);
+
+            /** PaymentExtendedMetadata platform */
+            platform?: (string|null);
+
+            /** PaymentExtendedMetadata messageParamsJson */
+            messageParamsJson?: (string|null);
+        }
+
+        /** Represents a PaymentExtendedMetadata. */
+        class PaymentExtendedMetadata implements IPaymentExtendedMetadata {
+
+            /**
+             * Constructs a new PaymentExtendedMetadata.
+             * @param [properties] Properties to set
+             */
+            constructor(properties?: proto.Message.IPaymentExtendedMetadata);
+
+            /** PaymentExtendedMetadata type. */
+            public type?: (number|null);
+
+            /** PaymentExtendedMetadata platform. */
+            public platform?: (string|null);
+
+            /** PaymentExtendedMetadata messageParamsJson. */
+            public messageParamsJson?: (string|null);
+
+            /**
+             * Creates a new PaymentExtendedMetadata instance using the specified properties.
+             * @param [properties] Properties to set
+             * @returns PaymentExtendedMetadata instance
+             */
+            public static create(properties?: proto.Message.IPaymentExtendedMetadata): proto.Message.PaymentExtendedMetadata;
+
+            /**
+             * Encodes the specified PaymentExtendedMetadata message. Does not implicitly {@link proto.Message.PaymentExtendedMetadata.verify|verify} messages.
+             * @param message PaymentExtendedMetadata message or plain object to encode
+             * @param [writer] Writer to encode to
+             * @returns Writer
+             */
+            public static encode(message: proto.Message.IPaymentExtendedMetadata, writer?: $protobuf.Writer): $protobuf.Writer;
+
+            /**
+             * Encodes the specified PaymentExtendedMetadata message, length delimited. Does not implicitly {@link proto.Message.PaymentExtendedMetadata.verify|verify} messages.
+             * @param message PaymentExtendedMetadata message or plain object to encode
+             * @param [writer] Writer to encode to
+             * @returns Writer
+             */
+            public static encodeDelimited(message: proto.Message.IPaymentExtendedMetadata, writer?: $protobuf.Writer): $protobuf.Writer;
+
+            /**
+             * Decodes a PaymentExtendedMetadata message from the specified reader or buffer.
+             * @param reader Reader or buffer to decode from
+             * @param [length] Message length if known beforehand
+             * @returns PaymentExtendedMetadata
+             * @throws {Error} If the payload is not a reader or valid buffer
+             * @throws {$protobuf.util.ProtocolError} If required fields are missing
+             */
+            public static decode(reader: ($protobuf.Reader|Uint8Array), length?: number): proto.Message.PaymentExtendedMetadata;
+
+            /**
+             * Decodes a PaymentExtendedMetadata message from the specified reader or buffer, length delimited.
+             * @param reader Reader or buffer to decode from
+             * @returns PaymentExtendedMetadata
+             * @throws {Error} If the payload is not a reader or valid buffer
+             * @throws {$protobuf.util.ProtocolError} If required fields are missing
+             */
+            public static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): proto.Message.PaymentExtendedMetadata;
+
+            /**
+             * Verifies a PaymentExtendedMetadata message.
+             * @param message Plain object to verify
+             * @returns `null` if valid, otherwise the reason why it is not
+             */
+            public static verify(message: { [k: string]: any }): (string|null);
+
+            /**
+             * Creates a PaymentExtendedMetadata message from a plain object. Also converts values to their respective internal types.
+             * @param object Plain object
+             * @returns PaymentExtendedMetadata
+             */
+            public static fromObject(object: { [k: string]: any }): proto.Message.PaymentExtendedMetadata;
+
+            /**
+             * Creates a plain object from a PaymentExtendedMetadata message. Also converts values to other types if specified.
+             * @param message PaymentExtendedMetadata
+             * @param [options] Conversion options
+             * @returns Plain object
+             */
+            public static toObject(message: proto.Message.PaymentExtendedMetadata, options?: $protobuf.IConversionOptions): { [k: string]: any };
+
+            /**
+             * Converts this PaymentExtendedMetadata to JSON.
+             * @returns JSON object
+             */
+            public toJSON(): { [k: string]: any };
+
+            /**
+             * Gets the default type url for PaymentExtendedMetadata
+             * @param [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+             * @returns The default type url
+             */
+            public static getTypeUrl(typeUrlPrefix?: string): string;
+        }
+
         /** Properties of a PaymentInviteMessage. */
         interface IPaymentInviteMessage {
 
@@ -32608,6 +33425,9 @@ export namespace proto {
 
             /** PeerDataOperationRequestMessage historySyncChunkRetryRequest */
             historySyncChunkRetryRequest?: (proto.Message.PeerDataOperationRequestMessage.IHistorySyncChunkRetryRequest|null);
+
+            /** PeerDataOperationRequestMessage galaxyFlowAction */
+            galaxyFlowAction?: (proto.Message.PeerDataOperationRequestMessage.IGalaxyFlowAction|null);
         }
 
         /** Represents a PeerDataOperationRequestMessage. */
@@ -32642,6 +33462,9 @@ export namespace proto {
 
             /** PeerDataOperationRequestMessage historySyncChunkRetryRequest. */
             public historySyncChunkRetryRequest?: (proto.Message.PeerDataOperationRequestMessage.IHistorySyncChunkRetryRequest|null);
+
+            /** PeerDataOperationRequestMessage galaxyFlowAction. */
+            public galaxyFlowAction?: (proto.Message.PeerDataOperationRequestMessage.IGalaxyFlowAction|null);
 
             /**
              * Creates a new PeerDataOperationRequestMessage instance using the specified properties.
@@ -32824,6 +33647,123 @@ export namespace proto {
                  * @returns The default type url
                  */
                 public static getTypeUrl(typeUrlPrefix?: string): string;
+            }
+
+            /** Properties of a GalaxyFlowAction. */
+            interface IGalaxyFlowAction {
+
+                /** GalaxyFlowAction type */
+                type?: (proto.Message.PeerDataOperationRequestMessage.GalaxyFlowAction.GalaxyFlowActionType|null);
+
+                /** GalaxyFlowAction flowId */
+                flowId?: (string|null);
+
+                /** GalaxyFlowAction stanzaId */
+                stanzaId?: (string|null);
+            }
+
+            /** Represents a GalaxyFlowAction. */
+            class GalaxyFlowAction implements IGalaxyFlowAction {
+
+                /**
+                 * Constructs a new GalaxyFlowAction.
+                 * @param [properties] Properties to set
+                 */
+                constructor(properties?: proto.Message.PeerDataOperationRequestMessage.IGalaxyFlowAction);
+
+                /** GalaxyFlowAction type. */
+                public type?: (proto.Message.PeerDataOperationRequestMessage.GalaxyFlowAction.GalaxyFlowActionType|null);
+
+                /** GalaxyFlowAction flowId. */
+                public flowId?: (string|null);
+
+                /** GalaxyFlowAction stanzaId. */
+                public stanzaId?: (string|null);
+
+                /**
+                 * Creates a new GalaxyFlowAction instance using the specified properties.
+                 * @param [properties] Properties to set
+                 * @returns GalaxyFlowAction instance
+                 */
+                public static create(properties?: proto.Message.PeerDataOperationRequestMessage.IGalaxyFlowAction): proto.Message.PeerDataOperationRequestMessage.GalaxyFlowAction;
+
+                /**
+                 * Encodes the specified GalaxyFlowAction message. Does not implicitly {@link proto.Message.PeerDataOperationRequestMessage.GalaxyFlowAction.verify|verify} messages.
+                 * @param message GalaxyFlowAction message or plain object to encode
+                 * @param [writer] Writer to encode to
+                 * @returns Writer
+                 */
+                public static encode(message: proto.Message.PeerDataOperationRequestMessage.IGalaxyFlowAction, writer?: $protobuf.Writer): $protobuf.Writer;
+
+                /**
+                 * Encodes the specified GalaxyFlowAction message, length delimited. Does not implicitly {@link proto.Message.PeerDataOperationRequestMessage.GalaxyFlowAction.verify|verify} messages.
+                 * @param message GalaxyFlowAction message or plain object to encode
+                 * @param [writer] Writer to encode to
+                 * @returns Writer
+                 */
+                public static encodeDelimited(message: proto.Message.PeerDataOperationRequestMessage.IGalaxyFlowAction, writer?: $protobuf.Writer): $protobuf.Writer;
+
+                /**
+                 * Decodes a GalaxyFlowAction message from the specified reader or buffer.
+                 * @param reader Reader or buffer to decode from
+                 * @param [length] Message length if known beforehand
+                 * @returns GalaxyFlowAction
+                 * @throws {Error} If the payload is not a reader or valid buffer
+                 * @throws {$protobuf.util.ProtocolError} If required fields are missing
+                 */
+                public static decode(reader: ($protobuf.Reader|Uint8Array), length?: number): proto.Message.PeerDataOperationRequestMessage.GalaxyFlowAction;
+
+                /**
+                 * Decodes a GalaxyFlowAction message from the specified reader or buffer, length delimited.
+                 * @param reader Reader or buffer to decode from
+                 * @returns GalaxyFlowAction
+                 * @throws {Error} If the payload is not a reader or valid buffer
+                 * @throws {$protobuf.util.ProtocolError} If required fields are missing
+                 */
+                public static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): proto.Message.PeerDataOperationRequestMessage.GalaxyFlowAction;
+
+                /**
+                 * Verifies a GalaxyFlowAction message.
+                 * @param message Plain object to verify
+                 * @returns `null` if valid, otherwise the reason why it is not
+                 */
+                public static verify(message: { [k: string]: any }): (string|null);
+
+                /**
+                 * Creates a GalaxyFlowAction message from a plain object. Also converts values to their respective internal types.
+                 * @param object Plain object
+                 * @returns GalaxyFlowAction
+                 */
+                public static fromObject(object: { [k: string]: any }): proto.Message.PeerDataOperationRequestMessage.GalaxyFlowAction;
+
+                /**
+                 * Creates a plain object from a GalaxyFlowAction message. Also converts values to other types if specified.
+                 * @param message GalaxyFlowAction
+                 * @param [options] Conversion options
+                 * @returns Plain object
+                 */
+                public static toObject(message: proto.Message.PeerDataOperationRequestMessage.GalaxyFlowAction, options?: $protobuf.IConversionOptions): { [k: string]: any };
+
+                /**
+                 * Converts this GalaxyFlowAction to JSON.
+                 * @returns JSON object
+                 */
+                public toJSON(): { [k: string]: any };
+
+                /**
+                 * Gets the default type url for GalaxyFlowAction
+                 * @param [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+                 * @returns The default type url
+                 */
+                public static getTypeUrl(typeUrlPrefix?: string): string;
+            }
+
+            namespace GalaxyFlowAction {
+
+                /** GalaxyFlowActionType enum. */
+                enum GalaxyFlowActionType {
+                    NOTIFY_LAUNCH = 1
+                }
             }
 
             /** Properties of a HistorySyncChunkRetryRequest. */
@@ -34879,7 +35819,8 @@ export namespace proto {
             COMPANION_META_NONCE_FETCH = 7,
             COMPANION_SYNCD_SNAPSHOT_FATAL_RECOVERY = 8,
             COMPANION_CANONICAL_USER_NONCE_FETCH = 9,
-            HISTORY_SYNC_CHUNK_RETRY = 10
+            HISTORY_SYNC_CHUNK_RETRY = 10,
+            GALAXY_FLOW_ACTION = 11
         }
 
         /** Properties of a PinInChatMessage. */
@@ -35135,7 +36076,7 @@ export namespace proto {
             pollContentType?: (proto.Message.PollContentType|null);
 
             /** PollCreationMessage pollType */
-            pollType?: (proto.Message.PollCreationMessage.PollType|null);
+            pollType?: (proto.Message.PollType|null);
 
             /** PollCreationMessage correctAnswer */
             correctAnswer?: (proto.Message.PollCreationMessage.IOption|null);
@@ -35169,7 +36110,7 @@ export namespace proto {
             public pollContentType?: (proto.Message.PollContentType|null);
 
             /** PollCreationMessage pollType. */
-            public pollType?: (proto.Message.PollCreationMessage.PollType|null);
+            public pollType?: (proto.Message.PollType|null);
 
             /** PollCreationMessage correctAnswer. */
             public correctAnswer?: (proto.Message.PollCreationMessage.IOption|null);
@@ -35356,12 +36297,6 @@ export namespace proto {
                  */
                 public static getTypeUrl(typeUrlPrefix?: string): string;
             }
-
-            /** PollType enum. */
-            enum PollType {
-                POLL = 0,
-                QUIZ = 1
-            }
         }
 
         /** Properties of a PollEncValue. */
@@ -35478,6 +36413,9 @@ export namespace proto {
 
             /** PollResultSnapshotMessage contextInfo */
             contextInfo?: (proto.IContextInfo|null);
+
+            /** PollResultSnapshotMessage pollType */
+            pollType?: (proto.Message.PollType|null);
         }
 
         /** Represents a PollResultSnapshotMessage. */
@@ -35497,6 +36435,9 @@ export namespace proto {
 
             /** PollResultSnapshotMessage contextInfo. */
             public contextInfo?: (proto.IContextInfo|null);
+
+            /** PollResultSnapshotMessage pollType. */
+            public pollType?: (proto.Message.PollType|null);
 
             /**
              * Creates a new PollResultSnapshotMessage instance using the specified properties.
@@ -35680,6 +36621,12 @@ export namespace proto {
                  */
                 public static getTypeUrl(typeUrlPrefix?: string): string;
             }
+        }
+
+        /** PollType enum. */
+        enum PollType {
+            POLL = 0,
+            QUIZ = 1
         }
 
         /** Properties of a PollUpdateMessage. */
@@ -36867,6 +37814,115 @@ export namespace proto {
 
             /**
              * Gets the default type url for ReactionMessage
+             * @param [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+             * @returns The default type url
+             */
+            public static getTypeUrl(typeUrlPrefix?: string): string;
+        }
+
+        /** Properties of a RequestContactInfoMessage. */
+        interface IRequestContactInfoMessage {
+
+            /** RequestContactInfoMessage text */
+            text?: (string|null);
+
+            /** RequestContactInfoMessage ctaButtonText */
+            ctaButtonText?: (string|null);
+
+            /** RequestContactInfoMessage contextInfo */
+            contextInfo?: (proto.IContextInfo|null);
+        }
+
+        /** Represents a RequestContactInfoMessage. */
+        class RequestContactInfoMessage implements IRequestContactInfoMessage {
+
+            /**
+             * Constructs a new RequestContactInfoMessage.
+             * @param [properties] Properties to set
+             */
+            constructor(properties?: proto.Message.IRequestContactInfoMessage);
+
+            /** RequestContactInfoMessage text. */
+            public text?: (string|null);
+
+            /** RequestContactInfoMessage ctaButtonText. */
+            public ctaButtonText?: (string|null);
+
+            /** RequestContactInfoMessage contextInfo. */
+            public contextInfo?: (proto.IContextInfo|null);
+
+            /**
+             * Creates a new RequestContactInfoMessage instance using the specified properties.
+             * @param [properties] Properties to set
+             * @returns RequestContactInfoMessage instance
+             */
+            public static create(properties?: proto.Message.IRequestContactInfoMessage): proto.Message.RequestContactInfoMessage;
+
+            /**
+             * Encodes the specified RequestContactInfoMessage message. Does not implicitly {@link proto.Message.RequestContactInfoMessage.verify|verify} messages.
+             * @param message RequestContactInfoMessage message or plain object to encode
+             * @param [writer] Writer to encode to
+             * @returns Writer
+             */
+            public static encode(message: proto.Message.IRequestContactInfoMessage, writer?: $protobuf.Writer): $protobuf.Writer;
+
+            /**
+             * Encodes the specified RequestContactInfoMessage message, length delimited. Does not implicitly {@link proto.Message.RequestContactInfoMessage.verify|verify} messages.
+             * @param message RequestContactInfoMessage message or plain object to encode
+             * @param [writer] Writer to encode to
+             * @returns Writer
+             */
+            public static encodeDelimited(message: proto.Message.IRequestContactInfoMessage, writer?: $protobuf.Writer): $protobuf.Writer;
+
+            /**
+             * Decodes a RequestContactInfoMessage message from the specified reader or buffer.
+             * @param reader Reader or buffer to decode from
+             * @param [length] Message length if known beforehand
+             * @returns RequestContactInfoMessage
+             * @throws {Error} If the payload is not a reader or valid buffer
+             * @throws {$protobuf.util.ProtocolError} If required fields are missing
+             */
+            public static decode(reader: ($protobuf.Reader|Uint8Array), length?: number): proto.Message.RequestContactInfoMessage;
+
+            /**
+             * Decodes a RequestContactInfoMessage message from the specified reader or buffer, length delimited.
+             * @param reader Reader or buffer to decode from
+             * @returns RequestContactInfoMessage
+             * @throws {Error} If the payload is not a reader or valid buffer
+             * @throws {$protobuf.util.ProtocolError} If required fields are missing
+             */
+            public static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): proto.Message.RequestContactInfoMessage;
+
+            /**
+             * Verifies a RequestContactInfoMessage message.
+             * @param message Plain object to verify
+             * @returns `null` if valid, otherwise the reason why it is not
+             */
+            public static verify(message: { [k: string]: any }): (string|null);
+
+            /**
+             * Creates a RequestContactInfoMessage message from a plain object. Also converts values to their respective internal types.
+             * @param object Plain object
+             * @returns RequestContactInfoMessage
+             */
+            public static fromObject(object: { [k: string]: any }): proto.Message.RequestContactInfoMessage;
+
+            /**
+             * Creates a plain object from a RequestContactInfoMessage message. Also converts values to other types if specified.
+             * @param message RequestContactInfoMessage
+             * @param [options] Conversion options
+             * @returns Plain object
+             */
+            public static toObject(message: proto.Message.RequestContactInfoMessage, options?: $protobuf.IConversionOptions): { [k: string]: any };
+
+            /**
+             * Converts this RequestContactInfoMessage to JSON.
+             * @returns JSON object
+             */
+            public toJSON(): { [k: string]: any };
+
+            /**
+             * Gets the default type url for RequestContactInfoMessage
              * @param [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
              * @returns The default type url
              */
@@ -40975,6 +42031,9 @@ export namespace proto {
         /** MsgOpaqueData pollContentType */
         pollContentType?: (proto.MsgOpaqueData.PollContentType|null);
 
+        /** MsgOpaqueData pollType */
+        pollType?: (proto.MsgOpaqueData.PollType|null);
+
         /** MsgOpaqueData pollVotesSnapshot */
         pollVotesSnapshot?: (proto.MsgOpaqueData.IPollVotesSnapshot|null);
 
@@ -41107,6 +42166,9 @@ export namespace proto {
 
         /** MsgOpaqueData pollContentType. */
         public pollContentType?: (proto.MsgOpaqueData.PollContentType|null);
+
+        /** MsgOpaqueData pollType. */
+        public pollType?: (proto.MsgOpaqueData.PollType|null);
 
         /** MsgOpaqueData pollVotesSnapshot. */
         public pollVotesSnapshot?: (proto.MsgOpaqueData.IPollVotesSnapshot|null);
@@ -41477,6 +42539,12 @@ export namespace proto {
              * @returns The default type url
              */
             public static getTypeUrl(typeUrlPrefix?: string): string;
+        }
+
+        /** PollType enum. */
+        enum PollType {
+            POLL = 0,
+            QUIZ = 1
         }
 
         /** Properties of a PollVoteSnapshot. */
@@ -42753,7 +43821,8 @@ export namespace proto {
             IPAD = 7,
             WEAROS = 8,
             WASG = 9,
-            WEARM = 10
+            WEARM = 10,
+            CAPI = 11
         }
     }
 
@@ -44840,6 +45909,109 @@ export namespace proto {
 
         /**
          * Gets the default type url for Pushname
+         * @param [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+         * @returns The default type url
+         */
+        public static getTypeUrl(typeUrlPrefix?: string): string;
+    }
+
+    /** Properties of a QuarantinedMessage. */
+    interface IQuarantinedMessage {
+
+        /** QuarantinedMessage originalData */
+        originalData?: (Uint8Array|null);
+
+        /** QuarantinedMessage extractedText */
+        extractedText?: (string|null);
+    }
+
+    /** Represents a QuarantinedMessage. */
+    class QuarantinedMessage implements IQuarantinedMessage {
+
+        /**
+         * Constructs a new QuarantinedMessage.
+         * @param [properties] Properties to set
+         */
+        constructor(properties?: proto.IQuarantinedMessage);
+
+        /** QuarantinedMessage originalData. */
+        public originalData?: (Uint8Array|null);
+
+        /** QuarantinedMessage extractedText. */
+        public extractedText?: (string|null);
+
+        /**
+         * Creates a new QuarantinedMessage instance using the specified properties.
+         * @param [properties] Properties to set
+         * @returns QuarantinedMessage instance
+         */
+        public static create(properties?: proto.IQuarantinedMessage): proto.QuarantinedMessage;
+
+        /**
+         * Encodes the specified QuarantinedMessage message. Does not implicitly {@link proto.QuarantinedMessage.verify|verify} messages.
+         * @param message QuarantinedMessage message or plain object to encode
+         * @param [writer] Writer to encode to
+         * @returns Writer
+         */
+        public static encode(message: proto.IQuarantinedMessage, writer?: $protobuf.Writer): $protobuf.Writer;
+
+        /**
+         * Encodes the specified QuarantinedMessage message, length delimited. Does not implicitly {@link proto.QuarantinedMessage.verify|verify} messages.
+         * @param message QuarantinedMessage message or plain object to encode
+         * @param [writer] Writer to encode to
+         * @returns Writer
+         */
+        public static encodeDelimited(message: proto.IQuarantinedMessage, writer?: $protobuf.Writer): $protobuf.Writer;
+
+        /**
+         * Decodes a QuarantinedMessage message from the specified reader or buffer.
+         * @param reader Reader or buffer to decode from
+         * @param [length] Message length if known beforehand
+         * @returns QuarantinedMessage
+         * @throws {Error} If the payload is not a reader or valid buffer
+         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+         */
+        public static decode(reader: ($protobuf.Reader|Uint8Array), length?: number): proto.QuarantinedMessage;
+
+        /**
+         * Decodes a QuarantinedMessage message from the specified reader or buffer, length delimited.
+         * @param reader Reader or buffer to decode from
+         * @returns QuarantinedMessage
+         * @throws {Error} If the payload is not a reader or valid buffer
+         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+         */
+        public static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): proto.QuarantinedMessage;
+
+        /**
+         * Verifies a QuarantinedMessage message.
+         * @param message Plain object to verify
+         * @returns `null` if valid, otherwise the reason why it is not
+         */
+        public static verify(message: { [k: string]: any }): (string|null);
+
+        /**
+         * Creates a QuarantinedMessage message from a plain object. Also converts values to their respective internal types.
+         * @param object Plain object
+         * @returns QuarantinedMessage
+         */
+        public static fromObject(object: { [k: string]: any }): proto.QuarantinedMessage;
+
+        /**
+         * Creates a plain object from a QuarantinedMessage message. Also converts values to other types if specified.
+         * @param message QuarantinedMessage
+         * @param [options] Conversion options
+         * @returns Plain object
+         */
+        public static toObject(message: proto.QuarantinedMessage, options?: $protobuf.IConversionOptions): { [k: string]: any };
+
+        /**
+         * Converts this QuarantinedMessage to JSON.
+         * @returns JSON object
+         */
+        public toJSON(): { [k: string]: any };
+
+        /**
+         * Gets the default type url for QuarantinedMessage
          * @param [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
          * @returns The default type url
          */
@@ -48169,7 +49341,8 @@ export namespace proto {
             STATUS_MENTION = 4,
             GROUP_STATUS = 5,
             RL_ATTRIBUTION = 6,
-            AI_CREATED = 7
+            AI_CREATED = 7,
+            LAYOUTS = 8
         }
     }
 
@@ -48681,9 +49854,6 @@ export namespace proto {
         /** SyncActionValue pinAction */
         pinAction?: (proto.SyncActionValue.IPinAction|null);
 
-        /** SyncActionValue securityNotificationSetting */
-        securityNotificationSetting?: (proto.SyncActionValue.ISecurityNotificationSetting|null);
-
         /** SyncActionValue pushNameSetting */
         pushNameSetting?: (proto.SyncActionValue.IPushNameSetting|null);
 
@@ -48777,6 +49947,9 @@ export namespace proto {
         /** SyncActionValue callLogAction */
         callLogAction?: (proto.SyncActionValue.ICallLogAction|null);
 
+        /** SyncActionValue ugcBot */
+        ugcBot?: (proto.SyncActionValue.IUGCBot|null);
+
         /** SyncActionValue statusPrivacy */
         statusPrivacy?: (proto.SyncActionValue.IStatusPrivacyAction|null);
 
@@ -48861,8 +50034,8 @@ export namespace proto {
         /** SyncActionValue avatarUpdatedAction */
         avatarUpdatedAction?: (proto.SyncActionValue.IAvatarUpdatedAction|null);
 
-        /** SyncActionValue galaxyFlowAction */
-        galaxyFlowAction?: (proto.SyncActionValue.IGalaxyFlowAction|null);
+        /** SyncActionValue privateProcessingSettingAction */
+        privateProcessingSettingAction?: (proto.SyncActionValue.IPrivateProcessingSettingAction|null);
     }
 
     /** Represents a SyncActionValue. */
@@ -48888,9 +50061,6 @@ export namespace proto {
 
         /** SyncActionValue pinAction. */
         public pinAction?: (proto.SyncActionValue.IPinAction|null);
-
-        /** SyncActionValue securityNotificationSetting. */
-        public securityNotificationSetting?: (proto.SyncActionValue.ISecurityNotificationSetting|null);
 
         /** SyncActionValue pushNameSetting. */
         public pushNameSetting?: (proto.SyncActionValue.IPushNameSetting|null);
@@ -48985,6 +50155,9 @@ export namespace proto {
         /** SyncActionValue callLogAction. */
         public callLogAction?: (proto.SyncActionValue.ICallLogAction|null);
 
+        /** SyncActionValue ugcBot. */
+        public ugcBot?: (proto.SyncActionValue.IUGCBot|null);
+
         /** SyncActionValue statusPrivacy. */
         public statusPrivacy?: (proto.SyncActionValue.IStatusPrivacyAction|null);
 
@@ -49069,8 +50242,8 @@ export namespace proto {
         /** SyncActionValue avatarUpdatedAction. */
         public avatarUpdatedAction?: (proto.SyncActionValue.IAvatarUpdatedAction|null);
 
-        /** SyncActionValue galaxyFlowAction. */
-        public galaxyFlowAction?: (proto.SyncActionValue.IGalaxyFlowAction|null);
+        /** SyncActionValue privateProcessingSettingAction. */
+        public privateProcessingSettingAction?: (proto.SyncActionValue.IPrivateProcessingSettingAction|null);
 
         /**
          * Creates a new SyncActionValue instance using the specified properties.
@@ -51601,111 +52774,6 @@ export namespace proto {
             }
         }
 
-        /** Properties of a GalaxyFlowAction. */
-        interface IGalaxyFlowAction {
-
-            /** GalaxyFlowAction type */
-            type?: (proto.SyncActionValue.GalaxyFlowAction.GalaxyFlowActionType|null);
-        }
-
-        /** Represents a GalaxyFlowAction. */
-        class GalaxyFlowAction implements IGalaxyFlowAction {
-
-            /**
-             * Constructs a new GalaxyFlowAction.
-             * @param [properties] Properties to set
-             */
-            constructor(properties?: proto.SyncActionValue.IGalaxyFlowAction);
-
-            /** GalaxyFlowAction type. */
-            public type?: (proto.SyncActionValue.GalaxyFlowAction.GalaxyFlowActionType|null);
-
-            /**
-             * Creates a new GalaxyFlowAction instance using the specified properties.
-             * @param [properties] Properties to set
-             * @returns GalaxyFlowAction instance
-             */
-            public static create(properties?: proto.SyncActionValue.IGalaxyFlowAction): proto.SyncActionValue.GalaxyFlowAction;
-
-            /**
-             * Encodes the specified GalaxyFlowAction message. Does not implicitly {@link proto.SyncActionValue.GalaxyFlowAction.verify|verify} messages.
-             * @param message GalaxyFlowAction message or plain object to encode
-             * @param [writer] Writer to encode to
-             * @returns Writer
-             */
-            public static encode(message: proto.SyncActionValue.IGalaxyFlowAction, writer?: $protobuf.Writer): $protobuf.Writer;
-
-            /**
-             * Encodes the specified GalaxyFlowAction message, length delimited. Does not implicitly {@link proto.SyncActionValue.GalaxyFlowAction.verify|verify} messages.
-             * @param message GalaxyFlowAction message or plain object to encode
-             * @param [writer] Writer to encode to
-             * @returns Writer
-             */
-            public static encodeDelimited(message: proto.SyncActionValue.IGalaxyFlowAction, writer?: $protobuf.Writer): $protobuf.Writer;
-
-            /**
-             * Decodes a GalaxyFlowAction message from the specified reader or buffer.
-             * @param reader Reader or buffer to decode from
-             * @param [length] Message length if known beforehand
-             * @returns GalaxyFlowAction
-             * @throws {Error} If the payload is not a reader or valid buffer
-             * @throws {$protobuf.util.ProtocolError} If required fields are missing
-             */
-            public static decode(reader: ($protobuf.Reader|Uint8Array), length?: number): proto.SyncActionValue.GalaxyFlowAction;
-
-            /**
-             * Decodes a GalaxyFlowAction message from the specified reader or buffer, length delimited.
-             * @param reader Reader or buffer to decode from
-             * @returns GalaxyFlowAction
-             * @throws {Error} If the payload is not a reader or valid buffer
-             * @throws {$protobuf.util.ProtocolError} If required fields are missing
-             */
-            public static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): proto.SyncActionValue.GalaxyFlowAction;
-
-            /**
-             * Verifies a GalaxyFlowAction message.
-             * @param message Plain object to verify
-             * @returns `null` if valid, otherwise the reason why it is not
-             */
-            public static verify(message: { [k: string]: any }): (string|null);
-
-            /**
-             * Creates a GalaxyFlowAction message from a plain object. Also converts values to their respective internal types.
-             * @param object Plain object
-             * @returns GalaxyFlowAction
-             */
-            public static fromObject(object: { [k: string]: any }): proto.SyncActionValue.GalaxyFlowAction;
-
-            /**
-             * Creates a plain object from a GalaxyFlowAction message. Also converts values to other types if specified.
-             * @param message GalaxyFlowAction
-             * @param [options] Conversion options
-             * @returns Plain object
-             */
-            public static toObject(message: proto.SyncActionValue.GalaxyFlowAction, options?: $protobuf.IConversionOptions): { [k: string]: any };
-
-            /**
-             * Converts this GalaxyFlowAction to JSON.
-             * @returns JSON object
-             */
-            public toJSON(): { [k: string]: any };
-
-            /**
-             * Gets the default type url for GalaxyFlowAction
-             * @param [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
-             * @returns The default type url
-             */
-            public static getTypeUrl(typeUrlPrefix?: string): string;
-        }
-
-        namespace GalaxyFlowAction {
-
-            /** GalaxyFlowActionType enum. */
-            enum GalaxyFlowActionType {
-                LAUNCH = 1
-            }
-        }
-
         /** Properties of a KeyExpiration. */
         interface IKeyExpiration {
 
@@ -52162,9 +53230,6 @@ export namespace proto {
 
             /** LidContactAction username */
             username?: (string|null);
-
-            /** LidContactAction saveOnPrimaryAddressbook */
-            saveOnPrimaryAddressbook?: (boolean|null);
         }
 
         /** Represents a LidContactAction. */
@@ -52184,9 +53249,6 @@ export namespace proto {
 
             /** LidContactAction username. */
             public username?: (string|null);
-
-            /** LidContactAction saveOnPrimaryAddressbook. */
-            public saveOnPrimaryAddressbook?: (boolean|null);
 
             /**
              * Creates a new LidContactAction instance using the specified properties.
@@ -54460,6 +55522,112 @@ export namespace proto {
             public static getTypeUrl(typeUrlPrefix?: string): string;
         }
 
+        /** Properties of a PrivateProcessingSettingAction. */
+        interface IPrivateProcessingSettingAction {
+
+            /** PrivateProcessingSettingAction privateProcessingStatus */
+            privateProcessingStatus?: (proto.SyncActionValue.PrivateProcessingSettingAction.PrivateProcessingStatus|null);
+        }
+
+        /** Represents a PrivateProcessingSettingAction. */
+        class PrivateProcessingSettingAction implements IPrivateProcessingSettingAction {
+
+            /**
+             * Constructs a new PrivateProcessingSettingAction.
+             * @param [properties] Properties to set
+             */
+            constructor(properties?: proto.SyncActionValue.IPrivateProcessingSettingAction);
+
+            /** PrivateProcessingSettingAction privateProcessingStatus. */
+            public privateProcessingStatus?: (proto.SyncActionValue.PrivateProcessingSettingAction.PrivateProcessingStatus|null);
+
+            /**
+             * Creates a new PrivateProcessingSettingAction instance using the specified properties.
+             * @param [properties] Properties to set
+             * @returns PrivateProcessingSettingAction instance
+             */
+            public static create(properties?: proto.SyncActionValue.IPrivateProcessingSettingAction): proto.SyncActionValue.PrivateProcessingSettingAction;
+
+            /**
+             * Encodes the specified PrivateProcessingSettingAction message. Does not implicitly {@link proto.SyncActionValue.PrivateProcessingSettingAction.verify|verify} messages.
+             * @param message PrivateProcessingSettingAction message or plain object to encode
+             * @param [writer] Writer to encode to
+             * @returns Writer
+             */
+            public static encode(message: proto.SyncActionValue.IPrivateProcessingSettingAction, writer?: $protobuf.Writer): $protobuf.Writer;
+
+            /**
+             * Encodes the specified PrivateProcessingSettingAction message, length delimited. Does not implicitly {@link proto.SyncActionValue.PrivateProcessingSettingAction.verify|verify} messages.
+             * @param message PrivateProcessingSettingAction message or plain object to encode
+             * @param [writer] Writer to encode to
+             * @returns Writer
+             */
+            public static encodeDelimited(message: proto.SyncActionValue.IPrivateProcessingSettingAction, writer?: $protobuf.Writer): $protobuf.Writer;
+
+            /**
+             * Decodes a PrivateProcessingSettingAction message from the specified reader or buffer.
+             * @param reader Reader or buffer to decode from
+             * @param [length] Message length if known beforehand
+             * @returns PrivateProcessingSettingAction
+             * @throws {Error} If the payload is not a reader or valid buffer
+             * @throws {$protobuf.util.ProtocolError} If required fields are missing
+             */
+            public static decode(reader: ($protobuf.Reader|Uint8Array), length?: number): proto.SyncActionValue.PrivateProcessingSettingAction;
+
+            /**
+             * Decodes a PrivateProcessingSettingAction message from the specified reader or buffer, length delimited.
+             * @param reader Reader or buffer to decode from
+             * @returns PrivateProcessingSettingAction
+             * @throws {Error} If the payload is not a reader or valid buffer
+             * @throws {$protobuf.util.ProtocolError} If required fields are missing
+             */
+            public static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): proto.SyncActionValue.PrivateProcessingSettingAction;
+
+            /**
+             * Verifies a PrivateProcessingSettingAction message.
+             * @param message Plain object to verify
+             * @returns `null` if valid, otherwise the reason why it is not
+             */
+            public static verify(message: { [k: string]: any }): (string|null);
+
+            /**
+             * Creates a PrivateProcessingSettingAction message from a plain object. Also converts values to their respective internal types.
+             * @param object Plain object
+             * @returns PrivateProcessingSettingAction
+             */
+            public static fromObject(object: { [k: string]: any }): proto.SyncActionValue.PrivateProcessingSettingAction;
+
+            /**
+             * Creates a plain object from a PrivateProcessingSettingAction message. Also converts values to other types if specified.
+             * @param message PrivateProcessingSettingAction
+             * @param [options] Conversion options
+             * @returns Plain object
+             */
+            public static toObject(message: proto.SyncActionValue.PrivateProcessingSettingAction, options?: $protobuf.IConversionOptions): { [k: string]: any };
+
+            /**
+             * Converts this PrivateProcessingSettingAction to JSON.
+             * @returns JSON object
+             */
+            public toJSON(): { [k: string]: any };
+
+            /**
+             * Gets the default type url for PrivateProcessingSettingAction
+             * @param [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+             * @returns The default type url
+             */
+            public static getTypeUrl(typeUrlPrefix?: string): string;
+        }
+
+        namespace PrivateProcessingSettingAction {
+
+            /** PrivateProcessingStatus enum. */
+            enum PrivateProcessingStatus {
+                ENABLED = 0,
+                DISABLED = 1
+            }
+        }
+
         /** Properties of a PushNameSetting. */
         interface IPushNameSetting {
 
@@ -54872,103 +56040,6 @@ export namespace proto {
             public static getTypeUrl(typeUrlPrefix?: string): string;
         }
 
-        /** Properties of a SecurityNotificationSetting. */
-        interface ISecurityNotificationSetting {
-
-            /** SecurityNotificationSetting showNotification */
-            showNotification?: (boolean|null);
-        }
-
-        /** Represents a SecurityNotificationSetting. */
-        class SecurityNotificationSetting implements ISecurityNotificationSetting {
-
-            /**
-             * Constructs a new SecurityNotificationSetting.
-             * @param [properties] Properties to set
-             */
-            constructor(properties?: proto.SyncActionValue.ISecurityNotificationSetting);
-
-            /** SecurityNotificationSetting showNotification. */
-            public showNotification?: (boolean|null);
-
-            /**
-             * Creates a new SecurityNotificationSetting instance using the specified properties.
-             * @param [properties] Properties to set
-             * @returns SecurityNotificationSetting instance
-             */
-            public static create(properties?: proto.SyncActionValue.ISecurityNotificationSetting): proto.SyncActionValue.SecurityNotificationSetting;
-
-            /**
-             * Encodes the specified SecurityNotificationSetting message. Does not implicitly {@link proto.SyncActionValue.SecurityNotificationSetting.verify|verify} messages.
-             * @param message SecurityNotificationSetting message or plain object to encode
-             * @param [writer] Writer to encode to
-             * @returns Writer
-             */
-            public static encode(message: proto.SyncActionValue.ISecurityNotificationSetting, writer?: $protobuf.Writer): $protobuf.Writer;
-
-            /**
-             * Encodes the specified SecurityNotificationSetting message, length delimited. Does not implicitly {@link proto.SyncActionValue.SecurityNotificationSetting.verify|verify} messages.
-             * @param message SecurityNotificationSetting message or plain object to encode
-             * @param [writer] Writer to encode to
-             * @returns Writer
-             */
-            public static encodeDelimited(message: proto.SyncActionValue.ISecurityNotificationSetting, writer?: $protobuf.Writer): $protobuf.Writer;
-
-            /**
-             * Decodes a SecurityNotificationSetting message from the specified reader or buffer.
-             * @param reader Reader or buffer to decode from
-             * @param [length] Message length if known beforehand
-             * @returns SecurityNotificationSetting
-             * @throws {Error} If the payload is not a reader or valid buffer
-             * @throws {$protobuf.util.ProtocolError} If required fields are missing
-             */
-            public static decode(reader: ($protobuf.Reader|Uint8Array), length?: number): proto.SyncActionValue.SecurityNotificationSetting;
-
-            /**
-             * Decodes a SecurityNotificationSetting message from the specified reader or buffer, length delimited.
-             * @param reader Reader or buffer to decode from
-             * @returns SecurityNotificationSetting
-             * @throws {Error} If the payload is not a reader or valid buffer
-             * @throws {$protobuf.util.ProtocolError} If required fields are missing
-             */
-            public static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): proto.SyncActionValue.SecurityNotificationSetting;
-
-            /**
-             * Verifies a SecurityNotificationSetting message.
-             * @param message Plain object to verify
-             * @returns `null` if valid, otherwise the reason why it is not
-             */
-            public static verify(message: { [k: string]: any }): (string|null);
-
-            /**
-             * Creates a SecurityNotificationSetting message from a plain object. Also converts values to their respective internal types.
-             * @param object Plain object
-             * @returns SecurityNotificationSetting
-             */
-            public static fromObject(object: { [k: string]: any }): proto.SyncActionValue.SecurityNotificationSetting;
-
-            /**
-             * Creates a plain object from a SecurityNotificationSetting message. Also converts values to other types if specified.
-             * @param message SecurityNotificationSetting
-             * @param [options] Conversion options
-             * @returns Plain object
-             */
-            public static toObject(message: proto.SyncActionValue.SecurityNotificationSetting, options?: $protobuf.IConversionOptions): { [k: string]: any };
-
-            /**
-             * Converts this SecurityNotificationSetting to JSON.
-             * @returns JSON object
-             */
-            public toJSON(): { [k: string]: any };
-
-            /**
-             * Gets the default type url for SecurityNotificationSetting
-             * @param [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
-             * @returns The default type url
-             */
-            public static getTypeUrl(typeUrlPrefix?: string): string;
-        }
-
         /** Properties of a StarAction. */
         interface IStarAction {
 
@@ -55272,7 +56343,8 @@ export namespace proto {
             enum StatusDistributionMode {
                 ALLOW_LIST = 0,
                 DENY_LIST = 1,
-                CONTACTS = 2
+                CONTACTS = 2,
+                CLOSE_FRIENDS = 3
             }
         }
 
@@ -55863,6 +56935,103 @@ export namespace proto {
             public static getTypeUrl(typeUrlPrefix?: string): string;
         }
 
+        /** Properties of a UGCBot. */
+        interface IUGCBot {
+
+            /** UGCBot definition */
+            definition?: (Uint8Array|null);
+        }
+
+        /** Represents a UGCBot. */
+        class UGCBot implements IUGCBot {
+
+            /**
+             * Constructs a new UGCBot.
+             * @param [properties] Properties to set
+             */
+            constructor(properties?: proto.SyncActionValue.IUGCBot);
+
+            /** UGCBot definition. */
+            public definition?: (Uint8Array|null);
+
+            /**
+             * Creates a new UGCBot instance using the specified properties.
+             * @param [properties] Properties to set
+             * @returns UGCBot instance
+             */
+            public static create(properties?: proto.SyncActionValue.IUGCBot): proto.SyncActionValue.UGCBot;
+
+            /**
+             * Encodes the specified UGCBot message. Does not implicitly {@link proto.SyncActionValue.UGCBot.verify|verify} messages.
+             * @param message UGCBot message or plain object to encode
+             * @param [writer] Writer to encode to
+             * @returns Writer
+             */
+            public static encode(message: proto.SyncActionValue.IUGCBot, writer?: $protobuf.Writer): $protobuf.Writer;
+
+            /**
+             * Encodes the specified UGCBot message, length delimited. Does not implicitly {@link proto.SyncActionValue.UGCBot.verify|verify} messages.
+             * @param message UGCBot message or plain object to encode
+             * @param [writer] Writer to encode to
+             * @returns Writer
+             */
+            public static encodeDelimited(message: proto.SyncActionValue.IUGCBot, writer?: $protobuf.Writer): $protobuf.Writer;
+
+            /**
+             * Decodes a UGCBot message from the specified reader or buffer.
+             * @param reader Reader or buffer to decode from
+             * @param [length] Message length if known beforehand
+             * @returns UGCBot
+             * @throws {Error} If the payload is not a reader or valid buffer
+             * @throws {$protobuf.util.ProtocolError} If required fields are missing
+             */
+            public static decode(reader: ($protobuf.Reader|Uint8Array), length?: number): proto.SyncActionValue.UGCBot;
+
+            /**
+             * Decodes a UGCBot message from the specified reader or buffer, length delimited.
+             * @param reader Reader or buffer to decode from
+             * @returns UGCBot
+             * @throws {Error} If the payload is not a reader or valid buffer
+             * @throws {$protobuf.util.ProtocolError} If required fields are missing
+             */
+            public static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): proto.SyncActionValue.UGCBot;
+
+            /**
+             * Verifies a UGCBot message.
+             * @param message Plain object to verify
+             * @returns `null` if valid, otherwise the reason why it is not
+             */
+            public static verify(message: { [k: string]: any }): (string|null);
+
+            /**
+             * Creates a UGCBot message from a plain object. Also converts values to their respective internal types.
+             * @param object Plain object
+             * @returns UGCBot
+             */
+            public static fromObject(object: { [k: string]: any }): proto.SyncActionValue.UGCBot;
+
+            /**
+             * Creates a plain object from a UGCBot message. Also converts values to other types if specified.
+             * @param message UGCBot
+             * @param [options] Conversion options
+             * @returns Plain object
+             */
+            public static toObject(message: proto.SyncActionValue.UGCBot, options?: $protobuf.IConversionOptions): { [k: string]: any };
+
+            /**
+             * Converts this UGCBot to JSON.
+             * @returns JSON object
+             */
+            public toJSON(): { [k: string]: any };
+
+            /**
+             * Gets the default type url for UGCBot
+             * @param [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+             * @returns The default type url
+             */
+            public static getTypeUrl(typeUrlPrefix?: string): string;
+        }
+
         /** Properties of an UnarchiveChatsSetting. */
         interface IUnarchiveChatsSetting {
 
@@ -56264,7 +57433,9 @@ export namespace proto {
 
             /** AccountLinkState enum. */
             enum AccountLinkState {
-                ACTIVE = 0
+                ACTIVE = 0,
+                PAUSED = 1,
+                UNLINKED = 2
             }
         }
 
@@ -59471,6 +60642,9 @@ export namespace proto {
 
         /** WebMessageInfo interactiveMessageAdditionalMetadata */
         interactiveMessageAdditionalMetadata?: (proto.IInteractiveMessageAdditionalMetadata|null);
+
+        /** WebMessageInfo quarantinedMessage */
+        quarantinedMessage?: (proto.IQuarantinedMessage|null);
     }
 
     /** Represents a WebMessageInfo. */
@@ -59676,6 +60850,9 @@ export namespace proto {
 
         /** WebMessageInfo interactiveMessageAdditionalMetadata. */
         public interactiveMessageAdditionalMetadata?: (proto.IInteractiveMessageAdditionalMetadata|null);
+
+        /** WebMessageInfo quarantinedMessage. */
+        public quarantinedMessage?: (proto.IQuarantinedMessage|null);
 
         /**
          * Creates a new WebMessageInfo instance using the specified properties.
@@ -59996,7 +61173,8 @@ export namespace proto {
             CHANGE_LIMIT_SHARING = 216,
             GROUP_MEMBER_LINK_MODE = 217,
             BIZ_AUTOMATICALLY_LABELED_CHAT_SYSTEM_MESSAGE = 218,
-            PHONE_NUMBER_HIDING_CHAT_DEPRECATED_MESSAGE = 219
+            PHONE_NUMBER_HIDING_CHAT_DEPRECATED_MESSAGE = 219,
+            QUARANTINED_MESSAGE = 220
         }
     }
 
