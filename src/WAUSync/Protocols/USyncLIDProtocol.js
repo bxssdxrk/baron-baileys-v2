@@ -1,38 +1,32 @@
-"use strict"
-
-Object.defineProperty(exports, "__esModule", { value: true })
-
-const WABinary_1 = require("../../WABinary")
-
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.USyncLIDProtocol = void 0;
 class USyncLIDProtocol {
-	constructor() {
-		this.name = 'lid'
-	}
-	getQueryElement() {
-		return {
-			tag: 'lid', 
-			attrs: {}
-		}
-	}
-	getUserElement(user) {
+    constructor() {
+        this.name = 'lid';
+    }
+    getQueryElement() {
+        return {
+            tag: 'lid',
+            attrs: {}
+        };
+    }
+    getUserElement(user) {
         if (user.lid) {
             return {
                 tag: 'lid',
                 attrs: { jid: user.lid }
-            }
+            };
         }
         else {
-            return null
+            return null;
         }
     }
-	parser(node) {
-		if (node.tag === 'lid') {
-			return node.attrs.val
-		}		
-		return null
-	}
+    parser(node) {
+        if (node.tag === 'lid') {
+            return node.attrs.val;
+        }
+        return null;
+    }
 }
-
-module.exports = {
- USyncLIDProtocol
-}
+exports.USyncLIDProtocol = USyncLIDProtocol;

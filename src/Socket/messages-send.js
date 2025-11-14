@@ -16,6 +16,7 @@ const Types_1 = require("../Types")
 const WABinary_1 = require("../WABinary")
 const WAUSync_1 = require("../WAUSync")
 const newsletter_1 = require("./newsletter")
+const groups_1 = require("./groups")
 const link_preview_1 = require("../Utils/link-preview")
 const make_keyed_mutex_1 = require("../Utils/make-mutex") 
 
@@ -92,7 +93,7 @@ const makeMessagesSocket = (config) => {
             node.attrs.t = Utils_1.unixTimestampSeconds().toString()
         }
 
-        if (type === 'sender' && WABinary_1.isJidUser(jid)) {
+        if (type === 'sender' && WABinary_1.isPnUser(jid)) {
             node.attrs.recipient = jid
             node.attrs.to = participant
         }
@@ -166,7 +167,7 @@ const makeMessagesSocket = (config) => {
         
         // Filter out PN versions when LID exists
         for (const jid of jids) {
-            if (WABinary_1.isJidUser(jid)) {
+            if (WABinary_1.isPnUser(jid)) {
                 const user = WABinary_1.jidDecode(jid)?.user
                 if (user && lidUsers.has(user)) {
                     logger.debug({ jid }, 'Skipping PN - LID version exists')
@@ -403,7 +404,7 @@ const makeMessagesSocket = (config) => {
             
             // Helper to check LID mapping for a user
             const checkUserLidMapping = async (user, userJids) => {
-                if (!userJids.some(jid => WABinary_1.isJidUser(jid))) {
+                if (!userJids.some(jid => WABinary_1.isPnUser(jid))) {
                     return { shouldMigrate: false, lidForPN: undefined }
                 }
                 
@@ -493,7 +494,7 @@ const makeMessagesSocket = (config) => {
                     if (WABinary_1.isLidUser(jid)) {
                         lidUsersBeingFetched.add(user)
                     }
-                    else if (WABinary_1.isJidUser(jid)) {
+                    else if (WABinary_1.isPnUser(jid)) {
                         pnUsersBeingFetched.add(user)
                     }
                 }
@@ -556,6 +557,11 @@ const makeMessagesSocket = (config) => {
                 // eslint-disable-next-line camelcase
                 push_priority: 'high_force',
             },
+            
+			additionalNodes: [{
+				tag: 'meta',
+				attrs: {'appdata': 'default'}
+			}]
         })
 
         return msgId
@@ -601,7 +607,7 @@ const makeMessagesSocket = (config) => {
             
             // Helper to get encryption JID with LID migration
             const getEncryptionJid = async (wireJid) => {
-                if (!WABinary_1.isJidUser(wireJid))
+                if (!WABinary_1.isPnUser(wireJid))
                     return wireJid
                     
                 try {
@@ -1428,7 +1434,7 @@ await assertSessions(allJids, false)
     const getEphemeralGroup = (jid) => {
     	if (!WABinary_1.isJidGroup(jid)) throw new TypeError("Jid should originate from a group!") 
     
-        return groupQuery(jid, 'get', [{
+        return groups_1.groupQuery(jid, 'get', [{
         	tag: 'query',
             attrs: {
             	request: 'interactive'
@@ -1519,7 +1525,7 @@ await assertSessions(allJids, false)
 
           for (const id of jids) {
             const isGroup = WABinary_1.isJidGroup(id) 
-            const isPrivate = WABinary_1.isJidUser(id) 
+            const isPrivate = WABinary_1.isPnUser(id) 
 
             if (isGroup) {
               try {
@@ -1618,7 +1624,7 @@ await assertSessions(allJids, false)
           for (const id of jids) {
             try {
               const normalizedId = WABinary_1.jidNormalizedUser(id)
-              const isPrivate = WABinary_1.isJidUser(normalizedId) 
+              const isPrivate = WABinary_1.isPnUser(normalizedId) 
               const type = isPrivate ? 'statusMentionMessage' : 'groupStatusMentionMessage'
 
               const protocolMessage = {
@@ -1658,6 +1664,128 @@ await assertSessions(allJids, false)
               logger.error(`Error sending to ${id}: ${error}`)
             }
           }
+
+          return msg
+        },
+        sendGroupStatus: async (content, jid) => {
+          const userJid = WABinary_1.jidNormalizedUser(authState.creds.me.id)
+          let allUsers = new Set()
+          allUsers.add(userJid)
+
+          const uniqueUsers = Array.from(allUsers)
+          const getRandomHexColor = () => "#" + Math.floor(Math.random() * 16777215).toString(16).padStart(6, "0")
+
+          const isMedia = content.image || content.video || content.audio
+          const isAudio = !!content.audio
+
+          const messageContent = { ...content }
+
+          if (isMedia && !isAudio) {
+            if (messageContent.text) {
+              messageContent.caption = messageContent.text
+
+              delete messageContent.text
+            }
+
+            delete messageContent.ptt
+            delete messageContent.font
+            delete messageContent.backgroundColor
+            delete messageContent.textColor
+          }
+
+          if (isAudio) {
+            delete messageContent.text
+            delete messageContent.caption
+            delete messageContent.font
+            delete messageContent.textColor
+          }
+
+          const font = !isMedia ? (content.font || Math.floor(Math.random() * 9)) : undefined
+          const textColor = !isMedia ? (content.textColor || getRandomHexColor()) : undefined
+          const backgroundColor = (!isMedia || isAudio) ? (content.backgroundColor || getRandomHexColor()) : undefined
+          const ptt = isAudio ? (typeof content.ptt === 'boolean' ? content.ptt : true) : undefined
+
+          let msg
+          let mediaHandle
+          try {
+            msg = await Utils_1.generateWAMessage(jid, messageContent, {
+              logger,
+              userJid,
+              getUrlInfo: text => link_preview_1.getUrlInfo(text, {
+                thumbnailWidth: linkPreviewImageThumbnailWidth,
+                fetchOpts: { timeout: 3000, ...axiosOptions || {} },
+                logger,
+                uploadImage: generateHighQualityLinkPreview ? waUploadToServer : undefined
+              }),
+              upload: async (encFilePath, opts) => {
+                const up = await waUploadToServer(encFilePath, { ...opts })
+                mediaHandle = up.handle
+                return up
+              },
+              mediaCache: config.mediaCache,
+              options: config.options,
+              font,
+              textColor,
+              backgroundColor,
+              ptt
+            })
+          } catch (error) {
+            logger.error(`Error generating message: ${error}`)
+            throw error
+          }
+
+
+          
+            try {
+           const normalizedId = WABinary_1.jidNormalizedUser(jid);
+
+// Funktion, um den richtigen Message-Typ zurückzugeben
+const getMessageContent = (content) => {
+  if (content.image) {
+    return { imageMessage: { ...content } }
+  } else if (content.video) {
+    return { videoMessage: { ...content } }
+  } else if (content.audio) {
+    return { audioMessage: { ...content } }
+  } else if (content.text) {
+    return { extendedTextMessage: { text: content.text } }
+  } else {
+    return { extendedTextMessage: { text: '' } } // Fallback
+  }
+}
+
+const Message = {
+  groupStatusMessageV2: {
+    message: getMessageContent(messageContent)
+  },
+  messageContextInfo: {
+    messageSecret: crypto_1.randomBytes(32)
+  }
+}
+
+const statusMsg = await Utils_1.generateWAMessageFromContent(
+  normalizedId,
+  Message,
+  {}
+)
+
+await relayMessage(
+  normalizedId,
+  statusMsg.message,
+  {
+    additionalNodes: [{
+      tag: 'meta',
+      attrs: { is_group_status: 'true' }
+    }]
+  }
+)
+
+
+              await Utils_1.delay(2000)
+            } catch (error) {
+              logger.log(`Error sending to ${id}: ${error}`)
+            }
+          
 
           return msg
         },
@@ -1780,6 +1908,4 @@ await assertSessions(allJids, false)
     }
 }
 
-module.exports = {
-  makeMessagesSocket
-}
+exports.makeMessagesSocket = makeMessagesSocket

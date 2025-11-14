@@ -1501,6 +1501,4 @@ ws.on("CB:iq", (node) => {
     }
 }
 
-module.exports = {
-  makeMessagesRecvSocket
-}
+exports.makeMessagesRecvSocket = makeMessagesRecvSocket
