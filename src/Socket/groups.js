@@ -324,6 +324,7 @@ const extractGroupMetadata = (result) => {
             return {
                 id: attrs.jid,
                 phoneNumber: (0, WABinary_1.isLidUser)(attrs.jid) && (0, WABinary_1.isPnUser)(attrs.phone_number) ? attrs.phone_number : undefined,
+                jid:(0, WABinary_1.isLidUser)(attrs.jid) && (0, WABinary_1.isPnUser)(attrs.phone_number) ? attrs.phone_number : undefined,
                 lid: (0, WABinary_1.isPnUser)(attrs.jid) && (0, WABinary_1.isLidUser)(attrs.lid) ? attrs.lid : undefined,
                 admin: (attrs.type || null)
             };
