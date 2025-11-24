@@ -2,7 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.USyncQuery = void 0;
 const WABinary_1 = require("../WABinary");
-const UsyncBotProfileProtocol_1 = require("./Protocols/UsyncBotProfileProtocol");
+const USyncBotProfileProtocol_1 = require("./Protocols/USyncBotProfileProtocol");
 const UsyncLIDProtocol_1 = require("./Protocols/USyncLIDProtocol");
 const Protocols_1 = require("./Protocols");
 class USyncQuery {
@@ -96,7 +96,7 @@ class USyncQuery {
   }
   withBotProfileProtocol() {
     this.protocols.push(
-      new UsyncBotProfileProtocol_1.USyncBotProfileProtocol(),
+      new USyncBotProfileProtocol_1.USyncBotProfileProtocol(),
     );
     return this;
   }
