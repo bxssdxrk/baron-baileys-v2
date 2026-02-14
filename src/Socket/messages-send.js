@@ -2151,12 +2151,12 @@ const makeMessagesSocket = (config) => {
       const userJid = authState.creds.me.id;
       const additionalAttributes = {};
 
-      if (!options.ephemeralExpiration) {
-        if (WABinary_1.isJidGroup(jid)) {
-          const expiration = await getEphemeralGroup(jid);
-          options.ephemeralExpiration = expiration;
-        }
-      }
+      // if (!options.ephemeralExpiration) {
+      //   if (WABinary_1.isJidGroup(jid)) {
+      //     const expiration = await getEphemeralGroup(jid);
+      //     options.ephemeralExpiration = expiration;
+      //   }
+      // }
 
       if (
         typeof content === "object" &&
