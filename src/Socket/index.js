@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const Defaults_1 = require("../Defaults");
-const registration_1 = require("./registration");
+const communities_1 = require("./communities");
 // export the last socket layer
 const makeWASocket = (config) => {
   const newConfig = {
@@ -14,6 +14,6 @@ const makeWASocket = (config) => {
   if (config.shouldSyncHistoryMessage === undefined) {
     newConfig.shouldSyncHistoryMessage = () => !!newConfig.syncFullHistory;
   }
-  return (0, registration_1.makeRegistrationSocket)(newConfig);
+  return (0, communities_1.makeCommunitiesSocket)(newConfig);
 };
 exports.default = makeWASocket;

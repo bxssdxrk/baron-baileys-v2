@@ -16,9 +16,9 @@ const crypto_2 = require("./crypto");
 const generics_1 = require("./generics");
 const signal_1 = require("./signal");
 const getUserAgent = (config) => {
-  const osVersion = config.mobile ? "17.2.1" : "0.1";
-  const version = config.mobile ? [2, 25, 31, 74] : config.version;
-  const device = config.mobile ? "iPhone_15_Pro_Max" : "Desktop";
+  const osVersion = config.mobile ? "18.2" : "0.1";
+  const version = config.mobile ? [2, 26, 2, 74] : config.version;
+  const device = config.mobile ? "iPhone_15" : "Desktop";
   const manufacturer = config.mobile ? "Apple" : "";
   const platform = config.mobile
     ? index_js_1.proto.ClientPayload.UserAgent.Platform.IOS

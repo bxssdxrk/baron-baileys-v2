@@ -41,7 +41,7 @@ const logger_1 = __importDefault(require("../Utils/logger"));
 const { createHash } = require("crypto");
 const phonenumberMcc = require("./phonenumber-mcc.json");
 exports.PHONENUMBER_MCC = require("./phonenumber-mcc.json");
-const version = [2, 3000, 1030215530]; // WA Web version
+const version = [2, 3000, 1033491644]; // WA Web version
 exports.VERSION = version;
 exports.UNAUTHORIZED_CODES = [401, 403, 419];
 exports.DEFAULT_ORIGIN = "https://web.whatsapp.com";
@@ -60,33 +60,20 @@ exports.DICT_VERSION = 3;
 exports.KEY_BUNDLE_TYPE = Buffer.from([5]);
 exports.NOISE_WA_HEADER = Buffer.from([87, 65, 6, exports.DICT_VERSION]); // last is "DICT_VERSION"
 //=======================================================//
-exports.MOBILE_NOISE_HEADER = Buffer.concat([
-  Buffer.from("WA"),
-  Buffer.from([5, 2]),
-]);
-exports.MOBILE_ENDPOINT = "g.whatsapp.net";
-exports.MOBILE_PORT = 443;
-//=======================================================//
-const WA_VERSION_IOS = "2.25.34.75";
-const WA_VERSION_HASH = createHash("md5").update(WA_VERSION_IOS).digest("hex");
-exports.MOBILE_TOKEN = Buffer.from(
-  "0a1mLfGUIBVrMKF1RdvLI5lkRBvof6vn0fD2QRSM" + WA_VERSION_HASH,
-);
-//=======================================================//
-exports.MOBILE_REGISTRATION_ENDPOINT = "https://v.whatsapp.net/v2";
-exports.MOBILE_USERAGENT =
-  "WhatsApp/2.25.34.75 iOS/18.2 Device/Apple-iPhone_11";
-exports.REGISTRATION_PUBLIC_KEY = Buffer.from([
-  5, 142, 140, 15, 116, 195, 235, 197, 215, 166, 134, 92, 108, 60, 132, 56, 86,
-  176, 97, 33, 204, 232, 234, 119, 77, 34, 251, 111, 18, 37, 18, 48, 45,
-]);
-//=======================================================//
 /** from: https://stackoverflow.com/questions/3809401/what-is-a-good-regular-expression-to-match-a-url */
 exports.URL_REGEX =
   /https:\/\/(?![^:@\/\s]+:[^:@\/\s]+@)[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}(:\d+)?(\/[^\s]*)?/g;
-// TODO: Add WA root CA
+
+// exports.WA_CERT_DETAILS = {
+//   SERIAL: 0,
+// };
 exports.WA_CERT_DETAILS = {
   SERIAL: 0,
+  ISSUER: "WhatsAppLongTerm1",
+  PUBLIC_KEY: Buffer.from(
+    "142375574d0a587166aae71ebe516437c4a28b73e3695c6ce1f7f9545da8ee6b",
+    "hex",
+  ),
 };
 exports.PROCESSABLE_HISTORY_TYPES = [
   index_js_1.proto.HistorySync.HistorySyncType.INITIAL_BOOTSTRAP,
@@ -101,7 +88,7 @@ exports.PROCESSABLE_HISTORY_TYPES = [
 ];
 exports.DEFAULT_CONNECTION_CONFIG = {
   version: version,
-  browser: browser_utils_1.Browsers.windows("Chrome"),
+  browser: browser_utils_1.Browsers.windows("Firefox"),
   waWebSocketUrl: "wss://web.whatsapp.com/ws/chat",
   connectTimeoutMs: 20000,
   keepAliveIntervalMs: 30000,

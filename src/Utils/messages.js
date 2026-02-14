@@ -745,6 +745,7 @@ const generateWAMessageFromContent = (jid, message, options) => {
   return Types_1.WAProto.WebMessageInfo.fromObject(messageJSON);
 };
 exports.generateWAMessageFromContent = generateWAMessageFromContent;
+
 const generateWAMessage = async (jid, content, options) => {
   var _a;
   // ensure msg ID is with every log

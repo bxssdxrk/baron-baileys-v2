@@ -102,9 +102,11 @@ const addTransactionCapability = (
   { maxCommitRetries, delayBetweenTriesMs },
 ) => {
   const txStorage = new async_hooks_1.AsyncLocalStorage();
-  // Queues for concurrency control
+  // Queues for concurrency control (keyed by signal data type - bounded set)
   const keyQueues = new Map();
+  // Transaction mutexes with reference counting for cleanup
   const txMutexes = new Map();
+  const txMutexRefCounts = new Map();
   // Pre-key manager for specialized operations
   const preKeyManager = new pre_key_manager_1.PreKeyManager(state, logger);
   /**
@@ -122,9 +124,33 @@ const addTransactionCapability = (
   function getTxMutex(key) {
     if (!txMutexes.has(key)) {
       txMutexes.set(key, new async_mutex_1.Mutex());
+      txMutexRefCounts.set(key, 0);
     }
     return txMutexes.get(key);
   }
+  /**
+   * Acquire a reference to a transaction mutex
+   */
+  function acquireTxMutexRef(key) {
+    const count = txMutexRefCounts.get(key) ?? 0;
+    txMutexRefCounts.set(key, count + 1);
+  }
+  /**
+   * Release a reference to a transaction mutex and cleanup if no longer needed
+   */
+  function releaseTxMutexRef(key) {
+    const count = (txMutexRefCounts.get(key) ?? 1) - 1;
+    txMutexRefCounts.set(key, count);
+    // Cleanup if no more references and mutex is not locked
+    if (count <= 0) {
+      const mutex = txMutexes.get(key);
+      if (mutex && !mutex.isLocked()) {
+        txMutexes.delete(key);
+        txMutexRefCounts.delete(key);
+      }
+    }
+  }
+
   /**
    * Check if currently in a transaction
    */
@@ -248,24 +274,30 @@ const addTransactionCapability = (
         return work();
       }
       // New transaction - acquire mutex and create context
-      return getTxMutex(key).runExclusive(async () => {
-        const ctx = {
-          cache: {},
-          mutations: {},
-          dbQueries: 0,
-        };
-        logger.trace("entering transaction");
-        try {
-          const result = await txStorage.run(ctx, work);
-          // Commit mutations
-          await commitWithRetry(ctx.mutations);
-          logger.trace({ dbQueries: ctx.dbQueries }, "transaction completed");
-          return result;
-        } catch (error) {
-          logger.error({ error }, "transaction failed, rolling back");
-          throw error;
-        }
-      });
+      const mutex = getTxMutex(key);
+      acquireTxMutexRef(key);
+      try {
+        return await mutex.runExclusive(async () => {
+          const ctx = {
+            cache: {},
+            mutations: {},
+            dbQueries: 0,
+          };
+          logger.trace("entering transaction");
+          try {
+            const result = await txStorage.run(ctx, work);
+            // Commit mutations
+            await commitWithRetry(ctx.mutations);
+            logger.trace({ dbQueries: ctx.dbQueries }, "transaction completed");
+            return result;
+          } catch (error) {
+            logger.error({ error }, "transaction failed, rolling back");
+            throw error;
+          }
+        });
+      } finally {
+        releaseTxMutexRef(key);
+      }
     },
   };
 };

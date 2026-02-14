@@ -201,6 +201,10 @@ const encodeBinaryNodeInner = ({ tag, attrs, content }, opts, buffer) => {
       pushByte(TAGS.LIST_EMPTY);
       return;
     }
+    if (str === "") {
+      writeStringRaw(str);
+      return;
+    }
     const tokenIndex = TOKEN_MAP[str];
     if (tokenIndex) {
       if (typeof tokenIndex.dict === "number") {
@@ -211,7 +215,7 @@ const encodeBinaryNodeInner = ({ tag, attrs, content }, opts, buffer) => {
       writePackedBytes(str, "nibble");
     } else if (isHex(str)) {
       writePackedBytes(str, "hex");
-    } else if (str) {
+    } else {
       const decodedJid = (0, jid_utils_1.jidDecode)(str);
       if (decodedJid) {
         writeJid(decodedJid);

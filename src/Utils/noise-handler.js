@@ -97,13 +97,45 @@ const makeNoiseHandler = ({
       const decStaticContent = decrypt(serverHello.static);
       await mixIntoKey(crypto_1.Curve.sharedKey(privateKey, decStaticContent));
       const certDecoded = decrypt(serverHello.payload);
-      const { intermediate: certIntermediate /*leaf*/ } =
+      const { intermediate: certIntermediate, leaf } =
         index_js_1.proto.CertChain.decode(certDecoded);
-      // TODO: handle this leaf stuff
-      const { issuerSerial } =
+      // leaf
+      if (!leaf?.details || !leaf?.signature) {
+        throw new boom_1.Boom("invalid noise leaf certificate", {
+          statusCode: 400,
+        });
+      }
+      if (!certIntermediate?.details || !certIntermediate?.signature) {
+        throw new boom_1.Boom("invalid noise intermediate certificate", {
+          statusCode: 400,
+        });
+      }
+      const details =
         index_js_1.proto.CertChain.NoiseCertificate.Details.decode(
           certIntermediate.details,
         );
+      const { issuerSerial } = details;
+      const verify = crypto_1.Curve.verify(
+        details.key,
+        leaf.details,
+        leaf.signature,
+      );
+      const verifyIntermediate = crypto_1.Curve.verify(
+        Defaults_1.WA_CERT_DETAILS.PUBLIC_KEY,
+        certIntermediate.details,
+        certIntermediate.signature,
+      );
+      if (!verify) {
+        throw new boom_1.Boom("noise certificate signature invalid", {
+          statusCode: 400,
+        });
+      }
+      if (!verifyIntermediate) {
+        throw new boom_1.Boom(
+          "noise intermediate certificate signature invalid",
+          { statusCode: 400 },
+        );
+      }
       if (issuerSerial !== Defaults_1.WA_CERT_DETAILS.SERIAL) {
         throw new boom_1.Boom("certification match failed", {
           statusCode: 400,
