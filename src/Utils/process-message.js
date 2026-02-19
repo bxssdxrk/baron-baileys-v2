@@ -11,13 +11,14 @@ exports.decryptEventResponse = decryptEventResponse;
 exports.decryptComment = decryptComment;
 exports.decryptReaction = decryptReaction;
 const index_js_1 = require("../../WAProto/index.js");
-const WAProto_1 = index_js_1;
 const Types_1 = require("../Types");
 const messages_1 = require("../Utils/messages");
 const WABinary_1 = require("../WABinary");
 const crypto_1 = require("./crypto");
 const generics_1 = require("./generics");
 const history_1 = require("./history");
+/** Converts a string or Buffer to a Buffer – used by all decrypt helpers */
+const toBinary = (txt) => Buffer.from(txt);
 const REAL_MSG_STUB_TYPES = new Set([
   Types_1.WAMessageStubType.CALL_MISSED_GROUP_VIDEO,
   Types_1.WAMessageStubType.CALL_MISSED_GROUP_VOICE,
@@ -170,9 +171,6 @@ function decryptPollVote(
   const aad = toBinary(`${pollMsgId}\u0000${voterJid}`);
   const decrypted = (0, crypto_1.aesDecryptGCM)(encPayload, decKey, encIv, aad);
   return index_js_1.proto.Message.PollVoteMessage.decode(decrypted);
-  function toBinary(txt) {
-    return Buffer.from(txt);
-  }
 }
 /**
  * Decrypt an event edit
@@ -195,11 +193,7 @@ function decryptEventEdit(
   const decKey = crypto_1.hmacSign(sign, key0, "sha256");
   const decrypted = crypto_1.aesDecryptGCM(encPayload, decKey, encIv, null);
 
-  return WAProto_1.proto.Message.decode(decrypted);
-
-  function toBinary(txt) {
-    return Buffer.from(txt);
-  }
+  return index_js_1.proto.Message.decode(decrypted);
 }
 
 /**
@@ -225,11 +219,7 @@ function decryptEventResponse(
   const aad = toBinary(`${eventMsgId}\u0000${responderJid}`);
   const decrypted = crypto_1.aesDecryptGCM(encPayload, decKey, encIv, aad);
 
-  return WAProto_1.proto.Message.EventResponseMessage.decode(decrypted);
-
-  function toBinary(txt) {
-    return Buffer.from(txt);
-  }
+  return index_js_1.proto.Message.EventResponseMessage.decode(decrypted);
 }
 
 /**
@@ -253,11 +243,7 @@ function decryptComment(
   const decKey = crypto_1.hmacSign(sign, key0, "sha256");
   const decrypted = crypto_1.aesDecryptGCM(encPayload, decKey, encIv, null);
 
-  return WAProto_1.proto.Message.decode(decrypted);
-
-  function toBinary(txt) {
-    return Buffer.from(txt);
-  }
+  return index_js_1.proto.Message.decode(decrypted);
 }
 
 /**
@@ -281,12 +267,12 @@ function decryptReaction(
   const decKey = crypto_1.hmacSign(sign, key0, "sha256");
   const decrypted = crypto_1.aesDecryptGCM(encPayload, decKey, encIv, null);
 
-  return WAProto_1.proto.Message.ReactionMessage.decode(decrypted);
-
-  function toBinary(txt) {
-    return Buffer.from(txt);
-  }
+  return index_js_1.proto.Message.ReactionMessage.decode(decrypted);
 }
+/** Parses stub parameters from a group event message */
+const parseParticipants = (message) =>
+  (message.messageStubParameters?.map((a) => JSON.parse(a))) || [];
+
 const processMessage = async (
   message,
   {
@@ -592,14 +578,12 @@ const processMessage = async (
       ); // ADD SUPPORT FOR LID
     switch (message.messageStubType) {
       case Types_1.WAMessageStubType.GROUP_PARTICIPANT_CHANGE_NUMBER:
-        participants =
-          message.messageStubParameters.map((a) => JSON.parse(a)) || [];
+        participants = parseParticipants(message);
         emitParticipantsUpdate("modify");
         break;
       case Types_1.WAMessageStubType.GROUP_PARTICIPANT_LEAVE:
       case Types_1.WAMessageStubType.GROUP_PARTICIPANT_REMOVE:
-        participants =
-          message.messageStubParameters.map((a) => JSON.parse(a)) || [];
+        participants = parseParticipants(message);
         emitParticipantsUpdate("remove");
         // mark the chat read only if you left the group
         if (participantsIncludesMe()) {
@@ -609,21 +593,18 @@ const processMessage = async (
       case Types_1.WAMessageStubType.GROUP_PARTICIPANT_ADD:
       case Types_1.WAMessageStubType.GROUP_PARTICIPANT_INVITE:
       case Types_1.WAMessageStubType.GROUP_PARTICIPANT_ADD_REQUEST_JOIN:
-        participants =
-          message.messageStubParameters.map((a) => JSON.parse(a)) || [];
+        participants = parseParticipants(message);
         if (participantsIncludesMe()) {
           chat.readOnly = false;
         }
         emitParticipantsUpdate("add");
         break;
       case Types_1.WAMessageStubType.GROUP_PARTICIPANT_DEMOTE:
-        participants =
-          message.messageStubParameters.map((a) => JSON.parse(a)) || [];
+        participants = parseParticipants(message);
         emitParticipantsUpdate("demote");
         break;
       case Types_1.WAMessageStubType.GROUP_PARTICIPANT_PROMOTE:
-        participants =
-          message.messageStubParameters.map((a) => JSON.parse(a)) || [];
+        participants = parseParticipants(message);
         emitParticipantsUpdate("promote");
         break;
       case Types_1.WAMessageStubType.GROUP_CHANGE_ANNOUNCE:
@@ -709,7 +690,7 @@ const processMessage = async (
       try {
         const meLidNormalised = WABinary_1.jidNormalizedUser(meLid);
         const getDevice = messages_1.getDevice(creationMsgKey.id);
-        const pollCreationFromMe = getDevice === "baileys" ? true : false;
+        const pollCreationFromMe = getDevice === "baileys";
         const pollEncKey = pollMsg.messageContextInfo?.messageSecret;
         const voterJid = generics_1.getKeyAuthor(message.key, meLidNormalised);
 
@@ -765,7 +746,7 @@ const processMessage = async (
     const creationMsgKey = encEventEdit.targetMessageKey;
 
     if (
-      WAProto_1.proto.Message.SecretEncryptedMessage.SecretEncType[
+      index_js_1.proto.Message.SecretEncryptedMessage.SecretEncType[
         encEventEdit.secretEncType
       ] !== "EVENT_EDIT"
     )
@@ -773,12 +754,14 @@ const processMessage = async (
 
     // we need to fetch the event creation message to get the event enc key
     const eventMsg = await getMessage(creationMsgKey);
-    console.log("eventMsgedit", eventMsg);
+    logger?.debug({ creationMsgKey }, "fetched event msg for edit decryption");
     if (eventMsg) {
       try {
         const meLidNormalised = WABinary_1.jidNormalizedUser(meLid);
+        // eventCreatorJid comes from the creation message key (the original event author)
+        // responderJid comes from the incoming message key (who sent the edit)
         const eventCreatorJid = generics_1.getKeyAuthor(
-          message.key,
+          creationMsgKey,
           meLidNormalised,
         );
         const responderJid = generics_1.getKeyAuthor(
@@ -839,7 +822,7 @@ const processMessage = async (
 
     // we need to fetch the event creation message to get the event enc key
     const eventMsg = await getMessage(creationMsgKey);
-    console.log("eventMsgresponse", eventMsg);
+    logger?.debug({ creationMsgKey }, "fetched event msg for response decryption");
     if (eventMsg) {
       try {
         const meLidNormalised = WABinary_1.jidNormalizedUser(meLid);

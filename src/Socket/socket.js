@@ -39,7 +39,7 @@ const makeSocket = (config) => {
   const uqTagId = (0, Utils_1.generateMdTagPrefix)();
   const generateMessageTag = () => `${uqTagId}${epoch++}`;
 
-  const url =
+  let url =
     typeof waWebSocketUrl === "string"
       ? new url_1.URL(waWebSocketUrl)
       : waWebSocketUrl;

@@ -31,42 +31,62 @@ function makeCacheableSignalKeyStore(store, logger, _cache) {
       useClones: false,
       deleteOnExpire: true,
     });
-  // Mutex for protecting cache operations
-  const cacheMutex = new async_mutex_1.Mutex();
+  // Write-mutex: only needed when filling cache misses from the underlying store.
+  // Pure cache-hits run without any lock (fast path), avoiding unnecessary serialisation
+  // of concurrent Signal operations (e.g. parallel group-message decryptions).
+  const writeMutex = new async_mutex_1.Mutex();
   function getUniqueId(type, id) {
     return `${type}.${id}`;
   }
   return {
     async get(type, ids) {
-      return cacheMutex.runExclusive(async () => {
-        const data = {};
-        const idsToFetch = [];
-        for (const id of ids) {
-          const item = await cache.get(getUniqueId(type, id));
-          if (typeof item !== "undefined") {
-            data[id] = item;
-          } else {
-            idsToFetch.push(id);
-          }
+      const data = {};
+      const idsToFetch = [];
+
+      // Fast path: serve hits directly from in-memory cache without locking
+      for (const id of ids) {
+        const item = await cache.get(getUniqueId(type, id));
+        if (typeof item !== "undefined") {
+          data[id] = item;
+        } else {
+          idsToFetch.push(id);
         }
-        if (idsToFetch.length) {
-          logger === null || logger === void 0
-            ? void 0
-            : logger.trace({ items: idsToFetch.length }, "loading from store");
-          const fetched = await store.get(type, idsToFetch);
+      }
+
+      // Slow path: fetch missing keys from the underlying store under a write-lock.
+      // Re-check cache first (double-checked locking) so two concurrent callers
+      // waiting for the same key only trigger one real store.get().
+      if (idsToFetch.length) {
+        await writeMutex.runExclusive(async () => {
+          const stillMissing = [];
           for (const id of idsToFetch) {
-            const item = fetched[id];
-            if (item) {
-              data[id] = item;
-              cache.set(getUniqueId(type, id), item);
+            const item = await cache.get(getUniqueId(type, id));
+            if (typeof item !== "undefined") {
+              data[id] = item; // filled by a concurrent slow-path that just ran
+            } else {
+              stillMissing.push(id);
             }
           }
-        }
-        return data;
-      });
+          if (stillMissing.length) {
+            logger === null || logger === void 0
+              ? void 0
+              : logger.trace({ items: stillMissing.length }, "loading from store");
+            const fetched = await store.get(type, stillMissing);
+            for (const id of stillMissing) {
+              const item = fetched[id];
+              if (item) {
+                data[id] = item;
+                cache.set(getUniqueId(type, id), item);
+              }
+            }
+          }
+        });
+      }
+
+      return data;
     },
     async set(data) {
-      return cacheMutex.runExclusive(async () => {
+      return writeMutex.runExclusive(async () => {
         let keys = 0;
         for (const type in data) {
           for (const id in data[type]) {

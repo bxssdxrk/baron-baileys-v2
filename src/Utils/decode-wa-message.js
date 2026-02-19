@@ -13,7 +13,7 @@ const boom_1 = require("@hapi/boom");
 const index_js_1 = require("../../WAProto/index.js");
 const WABinary_1 = require("../WABinary");
 const generics_1 = require("./generics");
-const { getDevice } = require("./messages");
+const messages_1 = require("./messages");
 const getDecryptionJid = async (sender, repository) => {
   if (
     (0, WABinary_1.isLidUser)(sender) ||
@@ -176,12 +176,9 @@ function decodeMessageNode(stanza, meId, meLid) {
     msgType = "newsletter";
     chatId = from;
     author = from;
-
-    fromMe = (0, WABinary_1.isJidNewsletter)(from)
-      ? !!stanza.attrs?.is_sender
-      : (0, WABinary_1.isLidUser)(from)
-        ? (0, WABinary_1.areJidsSameUser)(from, meLid)
-        : (0, WABinary_1.areJidsSameUser)(from, meId);
+    // We are already inside isJidNewsletter(from) — the only correct branch
+    // is checking is_sender. The LID/PN sub-branches are dead code here.
+    fromMe = !!stanza.attrs?.is_sender;
   } else {
     throw new boom_1.Boom("Unknown message type", { data: stanza });
   }
@@ -223,7 +220,7 @@ function decodeMessageNode(stanza, meId, meLid) {
     fullMessage.newsletter_server_id = +stanza.attrs?.server_id;
   }
   if (!key.fromMe) {
-    fullMessage.platform = getDevice(key.id);
+    fullMessage.platform = messages_1.getDevice(key.id);
   }
   return {
     fullMessage,
@@ -245,6 +242,19 @@ const decryptMessageNode = (stanza, meId, meLid, repository, logger) => {
       var _a;
       let decryptables = 0;
       if (Array.isArray(stanza.content)) {
+        // Resolve decryption JID once per stanza — author never changes between enc nodes.
+        // This avoids a redundant LID-mapping DB lookup on every iteration.
+        const decryptionJid = await (0, exports.getDecryptionJid)(author, repository);
+
+        // Store the LID↔PN mapping at most once per stanza (not once per enc tag).
+        // The condition mirrors the original: only for non-plaintext (encrypted) stanzas.
+        const hasEncNode = stanza.content.some(
+          ({ tag, content }) => tag === "enc" && content instanceof Uint8Array,
+        );
+        if (hasEncNode) {
+          await storeMappingFromEnvelope(stanza, author, repository, decryptionJid, logger);
+        }
+
         for (const { tag, attrs, content } of stanza.content) {
           if (tag === "verified_name" && content instanceof Uint8Array) {
             const cert =
@@ -269,19 +279,8 @@ const decryptMessageNode = (stanza, meId, meLid, repository, logger) => {
           }
           decryptables += 1;
           let msgBuffer;
-          const decryptionJid = await (0, exports.getDecryptionJid)(
-            author,
-            repository,
-          );
           if (tag !== "plaintext") {
             // TODO: Handle hosted devices
-            await storeMappingFromEnvelope(
-              stanza,
-              author,
-              repository,
-              decryptionJid,
-              logger,
-            );
           }
           try {
             const e2eType = tag === "plaintext" ? "plaintext" : attrs.type;

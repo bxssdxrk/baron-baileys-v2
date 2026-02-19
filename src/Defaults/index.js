@@ -5,7 +5,8 @@ var __importDefault =
     return mod && mod.__esModule ? mod : { default: mod };
   };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.DEFAULT_CACHE_TTLS =
+exports.TimeMs =
+  exports.DEFAULT_CACHE_TTLS =
   exports.MIN_UPLOAD_INTERVAL =
   exports.UPLOAD_TIMEOUT =
   exports.INITIAL_PREKEY_COUNT =
@@ -21,6 +22,8 @@ exports.DEFAULT_CACHE_TTLS =
   exports.KEY_BUNDLE_TYPE =
   exports.DICT_VERSION =
   exports.NOISE_MODE =
+  exports.PLACEHOLDER_MAX_AGE_SECONDS =
+  exports.STATUS_EXPIRY_SECONDS =
   exports.WA_DEFAULT_EPHEMERAL =
   exports.WA_ADV_HOSTED_DEVICE_SIG_PREFIX =
   exports.WA_ADV_HOSTED_ACCOUNT_SIG_PREFIX =
@@ -55,6 +58,10 @@ exports.WA_ADV_DEVICE_SIG_PREFIX = Buffer.from([6, 1]);
 exports.WA_ADV_HOSTED_ACCOUNT_SIG_PREFIX = Buffer.from([6, 5]);
 exports.WA_ADV_HOSTED_DEVICE_SIG_PREFIX = Buffer.from([6, 6]);
 exports.WA_DEFAULT_EPHEMERAL = 7 * 24 * 60 * 60;
+/** Status messages older than 24 hours are considered expired */
+exports.STATUS_EXPIRY_SECONDS = 24 * 60 * 60;
+/** WA Web enforces a 14-day maximum age for placeholder resend requests */
+exports.PLACEHOLDER_MAX_AGE_SECONDS = 14 * 24 * 60 * 60;
 exports.NOISE_MODE = "Noise_XX_25519_AESGCM_SHA256\0\0\0\0";
 exports.DICT_VERSION = 3;
 exports.KEY_BUNDLE_TYPE = Buffer.from([5]);
@@ -155,12 +162,21 @@ exports.MEDIA_HKDF_KEY_MAPPING = {
 };
 exports.MEDIA_KEYS = Object.keys(exports.MEDIA_PATH_MAP);
 exports.MIN_PREKEY_COUNT = 5;
-exports.INITIAL_PREKEY_COUNT = 812;
+/** Number of pre-keys uploaded on the very first connection.
+ *  Reduced from 812 → 30 to speed up initial handshake.
+ *  Override via DEFAULT_CONNECTION_CONFIG.initialPreKeyCount if needed. */
+exports.INITIAL_PREKEY_COUNT = 30;
 exports.UPLOAD_TIMEOUT = 30000; // 30 seconds
 exports.MIN_UPLOAD_INTERVAL = 5000; // 5 seconds minimum between uploads
 exports.DEFAULT_CACHE_TTLS = {
-  SIGNAL_STORE: 5 * 60, // 5 minutes
+  SIGNAL_STORE: 10 * 60, // 10 minutes (was 5 min – reduces store round-trips in busy groups)
   MSG_RETRY: 60 * 60, // 1 hour
   CALL_OFFER: 5 * 60, // 5 minutes
   USER_DEVICES: 5 * 60, // 5 minutes
+};
+exports.TimeMs = {
+  Minute: 60 * 1000,
+  Hour: 60 * 60 * 1000,
+  Day: 24 * 60 * 60 * 1000,
+  Week: 7 * 24 * 60 * 60 * 1000,
 };

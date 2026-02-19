@@ -10,12 +10,21 @@ const generics_1 = require("./generics");
 // We need to lock files due to the fact that we are using async functions to read and write files
 // https://github.com/WhiskeySockets/Baileys/issues/794
 // https://github.com/nodejs/node/issues/26338
-// Use a Map to store mutexes for each file path
+// Use a Map to store write-mutexes for each file path.
+// Only WRITES need serialisation — concurrent reads are safe on Node.js.
+// The map is capped: once it exceeds MAX_LOCK_ENTRIES old entries are pruned
+// to avoid a memory leak when thousands of pre-key files accumulate.
+const MAX_LOCK_ENTRIES = 512;
 const fileLocks = new Map();
-// Get or create a mutex for a specific file path
+/** Returns the write-mutex for `path`, creating it on first access. */
 const getFileLock = (path) => {
   let mutex = fileLocks.get(path);
   if (!mutex) {
+    if (fileLocks.size >= MAX_LOCK_ENTRIES) {
+      // Evict the oldest entry (Maps preserve insertion order)
+      const firstKey = fileLocks.keys().next().value;
+      fileLocks.delete(firstKey);
+    }
     mutex = new async_mutex_1.Mutex();
     fileLocks.set(path, mutex);
   }
@@ -29,52 +38,64 @@ const getFileLock = (path) => {
  * Would recommend writing an auth state for use with a proper SQL or No-SQL DB
  * */
 const useMultiFileAuthState = async (folder) => {
+  /**
+   * Sanitise a key name so it can be used safely as a filename.
+   * Defined first so writeData / readData / removeData can reference it.
+   */
+  const fixFileName = (file) => {
+    var _a;
+    return (_a =
+      file === null || file === void 0 ? void 0 : file.replace(/\//g, "__")) ===
+      null || _a === void 0
+      ? void 0
+      : _a.replace(/:/g, "-");
+  };
+
+  /**
+   * Serialise and persist `data` to `file`.
+   * A per-file mutex prevents concurrent writes from interleaving.
+   */
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const writeData = async (data, file) => {
     const filePath = (0, path_1.join)(folder, fixFileName(file));
-    const mutex = getFileLock(filePath);
-    return mutex.acquire().then(async (release) => {
-      try {
-        await (0, promises_1.writeFile)(
-          filePath,
-          JSON.stringify(data, generics_1.BufferJSON.replacer),
-        );
-      } finally {
-        release();
-      }
-    });
+    return getFileLock(filePath).runExclusive(() =>
+      (0, promises_1.writeFile)(
+        filePath,
+        JSON.stringify(data, generics_1.BufferJSON.replacer),
+      )
+    );
   };
+
+  /**
+   * Read and deserialise `file`.
+   * Reads are safe to run concurrently on Node.js — no lock needed.
+   */
   const readData = async (file) => {
     try {
       const filePath = (0, path_1.join)(folder, fixFileName(file));
-      const mutex = getFileLock(filePath);
-      return await mutex.acquire().then(async (release) => {
-        try {
-          const data = await (0, promises_1.readFile)(filePath, {
-            encoding: "utf-8",
-          });
-          return JSON.parse(data, generics_1.BufferJSON.reviver);
-        } finally {
-          release();
-        }
-      });
-    } catch (error) {
+      const data = await (0, promises_1.readFile)(filePath, { encoding: "utf-8" });
+      return JSON.parse(data, generics_1.BufferJSON.reviver);
+    } catch {
       return null;
     }
   };
+
+  /**
+   * Delete `file` if it exists.
+   * Uses a write-lock so a concurrent write cannot race with the deletion.
+   * After removal the lock entry is evicted to free memory.
+   */
   const removeData = async (file) => {
-    try {
-      const filePath = (0, path_1.join)(folder, fixFileName(file));
-      const mutex = getFileLock(filePath);
-      return mutex.acquire().then(async (release) => {
-        try {
-          await (0, promises_1.unlink)(filePath);
-        } catch (_a) {
-        } finally {
-          release();
-        }
-      });
-    } catch (_a) {}
+    const filePath = (0, path_1.join)(folder, fixFileName(file));
+    await getFileLock(filePath).runExclusive(async () => {
+      try {
+        await (0, promises_1.unlink)(filePath);
+      } catch {
+        // ENOENT → file already gone, nothing to do
+      }
+    });
+    // Free the mutex entry — this key will not be written again
+    fileLocks.delete(filePath);
   };
   const folderInfo = await (0, promises_1.stat)(folder).catch(() => {});
   if (folderInfo) {
@@ -86,14 +107,6 @@ const useMultiFileAuthState = async (folder) => {
   } else {
     await (0, promises_1.mkdir)(folder, { recursive: true });
   }
-  const fixFileName = (file) => {
-    var _a;
-    return (_a =
-      file === null || file === void 0 ? void 0 : file.replace(/\//g, "__")) ===
-      null || _a === void 0
-      ? void 0
-      : _a.replace(/:/g, "-");
-  };
   const creds =
     (await readData("creds.json")) || (0, auth_utils_1.initAuthCreds)();
   return {

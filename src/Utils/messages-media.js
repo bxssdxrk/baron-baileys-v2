@@ -94,8 +94,13 @@ const Defaults_1 = require("../Defaults");
 const WABinary_1 = require("../WABinary");
 const crypto_1 = require("./crypto");
 const generics_1 = require("./generics");
-const getTmpFilesDirectory = () => (0, os_1.tmpdir)();
+/** Cached tmp directory — os.tmpdir() never changes at runtime */
+const TMP_DIR = (0, os_1.tmpdir)();
+const getTmpFilesDirectory = () => TMP_DIR;
+/** Lazily resolved image-processing library — loaded at most once per process */
+let _imageLibCache;
 const getImageProcessingLibrary = async () => {
+  if (_imageLibCache) return _imageLibCache;
   //@ts-ignore
   const [jimp, sharp] = await Promise.all([
     Promise.resolve()
@@ -106,10 +111,12 @@ const getImageProcessingLibrary = async () => {
       .catch(() => {}),
   ]);
   if (sharp) {
-    return { sharp };
+    _imageLibCache = { sharp };
+    return _imageLibCache;
   }
   if (jimp) {
-    return { jimp };
+    _imageLibCache = { jimp };
+    return _imageLibCache;
   }
   throw new boom_1.Boom("No image processing library available");
 };
@@ -180,16 +187,23 @@ async function getMediaKeys(buffer, mediaType) {
     macKey: expandedMediaKey.slice(48, 80),
   };
 }
-/** Extracts video thumb using FFMPEG */
-const extractVideoThumb = async (path, destPath, time, size) =>
+/** Extracts video thumb using FFMPEG — paths are passed as separate arguments to avoid shell injection */
+const extractVideoThumb = (path, destPath, time, size) =>
   new Promise((resolve, reject) => {
-    const cmd = `ffmpeg -ss ${time} -i ${path} -y -vf scale=${size.width}:-1 -vframes 1 -f image2 ${destPath}`;
-    (0, child_process_1.exec)(cmd, (err) => {
-      if (err) {
-        reject(err);
-      } else {
-        resolve();
-      }
+    // Use execFile so each argument is passed as a distinct argv element;
+    // no shell expansion occurs → immune to spaces and special characters in paths.
+    const args = [
+      "-ss", time,
+      "-i", path,
+      "-y",
+      "-vf", `scale=${size.width}:-1`,
+      "-vframes", "1",
+      "-f", "image2",
+      destPath,
+    ];
+    (0, child_process_1.execFile)("ffmpeg", args, (err) => {
+      if (err) reject(err);
+      else resolve();
     });
   });
 const extractImageThumb = async (bufferOrFilePath, width = 32) => {
@@ -347,7 +361,9 @@ async function getAudioWaveform(buffer, logger) {
       filteredData.push(sum / blockSize); // divide the sum by the block size to get the average
     }
     // This guarantees that the largest data point will be set to 1, and the rest of the data will scale proportionally.
-    const multiplier = Math.pow(Math.max(...filteredData), -1);
+    // reduce instead of Math.max(...filteredData) avoids stack overflow on very large arrays
+    const maxVal = filteredData.reduce((a, b) => (b > a ? b : a), 0);
+    const multiplier = maxVal > 0 ? 1 / maxVal : 1;
     const normalizedData = filteredData.map((n) => n * multiplier);
     // Generate waveform like WhatsApp
     const waveform = new Uint8Array(
@@ -733,6 +749,11 @@ const getWAUploadToServer = (
     fileEncSha256B64 = (0, exports.encodeBase64EncodedStringForUpload)(
       fileEncSha256B64,
     );
+    // Resolve custom headers once, outside the retry loop
+    const hdrs = options?.headers;
+    const baseHeaders = hdrs
+      ? (Array.isArray(hdrs) ? Object.fromEntries(hdrs) : hdrs)
+      : {};
     for (const { hostname } of hosts) {
       logger.debug(`uploading to "${hostname}"`);
       const auth = encodeURIComponent(uploadInfo.auth); // the auth token
@@ -746,14 +767,7 @@ const getWAUploadToServer = (
           method: "POST",
           body: stream,
           headers: {
-            ...(() => {
-              const hdrs =
-                options === null || options === void 0
-                  ? void 0
-                  : options.headers;
-              if (!hdrs) return {};
-              return Array.isArray(hdrs) ? Object.fromEntries(hdrs) : hdrs;
-            })(),
+            ...baseHeaders,
             "Content-Type": "application/octet-stream",
             Origin: Defaults_1.DEFAULT_ORIGIN,
           },

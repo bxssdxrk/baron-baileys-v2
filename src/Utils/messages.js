@@ -72,18 +72,16 @@ const generateLinkPreviewIfRequired = async (text, getUrlInfo, logger) => {
   }
 };
 exports.generateLinkPreviewIfRequired = generateLinkPreviewIfRequired;
-const assertColor = async (color) => {
-  let assertedColor;
+const assertColor = (color) => {
   if (typeof color === "number") {
-    assertedColor = color > 0 ? color : 0xffffffff + Number(color) + 1;
-  } else {
-    let hex = color.trim().replace("#", "");
-    if (hex.length <= 6) {
-      hex = "FF" + hex.padStart(6, "0");
-    }
-    assertedColor = parseInt(hex, 16);
-    return assertedColor;
+    // Negative numbers are two's-complement ARGB values from the Java world
+    return color > 0 ? color : 0xffffffff + Number(color) + 1;
   }
+  let hex = color.trim().replace("#", "");
+  if (hex.length <= 6) {
+    hex = "FF" + hex.padStart(6, "0");
+  }
+  return parseInt(hex, 16);
 };
 const prepareWAMessageMedia = async (message, options) => {
   const logger = options.logger;
@@ -902,17 +900,23 @@ const extractMessageContent = (content) => {
   return content;
 };
 exports.extractMessageContent = extractMessageContent;
+// Pre-compiled regexes so getDevice() doesn't allocate new RegExp objects on every call.
+const RE_IOS = /^3A.{18}$/;
+const RE_WEB = /^3E.{20}$/;
+const RE_ANDROID = /^(.{21}|.{32})$/;
+const RE_DESKTOP = /^(3F|.{18}$)/;
 /**
- * Returns the device predicted by message ID
+ * Returns the device predicted by message ID.
+ * Regexes are module-level constants to avoid per-call recompilation.
  */
 const getDevice = (id) =>
-  /^3A.{18}$/.test(id)
+  RE_IOS.test(id)
     ? "ios"
-    : /^3E.{20}$/.test(id)
+    : RE_WEB.test(id)
       ? "web"
-      : /^(.{21}|.{32})$/.test(id)
+      : RE_ANDROID.test(id)
         ? "android"
-        : /^(3F|.{18}$)/.test(id)
+        : RE_DESKTOP.test(id)
           ? "desktop"
           : "unknown";
 exports.getDevice = getDevice;
@@ -1066,11 +1070,10 @@ function getAggregateResponsesInEventMessage({ eventResponses }, meLid) {
       responders: [],
     };
   }
-  console.log("eventResponses", eventResponses);
   for (const update of eventResponses) {
-    const { response } = update.response || 0;
+    const { response } = update.response || {};
     const responseType =
-      WAProto_1.proto.Message.EventResponseMessage.EventResponseType[response];
+      index_js_1.proto.Message.EventResponseMessage.EventResponseType[response];
     if (responseType !== "UNKNOWN" && responseMap[responseType]) {
       responseMap[responseType].responders.push(
         generics_1.getKeyAuthor(update.eventResponseMessageKey, meLid),
