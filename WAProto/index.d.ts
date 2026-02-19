@@ -4630,6 +4630,127 @@ export namespace proto {
         }
     }
 
+    /** Properties of a BotAvatarMetadata. */
+    interface IBotAvatarMetadata {
+
+        /** BotAvatarMetadata sentiment */
+        sentiment?: (number|null);
+
+        /** BotAvatarMetadata behaviorGraph */
+        behaviorGraph?: (string|null);
+
+        /** BotAvatarMetadata action */
+        action?: (number|null);
+
+        /** BotAvatarMetadata intensity */
+        intensity?: (number|null);
+
+        /** BotAvatarMetadata wordCount */
+        wordCount?: (number|null);
+    }
+
+    /** Represents a BotAvatarMetadata. */
+    class BotAvatarMetadata implements IBotAvatarMetadata {
+
+        /**
+         * Constructs a new BotAvatarMetadata.
+         * @param [properties] Properties to set
+         */
+        constructor(properties?: proto.IBotAvatarMetadata);
+
+        /** BotAvatarMetadata sentiment. */
+        public sentiment?: (number|null);
+
+        /** BotAvatarMetadata behaviorGraph. */
+        public behaviorGraph?: (string|null);
+
+        /** BotAvatarMetadata action. */
+        public action?: (number|null);
+
+        /** BotAvatarMetadata intensity. */
+        public intensity?: (number|null);
+
+        /** BotAvatarMetadata wordCount. */
+        public wordCount?: (number|null);
+
+        /**
+         * Creates a new BotAvatarMetadata instance using the specified properties.
+         * @param [properties] Properties to set
+         * @returns BotAvatarMetadata instance
+         */
+        public static create(properties?: proto.IBotAvatarMetadata): proto.BotAvatarMetadata;
+
+        /**
+         * Encodes the specified BotAvatarMetadata message. Does not implicitly {@link proto.BotAvatarMetadata.verify|verify} messages.
+         * @param message BotAvatarMetadata message or plain object to encode
+         * @param [writer] Writer to encode to
+         * @returns Writer
+         */
+        public static encode(message: proto.IBotAvatarMetadata, writer?: $protobuf.Writer): $protobuf.Writer;
+
+        /**
+         * Encodes the specified BotAvatarMetadata message, length delimited. Does not implicitly {@link proto.BotAvatarMetadata.verify|verify} messages.
+         * @param message BotAvatarMetadata message or plain object to encode
+         * @param [writer] Writer to encode to
+         * @returns Writer
+         */
+        public static encodeDelimited(message: proto.IBotAvatarMetadata, writer?: $protobuf.Writer): $protobuf.Writer;
+
+        /**
+         * Decodes a BotAvatarMetadata message from the specified reader or buffer.
+         * @param reader Reader or buffer to decode from
+         * @param [length] Message length if known beforehand
+         * @returns BotAvatarMetadata
+         * @throws {Error} If the payload is not a reader or valid buffer
+         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+         */
+        public static decode(reader: ($protobuf.Reader|Uint8Array), length?: number): proto.BotAvatarMetadata;
+
+        /**
+         * Decodes a BotAvatarMetadata message from the specified reader or buffer, length delimited.
+         * @param reader Reader or buffer to decode from
+         * @returns BotAvatarMetadata
+         * @throws {Error} If the payload is not a reader or valid buffer
+         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+         */
+        public static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): proto.BotAvatarMetadata;
+
+        /**
+         * Verifies a BotAvatarMetadata message.
+         * @param message Plain object to verify
+         * @returns `null` if valid, otherwise the reason why it is not
+         */
+        public static verify(message: { [k: string]: any }): (string|null);
+
+        /**
+         * Creates a BotAvatarMetadata message from a plain object. Also converts values to their respective internal types.
+         * @param object Plain object
+         * @returns BotAvatarMetadata
+         */
+        public static fromObject(object: { [k: string]: any }): proto.BotAvatarMetadata;
+
+        /**
+         * Creates a plain object from a BotAvatarMetadata message. Also converts values to other types if specified.
+         * @param message BotAvatarMetadata
+         * @param [options] Conversion options
+         * @returns Plain object
+         */
+        public static toObject(message: proto.BotAvatarMetadata, options?: $protobuf.IConversionOptions): { [k: string]: any };
+
+        /**
+         * Converts this BotAvatarMetadata to JSON.
+         * @returns JSON object
+         */
+        public toJSON(): { [k: string]: any };
+
+        /**
+         * Gets the default type url for BotAvatarMetadata
+         * @param [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+         * @returns The default type url
+         */
+        public static getTypeUrl(typeUrlPrefix?: string): string;
+    }
+
     /** Properties of a BotCapabilityMetadata. */
     interface IBotCapabilityMetadata {
 
@@ -7374,6 +7495,9 @@ export namespace proto {
     /** Properties of a BotMetadata. */
     interface IBotMetadata {
 
+        /** BotMetadata avatarMetadata */
+        avatarMetadata?: (proto.IBotAvatarMetadata|null);
+
         /** BotMetadata personaId */
         personaId?: (string|null);
 
@@ -7497,6 +7621,9 @@ export namespace proto {
          * @param [properties] Properties to set
          */
         constructor(properties?: proto.IBotMetadata);
+
+        /** BotMetadata avatarMetadata. */
+        public avatarMetadata?: (proto.IBotAvatarMetadata|null);
 
         /** BotMetadata personaId. */
         public personaId?: (string|null);
@@ -14358,6 +14485,9 @@ export namespace proto {
 
         /** ContextInfo partiallySelectedContent */
         partiallySelectedContent?: (proto.ContextInfo.IPartiallySelectedContent|null);
+
+        /** ContextInfo afterReadDurationMs */
+        afterReadDurationMs?: (number|null);
     }
 
     /** Represents a ContextInfo. */
@@ -14542,6 +14672,9 @@ export namespace proto {
 
         /** ContextInfo partiallySelectedContent. */
         public partiallySelectedContent?: (proto.ContextInfo.IPartiallySelectedContent|null);
+
+        /** ContextInfo afterReadDurationMs. */
+        public afterReadDurationMs?: (number|null);
 
         /**
          * Creates a new ContextInfo instance using the specified properties.
@@ -17609,6 +17742,9 @@ export namespace proto {
 
             /** HistorySyncConfig initialSyncMaxMessagesPerChat */
             initialSyncMaxMessagesPerChat?: (number|null);
+
+            /** HistorySyncConfig supportManusHistory */
+            supportManusHistory?: (boolean|null);
         }
 
         /** Represents a HistorySyncConfig. */
@@ -17679,6 +17815,9 @@ export namespace proto {
 
             /** HistorySyncConfig initialSyncMaxMessagesPerChat. */
             public initialSyncMaxMessagesPerChat?: (number|null);
+
+            /** HistorySyncConfig supportManusHistory. */
+            public supportManusHistory?: (boolean|null);
 
             /**
              * Creates a new HistorySyncConfig instance using the specified properties.
@@ -40234,6 +40373,9 @@ export namespace proto {
 
             /** RequestWelcomeMessageMetadata localChatState */
             localChatState?: (proto.Message.RequestWelcomeMessageMetadata.LocalChatState|null);
+
+            /** RequestWelcomeMessageMetadata welcomeTrigger */
+            welcomeTrigger?: (proto.Message.RequestWelcomeMessageMetadata.WelcomeTrigger|null);
         }
 
         /** Represents a RequestWelcomeMessageMetadata. */
@@ -40247,6 +40389,9 @@ export namespace proto {
 
             /** RequestWelcomeMessageMetadata localChatState. */
             public localChatState?: (proto.Message.RequestWelcomeMessageMetadata.LocalChatState|null);
+
+            /** RequestWelcomeMessageMetadata welcomeTrigger. */
+            public welcomeTrigger?: (proto.Message.RequestWelcomeMessageMetadata.WelcomeTrigger|null);
 
             /**
              * Creates a new RequestWelcomeMessageMetadata instance using the specified properties.
@@ -40332,6 +40477,12 @@ export namespace proto {
             enum LocalChatState {
                 EMPTY = 0,
                 NON_EMPTY = 1
+            }
+
+            /** WelcomeTrigger enum. */
+            enum WelcomeTrigger {
+                CHAT_OPEN = 0,
+                COMPANION_PAIRING = 1
             }
         }
 
@@ -41843,6 +41994,9 @@ export namespace proto {
 
                 /** Sticker mimetype */
                 mimetype?: (string|null);
+
+                /** Sticker premium */
+                premium?: (number|null);
             }
 
             /** Represents a Sticker. */
@@ -41871,6 +42025,9 @@ export namespace proto {
 
                 /** Sticker mimetype. */
                 public mimetype?: (string|null);
+
+                /** Sticker premium. */
+                public premium?: (number|null);
 
                 /**
                  * Creates a new Sticker instance using the specified properties.
@@ -51642,7 +51799,8 @@ export namespace proto {
             RL_ATTRIBUTION = 6,
             AI_CREATED = 7,
             LAYOUTS = 8,
-            NEWSLETTER_STATUS = 9
+            NEWSLETTER_STATUS = 9,
+            STATUS_CLOSE_SHARING = 10
         }
     }
 
