@@ -410,7 +410,8 @@ const jidToSignalProtocolAddress = (jid) => {
   if (
     device === 99 &&
     decoded.server !== "hosted" &&
-    decoded.server !== "hosted.lid"
+    decoded.server !== "hosted.lid" &&
+    decoded.server !== "lid"
   ) {
     throw new Error(
       "Unexpected non-hosted device JID with device 99. This ID seems invalid. ID:" +
