@@ -108,7 +108,7 @@ exports.DEFAULT_CONNECTION_CONFIG = {
   fireInitQueries: true,
   auth: undefined,
   markOnlineOnConnect: true,
-  syncFullHistory: true,
+  syncFullHistory: false,
   patchMessageBeforeSending: (msg) => msg,
   shouldSyncHistoryMessage: () => true,
   shouldIgnoreJid: () => false,
