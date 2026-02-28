@@ -4630,127 +4630,6 @@ export namespace proto {
         }
     }
 
-    /** Properties of a BotAvatarMetadata. */
-    interface IBotAvatarMetadata {
-
-        /** BotAvatarMetadata sentiment */
-        sentiment?: (number|null);
-
-        /** BotAvatarMetadata behaviorGraph */
-        behaviorGraph?: (string|null);
-
-        /** BotAvatarMetadata action */
-        action?: (number|null);
-
-        /** BotAvatarMetadata intensity */
-        intensity?: (number|null);
-
-        /** BotAvatarMetadata wordCount */
-        wordCount?: (number|null);
-    }
-
-    /** Represents a BotAvatarMetadata. */
-    class BotAvatarMetadata implements IBotAvatarMetadata {
-
-        /**
-         * Constructs a new BotAvatarMetadata.
-         * @param [properties] Properties to set
-         */
-        constructor(properties?: proto.IBotAvatarMetadata);
-
-        /** BotAvatarMetadata sentiment. */
-        public sentiment?: (number|null);
-
-        /** BotAvatarMetadata behaviorGraph. */
-        public behaviorGraph?: (string|null);
-
-        /** BotAvatarMetadata action. */
-        public action?: (number|null);
-
-        /** BotAvatarMetadata intensity. */
-        public intensity?: (number|null);
-
-        /** BotAvatarMetadata wordCount. */
-        public wordCount?: (number|null);
-
-        /**
-         * Creates a new BotAvatarMetadata instance using the specified properties.
-         * @param [properties] Properties to set
-         * @returns BotAvatarMetadata instance
-         */
-        public static create(properties?: proto.IBotAvatarMetadata): proto.BotAvatarMetadata;
-
-        /**
-         * Encodes the specified BotAvatarMetadata message. Does not implicitly {@link proto.BotAvatarMetadata.verify|verify} messages.
-         * @param message BotAvatarMetadata message or plain object to encode
-         * @param [writer] Writer to encode to
-         * @returns Writer
-         */
-        public static encode(message: proto.IBotAvatarMetadata, writer?: $protobuf.Writer): $protobuf.Writer;
-
-        /**
-         * Encodes the specified BotAvatarMetadata message, length delimited. Does not implicitly {@link proto.BotAvatarMetadata.verify|verify} messages.
-         * @param message BotAvatarMetadata message or plain object to encode
-         * @param [writer] Writer to encode to
-         * @returns Writer
-         */
-        public static encodeDelimited(message: proto.IBotAvatarMetadata, writer?: $protobuf.Writer): $protobuf.Writer;
-
-        /**
-         * Decodes a BotAvatarMetadata message from the specified reader or buffer.
-         * @param reader Reader or buffer to decode from
-         * @param [length] Message length if known beforehand
-         * @returns BotAvatarMetadata
-         * @throws {Error} If the payload is not a reader or valid buffer
-         * @throws {$protobuf.util.ProtocolError} If required fields are missing
-         */
-        public static decode(reader: ($protobuf.Reader|Uint8Array), length?: number): proto.BotAvatarMetadata;
-
-        /**
-         * Decodes a BotAvatarMetadata message from the specified reader or buffer, length delimited.
-         * @param reader Reader or buffer to decode from
-         * @returns BotAvatarMetadata
-         * @throws {Error} If the payload is not a reader or valid buffer
-         * @throws {$protobuf.util.ProtocolError} If required fields are missing
-         */
-        public static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): proto.BotAvatarMetadata;
-
-        /**
-         * Verifies a BotAvatarMetadata message.
-         * @param message Plain object to verify
-         * @returns `null` if valid, otherwise the reason why it is not
-         */
-        public static verify(message: { [k: string]: any }): (string|null);
-
-        /**
-         * Creates a BotAvatarMetadata message from a plain object. Also converts values to their respective internal types.
-         * @param object Plain object
-         * @returns BotAvatarMetadata
-         */
-        public static fromObject(object: { [k: string]: any }): proto.BotAvatarMetadata;
-
-        /**
-         * Creates a plain object from a BotAvatarMetadata message. Also converts values to other types if specified.
-         * @param message BotAvatarMetadata
-         * @param [options] Conversion options
-         * @returns Plain object
-         */
-        public static toObject(message: proto.BotAvatarMetadata, options?: $protobuf.IConversionOptions): { [k: string]: any };
-
-        /**
-         * Converts this BotAvatarMetadata to JSON.
-         * @returns JSON object
-         */
-        public toJSON(): { [k: string]: any };
-
-        /**
-         * Gets the default type url for BotAvatarMetadata
-         * @param [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
-         * @returns The default type url
-         */
-        public static getTypeUrl(typeUrlPrefix?: string): string;
-    }
-
     /** Properties of a BotCapabilityMetadata. */
     interface IBotCapabilityMetadata {
 
@@ -7495,9 +7374,6 @@ export namespace proto {
     /** Properties of a BotMetadata. */
     interface IBotMetadata {
 
-        /** BotMetadata avatarMetadata */
-        avatarMetadata?: (proto.IBotAvatarMetadata|null);
-
         /** BotMetadata personaId */
         personaId?: (string|null);
 
@@ -7621,9 +7497,6 @@ export namespace proto {
          * @param [properties] Properties to set
          */
         constructor(properties?: proto.IBotMetadata);
-
-        /** BotMetadata avatarMetadata. */
-        public avatarMetadata?: (proto.IBotAvatarMetadata|null);
 
         /** BotMetadata personaId. */
         public personaId?: (string|null);
@@ -7863,7 +7736,8 @@ export namespace proto {
         ASK_META_AI_NO_SEARCH_RESULTS = 41,
         META_AI_SETTINGS = 45,
         WEB_INTRO_PANEL = 46,
-        WEB_NAVIGATION_BAR = 47
+        WEB_NAVIGATION_BAR = 47,
+        GROUP_MEMBER = 54
     }
 
     /** Properties of a BotMetricsMetadata. */
@@ -10321,7 +10195,8 @@ export namespace proto {
         /** BotSignatureUseCase enum. */
         enum BotSignatureUseCase {
             UNSPECIFIED = 0,
-            WA_BOT_MSG = 1
+            WA_BOT_MSG = 1,
+            WA_TEE_BOT_MSG = 2
         }
     }
 
@@ -14486,8 +14361,8 @@ export namespace proto {
         /** ContextInfo partiallySelectedContent */
         partiallySelectedContent?: (proto.ContextInfo.IPartiallySelectedContent|null);
 
-        /** ContextInfo afterReadDurationMs */
-        afterReadDurationMs?: (number|null);
+        /** ContextInfo afterReadDuration */
+        afterReadDuration?: (number|null);
     }
 
     /** Represents a ContextInfo. */
@@ -14673,8 +14548,8 @@ export namespace proto {
         /** ContextInfo partiallySelectedContent. */
         public partiallySelectedContent?: (proto.ContextInfo.IPartiallySelectedContent|null);
 
-        /** ContextInfo afterReadDurationMs. */
-        public afterReadDurationMs?: (number|null);
+        /** ContextInfo afterReadDuration. */
+        public afterReadDuration?: (number|null);
 
         /**
          * Creates a new ContextInfo instance using the specified properties.
@@ -16390,6 +16265,9 @@ export namespace proto {
 
         /** Conversation maibaAiThreadEnabled */
         maibaAiThreadEnabled?: (boolean|null);
+
+        /** Conversation isMarketingMessageThread */
+        isMarketingMessageThread?: (boolean|null);
     }
 
     /** Represents a Conversation. */
@@ -16562,6 +16440,9 @@ export namespace proto {
 
         /** Conversation maibaAiThreadEnabled. */
         public maibaAiThreadEnabled?: (boolean|null);
+
+        /** Conversation isMarketingMessageThread. */
+        public isMarketingMessageThread?: (boolean|null);
 
         /**
          * Creates a new Conversation instance using the specified properties.
@@ -20486,6 +20367,9 @@ export namespace proto {
 
         /** HistorySync accounts */
         accounts?: (proto.IAccount[]|null);
+
+        /** HistorySync nctSalt */
+        nctSalt?: (Uint8Array|null);
     }
 
     /** Represents a HistorySync. */
@@ -20547,6 +20431,9 @@ export namespace proto {
 
         /** HistorySync accounts. */
         public accounts: proto.IAccount[];
+
+        /** HistorySync nctSalt. */
+        public nctSalt?: (Uint8Array|null);
 
         /**
          * Creates a new HistorySync instance using the specified properties.
@@ -22962,7 +22849,8 @@ export namespace proto {
             UNKNOWN = 0,
             CHAT_SETTING = 1,
             BIZ_SUPPORTS_FB_HOSTING = 2,
-            UNKNOWN_GROUP = 3
+            UNKNOWN_GROUP = 3,
+            DEPRECATION = 4
         }
     }
 
@@ -24034,7 +23922,13 @@ export namespace proto {
         spoilerMessage?: (proto.Message.IFutureProofMessage|null);
 
         /** Message pollCreationMessageV6 */
-        pollCreationMessageV6?: (proto.Message.IFutureProofMessage|null);
+        pollCreationMessageV6?: (proto.Message.IPollCreationMessage|null);
+
+        /** Message conditionalRevealMessage */
+        conditionalRevealMessage?: (proto.Message.IConditionalRevealMessage|null);
+
+        /** Message pollAddOptionMessage */
+        pollAddOptionMessage?: (proto.Message.IPollAddOptionMessage|null);
     }
 
     /** Represents a Message. */
@@ -24341,7 +24235,13 @@ export namespace proto {
         public spoilerMessage?: (proto.Message.IFutureProofMessage|null);
 
         /** Message pollCreationMessageV6. */
-        public pollCreationMessageV6?: (proto.Message.IFutureProofMessage|null);
+        public pollCreationMessageV6?: (proto.Message.IPollCreationMessage|null);
+
+        /** Message conditionalRevealMessage. */
+        public conditionalRevealMessage?: (proto.Message.IConditionalRevealMessage|null);
+
+        /** Message pollAddOptionMessage. */
+        public pollAddOptionMessage?: (proto.Message.IPollAddOptionMessage|null);
 
         /**
          * Creates a new Message instance using the specified properties.
@@ -27123,6 +27023,130 @@ export namespace proto {
              * @returns The default type url
              */
             public static getTypeUrl(typeUrlPrefix?: string): string;
+        }
+
+        /** Properties of a ConditionalRevealMessage. */
+        interface IConditionalRevealMessage {
+
+            /** ConditionalRevealMessage encPayload */
+            encPayload?: (Uint8Array|null);
+
+            /** ConditionalRevealMessage encIv */
+            encIv?: (Uint8Array|null);
+
+            /** ConditionalRevealMessage conditionalRevealMessageType */
+            conditionalRevealMessageType?: (proto.Message.ConditionalRevealMessage.ConditionalRevealMessageType|null);
+
+            /** ConditionalRevealMessage revealKeyId */
+            revealKeyId?: (string|null);
+        }
+
+        /** Represents a ConditionalRevealMessage. */
+        class ConditionalRevealMessage implements IConditionalRevealMessage {
+
+            /**
+             * Constructs a new ConditionalRevealMessage.
+             * @param [properties] Properties to set
+             */
+            constructor(properties?: proto.Message.IConditionalRevealMessage);
+
+            /** ConditionalRevealMessage encPayload. */
+            public encPayload?: (Uint8Array|null);
+
+            /** ConditionalRevealMessage encIv. */
+            public encIv?: (Uint8Array|null);
+
+            /** ConditionalRevealMessage conditionalRevealMessageType. */
+            public conditionalRevealMessageType?: (proto.Message.ConditionalRevealMessage.ConditionalRevealMessageType|null);
+
+            /** ConditionalRevealMessage revealKeyId. */
+            public revealKeyId?: (string|null);
+
+            /**
+             * Creates a new ConditionalRevealMessage instance using the specified properties.
+             * @param [properties] Properties to set
+             * @returns ConditionalRevealMessage instance
+             */
+            public static create(properties?: proto.Message.IConditionalRevealMessage): proto.Message.ConditionalRevealMessage;
+
+            /**
+             * Encodes the specified ConditionalRevealMessage message. Does not implicitly {@link proto.Message.ConditionalRevealMessage.verify|verify} messages.
+             * @param message ConditionalRevealMessage message or plain object to encode
+             * @param [writer] Writer to encode to
+             * @returns Writer
+             */
+            public static encode(message: proto.Message.IConditionalRevealMessage, writer?: $protobuf.Writer): $protobuf.Writer;
+
+            /**
+             * Encodes the specified ConditionalRevealMessage message, length delimited. Does not implicitly {@link proto.Message.ConditionalRevealMessage.verify|verify} messages.
+             * @param message ConditionalRevealMessage message or plain object to encode
+             * @param [writer] Writer to encode to
+             * @returns Writer
+             */
+            public static encodeDelimited(message: proto.Message.IConditionalRevealMessage, writer?: $protobuf.Writer): $protobuf.Writer;
+
+            /**
+             * Decodes a ConditionalRevealMessage message from the specified reader or buffer.
+             * @param reader Reader or buffer to decode from
+             * @param [length] Message length if known beforehand
+             * @returns ConditionalRevealMessage
+             * @throws {Error} If the payload is not a reader or valid buffer
+             * @throws {$protobuf.util.ProtocolError} If required fields are missing
+             */
+            public static decode(reader: ($protobuf.Reader|Uint8Array), length?: number): proto.Message.ConditionalRevealMessage;
+
+            /**
+             * Decodes a ConditionalRevealMessage message from the specified reader or buffer, length delimited.
+             * @param reader Reader or buffer to decode from
+             * @returns ConditionalRevealMessage
+             * @throws {Error} If the payload is not a reader or valid buffer
+             * @throws {$protobuf.util.ProtocolError} If required fields are missing
+             */
+            public static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): proto.Message.ConditionalRevealMessage;
+
+            /**
+             * Verifies a ConditionalRevealMessage message.
+             * @param message Plain object to verify
+             * @returns `null` if valid, otherwise the reason why it is not
+             */
+            public static verify(message: { [k: string]: any }): (string|null);
+
+            /**
+             * Creates a ConditionalRevealMessage message from a plain object. Also converts values to their respective internal types.
+             * @param object Plain object
+             * @returns ConditionalRevealMessage
+             */
+            public static fromObject(object: { [k: string]: any }): proto.Message.ConditionalRevealMessage;
+
+            /**
+             * Creates a plain object from a ConditionalRevealMessage message. Also converts values to other types if specified.
+             * @param message ConditionalRevealMessage
+             * @param [options] Conversion options
+             * @returns Plain object
+             */
+            public static toObject(message: proto.Message.ConditionalRevealMessage, options?: $protobuf.IConversionOptions): { [k: string]: any };
+
+            /**
+             * Converts this ConditionalRevealMessage to JSON.
+             * @returns JSON object
+             */
+            public toJSON(): { [k: string]: any };
+
+            /**
+             * Gets the default type url for ConditionalRevealMessage
+             * @param [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+             * @returns The default type url
+             */
+            public static getTypeUrl(typeUrlPrefix?: string): string;
+        }
+
+        namespace ConditionalRevealMessage {
+
+            /** ConditionalRevealMessageType enum. */
+            enum ConditionalRevealMessageType {
+                UNKNOWN = 0,
+                SCHEDULED_MESSAGE = 1
+            }
         }
 
         /** Properties of a ContactMessage. */
@@ -38339,6 +38363,109 @@ export namespace proto {
             }
         }
 
+        /** Properties of a PollAddOptionMessage. */
+        interface IPollAddOptionMessage {
+
+            /** PollAddOptionMessage pollCreationMessageKey */
+            pollCreationMessageKey?: (proto.IMessageKey|null);
+
+            /** PollAddOptionMessage addOption */
+            addOption?: (proto.Message.PollCreationMessage.IOption|null);
+        }
+
+        /** Represents a PollAddOptionMessage. */
+        class PollAddOptionMessage implements IPollAddOptionMessage {
+
+            /**
+             * Constructs a new PollAddOptionMessage.
+             * @param [properties] Properties to set
+             */
+            constructor(properties?: proto.Message.IPollAddOptionMessage);
+
+            /** PollAddOptionMessage pollCreationMessageKey. */
+            public pollCreationMessageKey?: (proto.IMessageKey|null);
+
+            /** PollAddOptionMessage addOption. */
+            public addOption?: (proto.Message.PollCreationMessage.IOption|null);
+
+            /**
+             * Creates a new PollAddOptionMessage instance using the specified properties.
+             * @param [properties] Properties to set
+             * @returns PollAddOptionMessage instance
+             */
+            public static create(properties?: proto.Message.IPollAddOptionMessage): proto.Message.PollAddOptionMessage;
+
+            /**
+             * Encodes the specified PollAddOptionMessage message. Does not implicitly {@link proto.Message.PollAddOptionMessage.verify|verify} messages.
+             * @param message PollAddOptionMessage message or plain object to encode
+             * @param [writer] Writer to encode to
+             * @returns Writer
+             */
+            public static encode(message: proto.Message.IPollAddOptionMessage, writer?: $protobuf.Writer): $protobuf.Writer;
+
+            /**
+             * Encodes the specified PollAddOptionMessage message, length delimited. Does not implicitly {@link proto.Message.PollAddOptionMessage.verify|verify} messages.
+             * @param message PollAddOptionMessage message or plain object to encode
+             * @param [writer] Writer to encode to
+             * @returns Writer
+             */
+            public static encodeDelimited(message: proto.Message.IPollAddOptionMessage, writer?: $protobuf.Writer): $protobuf.Writer;
+
+            /**
+             * Decodes a PollAddOptionMessage message from the specified reader or buffer.
+             * @param reader Reader or buffer to decode from
+             * @param [length] Message length if known beforehand
+             * @returns PollAddOptionMessage
+             * @throws {Error} If the payload is not a reader or valid buffer
+             * @throws {$protobuf.util.ProtocolError} If required fields are missing
+             */
+            public static decode(reader: ($protobuf.Reader|Uint8Array), length?: number): proto.Message.PollAddOptionMessage;
+
+            /**
+             * Decodes a PollAddOptionMessage message from the specified reader or buffer, length delimited.
+             * @param reader Reader or buffer to decode from
+             * @returns PollAddOptionMessage
+             * @throws {Error} If the payload is not a reader or valid buffer
+             * @throws {$protobuf.util.ProtocolError} If required fields are missing
+             */
+            public static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): proto.Message.PollAddOptionMessage;
+
+            /**
+             * Verifies a PollAddOptionMessage message.
+             * @param message Plain object to verify
+             * @returns `null` if valid, otherwise the reason why it is not
+             */
+            public static verify(message: { [k: string]: any }): (string|null);
+
+            /**
+             * Creates a PollAddOptionMessage message from a plain object. Also converts values to their respective internal types.
+             * @param object Plain object
+             * @returns PollAddOptionMessage
+             */
+            public static fromObject(object: { [k: string]: any }): proto.Message.PollAddOptionMessage;
+
+            /**
+             * Creates a plain object from a PollAddOptionMessage message. Also converts values to other types if specified.
+             * @param message PollAddOptionMessage
+             * @param [options] Conversion options
+             * @returns Plain object
+             */
+            public static toObject(message: proto.Message.PollAddOptionMessage, options?: $protobuf.IConversionOptions): { [k: string]: any };
+
+            /**
+             * Converts this PollAddOptionMessage to JSON.
+             * @returns JSON object
+             */
+            public toJSON(): { [k: string]: any };
+
+            /**
+             * Gets the default type url for PollAddOptionMessage
+             * @param [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+             * @returns The default type url
+             */
+            public static getTypeUrl(typeUrlPrefix?: string): string;
+        }
+
         /** PollContentType enum. */
         enum PollContentType {
             UNKNOWN = 0,
@@ -38378,6 +38505,9 @@ export namespace proto {
 
             /** PollCreationMessage hideParticipantName */
             hideParticipantName?: (boolean|null);
+
+            /** PollCreationMessage allowAddOption */
+            allowAddOption?: (boolean|null);
         }
 
         /** Represents a PollCreationMessage. */
@@ -38418,6 +38548,9 @@ export namespace proto {
 
             /** PollCreationMessage hideParticipantName. */
             public hideParticipantName?: (boolean|null);
+
+            /** PollCreationMessage allowAddOption. */
+            public allowAddOption?: (boolean|null);
 
             /**
              * Creates a new PollCreationMessage instance using the specified properties.
@@ -39716,8 +39849,8 @@ export namespace proto {
             /** ProtocolMessage aiMediaCollectionMessage */
             aiMediaCollectionMessage?: (proto.IAIMediaCollectionMessage|null);
 
-            /** ProtocolMessage afterReadDurationMs */
-            afterReadDurationMs?: (number|null);
+            /** ProtocolMessage afterReadDuration */
+            afterReadDuration?: (number|null);
         }
 
         /** Represents a ProtocolMessage. */
@@ -39804,8 +39937,8 @@ export namespace proto {
             /** ProtocolMessage aiMediaCollectionMessage. */
             public aiMediaCollectionMessage?: (proto.IAIMediaCollectionMessage|null);
 
-            /** ProtocolMessage afterReadDurationMs. */
-            public afterReadDurationMs?: (number|null);
+            /** ProtocolMessage afterReadDuration. */
+            public afterReadDuration?: (number|null);
 
             /**
              * Creates a new ProtocolMessage instance using the specified properties.
@@ -40846,7 +40979,8 @@ export namespace proto {
                 EVENT_EDIT = 1,
                 MESSAGE_EDIT = 2,
                 MESSAGE_SCHEDULE = 3,
-                POLL_EDIT = 4
+                POLL_EDIT = 4,
+                POLL_ADD_OPTION = 5
             }
         }
 
@@ -43661,7 +43795,8 @@ export namespace proto {
             STATUS_QUESTION = 16,
             STATUS_ADD_YOURS_DIWALI = 17,
             STATUS_REACTION = 18,
-            HEVC_VIDEO_DUAL_UPLOAD = 19
+            HEVC_VIDEO_DUAL_UPLOAD = 19,
+            POLL_ADD_OPTION = 20
         }
     }
 
@@ -45186,6 +45321,8 @@ export namespace proto {
         SETTINGS_SYNC_ACTION = 78,
         OUT_CONTACT_ACTION = 79,
         NCT_SALT_SYNC_ACTION = 80,
+        BUSINESS_BROADCAST_CAMPAIGN_ACTION = 81,
+        BUSINESS_BROADCAST_INSIGHTS_ACTION = 82,
         SHARE_OWN_PN = 10001,
         BUSINESS_BROADCAST_ACTION = 10002,
         AI_THREAD_DELETE_ACTION = 10003
@@ -52509,6 +52646,12 @@ export namespace proto {
 
         /** SyncActionValue nctSaltSyncAction */
         nctSaltSyncAction?: (proto.SyncActionValue.INctSaltSyncAction|null);
+
+        /** SyncActionValue businessBroadcastCampaignAction */
+        businessBroadcastCampaignAction?: (proto.SyncActionValue.IBusinessBroadcastCampaignAction|null);
+
+        /** SyncActionValue businessBroadcastInsightsAction */
+        businessBroadcastInsightsAction?: (proto.SyncActionValue.IBusinessBroadcastInsightsAction|null);
     }
 
     /** Represents a SyncActionValue. */
@@ -52732,6 +52875,12 @@ export namespace proto {
 
         /** SyncActionValue nctSaltSyncAction. */
         public nctSaltSyncAction?: (proto.SyncActionValue.INctSaltSyncAction|null);
+
+        /** SyncActionValue businessBroadcastCampaignAction. */
+        public businessBroadcastCampaignAction?: (proto.SyncActionValue.IBusinessBroadcastCampaignAction|null);
+
+        /** SyncActionValue businessBroadcastInsightsAction. */
+        public businessBroadcastInsightsAction?: (proto.SyncActionValue.IBusinessBroadcastInsightsAction|null);
 
         /**
          * Creates a new SyncActionValue instance using the specified properties.
@@ -53623,6 +53772,281 @@ export namespace proto {
 
             /**
              * Gets the default type url for BusinessBroadcastAssociationAction
+             * @param [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+             * @returns The default type url
+             */
+            public static getTypeUrl(typeUrlPrefix?: string): string;
+        }
+
+        /** Properties of a BusinessBroadcastCampaignAction. */
+        interface IBusinessBroadcastCampaignAction {
+
+            /** BusinessBroadcastCampaignAction deviceId */
+            deviceId?: (number|null);
+
+            /** BusinessBroadcastCampaignAction adId */
+            adId?: (string|null);
+
+            /** BusinessBroadcastCampaignAction name */
+            name?: (string|null);
+
+            /** BusinessBroadcastCampaignAction msgId */
+            msgId?: (string|null);
+
+            /** BusinessBroadcastCampaignAction broadcastJid */
+            broadcastJid?: (string|null);
+
+            /** BusinessBroadcastCampaignAction reservedQuota */
+            reservedQuota?: (number|null);
+
+            /** BusinessBroadcastCampaignAction scheduledTimestamp */
+            scheduledTimestamp?: (number|Long|null);
+
+            /** BusinessBroadcastCampaignAction createTimestamp */
+            createTimestamp?: (number|Long|null);
+
+            /** BusinessBroadcastCampaignAction status */
+            status?: (proto.SyncActionValue.BusinessBroadcastCampaignStatus|null);
+        }
+
+        /** Represents a BusinessBroadcastCampaignAction. */
+        class BusinessBroadcastCampaignAction implements IBusinessBroadcastCampaignAction {
+
+            /**
+             * Constructs a new BusinessBroadcastCampaignAction.
+             * @param [properties] Properties to set
+             */
+            constructor(properties?: proto.SyncActionValue.IBusinessBroadcastCampaignAction);
+
+            /** BusinessBroadcastCampaignAction deviceId. */
+            public deviceId?: (number|null);
+
+            /** BusinessBroadcastCampaignAction adId. */
+            public adId?: (string|null);
+
+            /** BusinessBroadcastCampaignAction name. */
+            public name?: (string|null);
+
+            /** BusinessBroadcastCampaignAction msgId. */
+            public msgId?: (string|null);
+
+            /** BusinessBroadcastCampaignAction broadcastJid. */
+            public broadcastJid?: (string|null);
+
+            /** BusinessBroadcastCampaignAction reservedQuota. */
+            public reservedQuota?: (number|null);
+
+            /** BusinessBroadcastCampaignAction scheduledTimestamp. */
+            public scheduledTimestamp?: (number|Long|null);
+
+            /** BusinessBroadcastCampaignAction createTimestamp. */
+            public createTimestamp?: (number|Long|null);
+
+            /** BusinessBroadcastCampaignAction status. */
+            public status?: (proto.SyncActionValue.BusinessBroadcastCampaignStatus|null);
+
+            /**
+             * Creates a new BusinessBroadcastCampaignAction instance using the specified properties.
+             * @param [properties] Properties to set
+             * @returns BusinessBroadcastCampaignAction instance
+             */
+            public static create(properties?: proto.SyncActionValue.IBusinessBroadcastCampaignAction): proto.SyncActionValue.BusinessBroadcastCampaignAction;
+
+            /**
+             * Encodes the specified BusinessBroadcastCampaignAction message. Does not implicitly {@link proto.SyncActionValue.BusinessBroadcastCampaignAction.verify|verify} messages.
+             * @param message BusinessBroadcastCampaignAction message or plain object to encode
+             * @param [writer] Writer to encode to
+             * @returns Writer
+             */
+            public static encode(message: proto.SyncActionValue.IBusinessBroadcastCampaignAction, writer?: $protobuf.Writer): $protobuf.Writer;
+
+            /**
+             * Encodes the specified BusinessBroadcastCampaignAction message, length delimited. Does not implicitly {@link proto.SyncActionValue.BusinessBroadcastCampaignAction.verify|verify} messages.
+             * @param message BusinessBroadcastCampaignAction message or plain object to encode
+             * @param [writer] Writer to encode to
+             * @returns Writer
+             */
+            public static encodeDelimited(message: proto.SyncActionValue.IBusinessBroadcastCampaignAction, writer?: $protobuf.Writer): $protobuf.Writer;
+
+            /**
+             * Decodes a BusinessBroadcastCampaignAction message from the specified reader or buffer.
+             * @param reader Reader or buffer to decode from
+             * @param [length] Message length if known beforehand
+             * @returns BusinessBroadcastCampaignAction
+             * @throws {Error} If the payload is not a reader or valid buffer
+             * @throws {$protobuf.util.ProtocolError} If required fields are missing
+             */
+            public static decode(reader: ($protobuf.Reader|Uint8Array), length?: number): proto.SyncActionValue.BusinessBroadcastCampaignAction;
+
+            /**
+             * Decodes a BusinessBroadcastCampaignAction message from the specified reader or buffer, length delimited.
+             * @param reader Reader or buffer to decode from
+             * @returns BusinessBroadcastCampaignAction
+             * @throws {Error} If the payload is not a reader or valid buffer
+             * @throws {$protobuf.util.ProtocolError} If required fields are missing
+             */
+            public static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): proto.SyncActionValue.BusinessBroadcastCampaignAction;
+
+            /**
+             * Verifies a BusinessBroadcastCampaignAction message.
+             * @param message Plain object to verify
+             * @returns `null` if valid, otherwise the reason why it is not
+             */
+            public static verify(message: { [k: string]: any }): (string|null);
+
+            /**
+             * Creates a BusinessBroadcastCampaignAction message from a plain object. Also converts values to their respective internal types.
+             * @param object Plain object
+             * @returns BusinessBroadcastCampaignAction
+             */
+            public static fromObject(object: { [k: string]: any }): proto.SyncActionValue.BusinessBroadcastCampaignAction;
+
+            /**
+             * Creates a plain object from a BusinessBroadcastCampaignAction message. Also converts values to other types if specified.
+             * @param message BusinessBroadcastCampaignAction
+             * @param [options] Conversion options
+             * @returns Plain object
+             */
+            public static toObject(message: proto.SyncActionValue.BusinessBroadcastCampaignAction, options?: $protobuf.IConversionOptions): { [k: string]: any };
+
+            /**
+             * Converts this BusinessBroadcastCampaignAction to JSON.
+             * @returns JSON object
+             */
+            public toJSON(): { [k: string]: any };
+
+            /**
+             * Gets the default type url for BusinessBroadcastCampaignAction
+             * @param [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+             * @returns The default type url
+             */
+            public static getTypeUrl(typeUrlPrefix?: string): string;
+        }
+
+        /** BusinessBroadcastCampaignStatus enum. */
+        enum BusinessBroadcastCampaignStatus {
+            DRAFT = 1,
+            SCHEDULED = 2,
+            PROCESSING = 3,
+            FAILED = 4,
+            SENT = 5
+        }
+
+        /** Properties of a BusinessBroadcastInsightsAction. */
+        interface IBusinessBroadcastInsightsAction {
+
+            /** BusinessBroadcastInsightsAction recipientCount */
+            recipientCount?: (number|null);
+
+            /** BusinessBroadcastInsightsAction deliveredCount */
+            deliveredCount?: (number|null);
+
+            /** BusinessBroadcastInsightsAction readCount */
+            readCount?: (number|null);
+
+            /** BusinessBroadcastInsightsAction repliedCount */
+            repliedCount?: (number|null);
+
+            /** BusinessBroadcastInsightsAction quickReplyCount */
+            quickReplyCount?: (number|null);
+        }
+
+        /** Represents a BusinessBroadcastInsightsAction. */
+        class BusinessBroadcastInsightsAction implements IBusinessBroadcastInsightsAction {
+
+            /**
+             * Constructs a new BusinessBroadcastInsightsAction.
+             * @param [properties] Properties to set
+             */
+            constructor(properties?: proto.SyncActionValue.IBusinessBroadcastInsightsAction);
+
+            /** BusinessBroadcastInsightsAction recipientCount. */
+            public recipientCount?: (number|null);
+
+            /** BusinessBroadcastInsightsAction deliveredCount. */
+            public deliveredCount?: (number|null);
+
+            /** BusinessBroadcastInsightsAction readCount. */
+            public readCount?: (number|null);
+
+            /** BusinessBroadcastInsightsAction repliedCount. */
+            public repliedCount?: (number|null);
+
+            /** BusinessBroadcastInsightsAction quickReplyCount. */
+            public quickReplyCount?: (number|null);
+
+            /**
+             * Creates a new BusinessBroadcastInsightsAction instance using the specified properties.
+             * @param [properties] Properties to set
+             * @returns BusinessBroadcastInsightsAction instance
+             */
+            public static create(properties?: proto.SyncActionValue.IBusinessBroadcastInsightsAction): proto.SyncActionValue.BusinessBroadcastInsightsAction;
+
+            /**
+             * Encodes the specified BusinessBroadcastInsightsAction message. Does not implicitly {@link proto.SyncActionValue.BusinessBroadcastInsightsAction.verify|verify} messages.
+             * @param message BusinessBroadcastInsightsAction message or plain object to encode
+             * @param [writer] Writer to encode to
+             * @returns Writer
+             */
+            public static encode(message: proto.SyncActionValue.IBusinessBroadcastInsightsAction, writer?: $protobuf.Writer): $protobuf.Writer;
+
+            /**
+             * Encodes the specified BusinessBroadcastInsightsAction message, length delimited. Does not implicitly {@link proto.SyncActionValue.BusinessBroadcastInsightsAction.verify|verify} messages.
+             * @param message BusinessBroadcastInsightsAction message or plain object to encode
+             * @param [writer] Writer to encode to
+             * @returns Writer
+             */
+            public static encodeDelimited(message: proto.SyncActionValue.IBusinessBroadcastInsightsAction, writer?: $protobuf.Writer): $protobuf.Writer;
+
+            /**
+             * Decodes a BusinessBroadcastInsightsAction message from the specified reader or buffer.
+             * @param reader Reader or buffer to decode from
+             * @param [length] Message length if known beforehand
+             * @returns BusinessBroadcastInsightsAction
+             * @throws {Error} If the payload is not a reader or valid buffer
+             * @throws {$protobuf.util.ProtocolError} If required fields are missing
+             */
+            public static decode(reader: ($protobuf.Reader|Uint8Array), length?: number): proto.SyncActionValue.BusinessBroadcastInsightsAction;
+
+            /**
+             * Decodes a BusinessBroadcastInsightsAction message from the specified reader or buffer, length delimited.
+             * @param reader Reader or buffer to decode from
+             * @returns BusinessBroadcastInsightsAction
+             * @throws {Error} If the payload is not a reader or valid buffer
+             * @throws {$protobuf.util.ProtocolError} If required fields are missing
+             */
+            public static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): proto.SyncActionValue.BusinessBroadcastInsightsAction;
+
+            /**
+             * Verifies a BusinessBroadcastInsightsAction message.
+             * @param message Plain object to verify
+             * @returns `null` if valid, otherwise the reason why it is not
+             */
+            public static verify(message: { [k: string]: any }): (string|null);
+
+            /**
+             * Creates a BusinessBroadcastInsightsAction message from a plain object. Also converts values to their respective internal types.
+             * @param object Plain object
+             * @returns BusinessBroadcastInsightsAction
+             */
+            public static fromObject(object: { [k: string]: any }): proto.SyncActionValue.BusinessBroadcastInsightsAction;
+
+            /**
+             * Creates a plain object from a BusinessBroadcastInsightsAction message. Also converts values to other types if specified.
+             * @param message BusinessBroadcastInsightsAction
+             * @param [options] Conversion options
+             * @returns Plain object
+             */
+            public static toObject(message: proto.SyncActionValue.BusinessBroadcastInsightsAction, options?: $protobuf.IConversionOptions): { [k: string]: any };
+
+            /**
+             * Converts this BusinessBroadcastInsightsAction to JSON.
+             * @returns JSON object
+             */
+            public toJSON(): { [k: string]: any };
+
+            /**
+             * Gets the default type url for BusinessBroadcastInsightsAction
              * @param [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
              * @returns The default type url
              */
@@ -55828,7 +56252,8 @@ export namespace proto {
                 COMMUNITY = 6,
                 SERVER_ASSIGNED = 7,
                 DRAFTED = 8,
-                AI_HANDOFF = 9
+                AI_HANDOFF = 9,
+                CHANNELS = 10
             }
         }
 
@@ -59602,6 +60027,12 @@ export namespace proto {
 
             /** StatusPrivacyAction userJid */
             userJid?: (string[]|null);
+
+            /** StatusPrivacyAction shareToFB */
+            shareToFB?: (boolean|null);
+
+            /** StatusPrivacyAction shareToIG */
+            shareToIG?: (boolean|null);
         }
 
         /** Represents a StatusPrivacyAction. */
@@ -59618,6 +60049,12 @@ export namespace proto {
 
             /** StatusPrivacyAction userJid. */
             public userJid: string[];
+
+            /** StatusPrivacyAction shareToFB. */
+            public shareToFB?: (boolean|null);
+
+            /** StatusPrivacyAction shareToIG. */
+            public shareToIG?: (boolean|null);
 
             /**
              * Creates a new StatusPrivacyAction instance using the specified properties.
@@ -62307,6 +62744,9 @@ export namespace proto {
 
         /** ThreadID threadKey */
         threadKey?: (proto.IMessageKey|null);
+
+        /** ThreadID sourceChatJid */
+        sourceChatJid?: (string|null);
     }
 
     /** Represents a ThreadID. */
@@ -62323,6 +62763,9 @@ export namespace proto {
 
         /** ThreadID threadKey. */
         public threadKey?: (proto.IMessageKey|null);
+
+        /** ThreadID sourceChatJid. */
+        public sourceChatJid?: (string|null);
 
         /**
          * Creates a new ThreadID instance using the specified properties.
@@ -63338,6 +63781,9 @@ export namespace proto {
 
         /** WallpaperSettings opacity */
         opacity?: (number|null);
+
+        /** WallpaperSettings isGenAi */
+        isGenAi?: (boolean|null);
     }
 
     /** Represents a WallpaperSettings. */
@@ -63354,6 +63800,9 @@ export namespace proto {
 
         /** WallpaperSettings opacity. */
         public opacity?: (number|null);
+
+        /** WallpaperSettings isGenAi. */
+        public isGenAi?: (boolean|null);
 
         /**
          * Creates a new WallpaperSettings instance using the specified properties.
@@ -64014,6 +64463,9 @@ export namespace proto {
 
         /** WebMessageInfo nonJidMentions */
         nonJidMentions?: (number|null);
+
+        /** WebMessageInfo hsmTag */
+        hsmTag?: (string|null);
     }
 
     /** Represents a WebMessageInfo. */
@@ -64225,6 +64677,9 @@ export namespace proto {
 
         /** WebMessageInfo nonJidMentions. */
         public nonJidMentions?: (number|null);
+
+        /** WebMessageInfo hsmTag. */
+        public hsmTag?: (string|null);
 
         /**
          * Creates a new WebMessageInfo instance using the specified properties.
