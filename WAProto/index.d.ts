@@ -961,6 +961,9 @@ export namespace proto {
 
         /** AIMediaCollectionMetadata collectionId */
         collectionId?: (string|null);
+
+        /** AIMediaCollectionMetadata uploadOrderIndex */
+        uploadOrderIndex?: (number|null);
     }
 
     /** Represents a AIMediaCollectionMetadata. */
@@ -974,6 +977,9 @@ export namespace proto {
 
         /** AIMediaCollectionMetadata collectionId. */
         public collectionId?: (string|null);
+
+        /** AIMediaCollectionMetadata uploadOrderIndex. */
+        public uploadOrderIndex?: (number|null);
 
         /**
          * Creates a new AIMediaCollectionMetadata instance using the specified properties.
@@ -3477,6 +3483,9 @@ export namespace proto {
 
             /** AIThreadClientInfo type */
             type?: (proto.AIThreadInfo.AIThreadClientInfo.AIThreadType|null);
+
+            /** AIThreadClientInfo sourceChatJid */
+            sourceChatJid?: (string|null);
         }
 
         /** Represents a AIThreadClientInfo. */
@@ -3490,6 +3499,9 @@ export namespace proto {
 
             /** AIThreadClientInfo type. */
             public type?: (proto.AIThreadInfo.AIThreadClientInfo.AIThreadType|null);
+
+            /** AIThreadClientInfo sourceChatJid. */
+            public sourceChatJid?: (string|null);
 
             /**
              * Creates a new AIThreadClientInfo instance using the specified properties.
@@ -3575,7 +3587,8 @@ export namespace proto {
             enum AIThreadType {
                 UNKNOWN = 0,
                 DEFAULT = 1,
-                INCOGNITO = 2
+                INCOGNITO = 2,
+                SIDE_CHAT = 3
             }
         }
 
@@ -4630,6 +4643,200 @@ export namespace proto {
         }
     }
 
+    /** Properties of a BotAgentDeepLinkMetadata. */
+    interface IBotAgentDeepLinkMetadata {
+
+        /** BotAgentDeepLinkMetadata token */
+        token?: (string|null);
+    }
+
+    /** Represents a BotAgentDeepLinkMetadata. */
+    class BotAgentDeepLinkMetadata implements IBotAgentDeepLinkMetadata {
+
+        /**
+         * Constructs a new BotAgentDeepLinkMetadata.
+         * @param [properties] Properties to set
+         */
+        constructor(properties?: proto.IBotAgentDeepLinkMetadata);
+
+        /** BotAgentDeepLinkMetadata token. */
+        public token?: (string|null);
+
+        /**
+         * Creates a new BotAgentDeepLinkMetadata instance using the specified properties.
+         * @param [properties] Properties to set
+         * @returns BotAgentDeepLinkMetadata instance
+         */
+        public static create(properties?: proto.IBotAgentDeepLinkMetadata): proto.BotAgentDeepLinkMetadata;
+
+        /**
+         * Encodes the specified BotAgentDeepLinkMetadata message. Does not implicitly {@link proto.BotAgentDeepLinkMetadata.verify|verify} messages.
+         * @param message BotAgentDeepLinkMetadata message or plain object to encode
+         * @param [writer] Writer to encode to
+         * @returns Writer
+         */
+        public static encode(message: proto.IBotAgentDeepLinkMetadata, writer?: $protobuf.Writer): $protobuf.Writer;
+
+        /**
+         * Encodes the specified BotAgentDeepLinkMetadata message, length delimited. Does not implicitly {@link proto.BotAgentDeepLinkMetadata.verify|verify} messages.
+         * @param message BotAgentDeepLinkMetadata message or plain object to encode
+         * @param [writer] Writer to encode to
+         * @returns Writer
+         */
+        public static encodeDelimited(message: proto.IBotAgentDeepLinkMetadata, writer?: $protobuf.Writer): $protobuf.Writer;
+
+        /**
+         * Decodes a BotAgentDeepLinkMetadata message from the specified reader or buffer.
+         * @param reader Reader or buffer to decode from
+         * @param [length] Message length if known beforehand
+         * @returns BotAgentDeepLinkMetadata
+         * @throws {Error} If the payload is not a reader or valid buffer
+         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+         */
+        public static decode(reader: ($protobuf.Reader|Uint8Array), length?: number): proto.BotAgentDeepLinkMetadata;
+
+        /**
+         * Decodes a BotAgentDeepLinkMetadata message from the specified reader or buffer, length delimited.
+         * @param reader Reader or buffer to decode from
+         * @returns BotAgentDeepLinkMetadata
+         * @throws {Error} If the payload is not a reader or valid buffer
+         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+         */
+        public static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): proto.BotAgentDeepLinkMetadata;
+
+        /**
+         * Verifies a BotAgentDeepLinkMetadata message.
+         * @param message Plain object to verify
+         * @returns `null` if valid, otherwise the reason why it is not
+         */
+        public static verify(message: { [k: string]: any }): (string|null);
+
+        /**
+         * Creates a BotAgentDeepLinkMetadata message from a plain object. Also converts values to their respective internal types.
+         * @param object Plain object
+         * @returns BotAgentDeepLinkMetadata
+         */
+        public static fromObject(object: { [k: string]: any }): proto.BotAgentDeepLinkMetadata;
+
+        /**
+         * Creates a plain object from a BotAgentDeepLinkMetadata message. Also converts values to other types if specified.
+         * @param message BotAgentDeepLinkMetadata
+         * @param [options] Conversion options
+         * @returns Plain object
+         */
+        public static toObject(message: proto.BotAgentDeepLinkMetadata, options?: $protobuf.IConversionOptions): { [k: string]: any };
+
+        /**
+         * Converts this BotAgentDeepLinkMetadata to JSON.
+         * @returns JSON object
+         */
+        public toJSON(): { [k: string]: any };
+
+        /**
+         * Gets the default type url for BotAgentDeepLinkMetadata
+         * @param [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+         * @returns The default type url
+         */
+        public static getTypeUrl(typeUrlPrefix?: string): string;
+    }
+
+    /** Properties of a BotAgentMetadata. */
+    interface IBotAgentMetadata {
+
+        /** BotAgentMetadata deepLinkMetadata */
+        deepLinkMetadata?: (proto.IBotAgentDeepLinkMetadata|null);
+    }
+
+    /** Represents a BotAgentMetadata. */
+    class BotAgentMetadata implements IBotAgentMetadata {
+
+        /**
+         * Constructs a new BotAgentMetadata.
+         * @param [properties] Properties to set
+         */
+        constructor(properties?: proto.IBotAgentMetadata);
+
+        /** BotAgentMetadata deepLinkMetadata. */
+        public deepLinkMetadata?: (proto.IBotAgentDeepLinkMetadata|null);
+
+        /**
+         * Creates a new BotAgentMetadata instance using the specified properties.
+         * @param [properties] Properties to set
+         * @returns BotAgentMetadata instance
+         */
+        public static create(properties?: proto.IBotAgentMetadata): proto.BotAgentMetadata;
+
+        /**
+         * Encodes the specified BotAgentMetadata message. Does not implicitly {@link proto.BotAgentMetadata.verify|verify} messages.
+         * @param message BotAgentMetadata message or plain object to encode
+         * @param [writer] Writer to encode to
+         * @returns Writer
+         */
+        public static encode(message: proto.IBotAgentMetadata, writer?: $protobuf.Writer): $protobuf.Writer;
+
+        /**
+         * Encodes the specified BotAgentMetadata message, length delimited. Does not implicitly {@link proto.BotAgentMetadata.verify|verify} messages.
+         * @param message BotAgentMetadata message or plain object to encode
+         * @param [writer] Writer to encode to
+         * @returns Writer
+         */
+        public static encodeDelimited(message: proto.IBotAgentMetadata, writer?: $protobuf.Writer): $protobuf.Writer;
+
+        /**
+         * Decodes a BotAgentMetadata message from the specified reader or buffer.
+         * @param reader Reader or buffer to decode from
+         * @param [length] Message length if known beforehand
+         * @returns BotAgentMetadata
+         * @throws {Error} If the payload is not a reader or valid buffer
+         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+         */
+        public static decode(reader: ($protobuf.Reader|Uint8Array), length?: number): proto.BotAgentMetadata;
+
+        /**
+         * Decodes a BotAgentMetadata message from the specified reader or buffer, length delimited.
+         * @param reader Reader or buffer to decode from
+         * @returns BotAgentMetadata
+         * @throws {Error} If the payload is not a reader or valid buffer
+         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+         */
+        public static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): proto.BotAgentMetadata;
+
+        /**
+         * Verifies a BotAgentMetadata message.
+         * @param message Plain object to verify
+         * @returns `null` if valid, otherwise the reason why it is not
+         */
+        public static verify(message: { [k: string]: any }): (string|null);
+
+        /**
+         * Creates a BotAgentMetadata message from a plain object. Also converts values to their respective internal types.
+         * @param object Plain object
+         * @returns BotAgentMetadata
+         */
+        public static fromObject(object: { [k: string]: any }): proto.BotAgentMetadata;
+
+        /**
+         * Creates a plain object from a BotAgentMetadata message. Also converts values to other types if specified.
+         * @param message BotAgentMetadata
+         * @param [options] Conversion options
+         * @returns Plain object
+         */
+        public static toObject(message: proto.BotAgentMetadata, options?: $protobuf.IConversionOptions): { [k: string]: any };
+
+        /**
+         * Converts this BotAgentMetadata to JSON.
+         * @returns JSON object
+         */
+        public toJSON(): { [k: string]: any };
+
+        /**
+         * Gets the default type url for BotAgentMetadata
+         * @param [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+         * @returns The default type url
+         */
+        public static getTypeUrl(typeUrlPrefix?: string): string;
+    }
+
     /** Properties of a BotCapabilityMetadata. */
     interface IBotCapabilityMetadata {
 
@@ -4788,7 +4995,9 @@ export namespace proto {
             AI_IMAGINE_UR_TO_NATIVE_LOADING_INDICATOR = 54,
             RICH_RESPONSE_UR_BLOKS_ENABLED = 55,
             RICH_RESPONSE_INLINE_LINKS_ENABLED = 56,
-            RICH_RESPONSE_UR_IMAGINE_VIDEO = 57
+            RICH_RESPONSE_UR_IMAGINE_VIDEO = 57,
+            JSON_PATCH_STREAMING = 58,
+            AI_TAB_FORCE_CLIPPY = 59
         }
     }
 
@@ -7737,7 +7946,8 @@ export namespace proto {
         META_AI_SETTINGS = 45,
         WEB_INTRO_PANEL = 46,
         WEB_NAVIGATION_BAR = 47,
-        GROUP_MEMBER = 54
+        GROUP_MEMBER = 54,
+        CHATLIST_SEARCH = 55
     }
 
     /** Properties of a BotMetricsMetadata. */
@@ -12272,6 +12482,9 @@ export namespace proto {
 
         /** ClientPairingProps isHsThumbnailSyncEnabled */
         isHsThumbnailSyncEnabled?: (boolean|null);
+
+        /** ClientPairingProps subscriptionSyncPayload */
+        subscriptionSyncPayload?: (Uint8Array|null);
     }
 
     /** Represents a ClientPairingProps. */
@@ -12294,6 +12507,9 @@ export namespace proto {
 
         /** ClientPairingProps isHsThumbnailSyncEnabled. */
         public isHsThumbnailSyncEnabled?: (boolean|null);
+
+        /** ClientPairingProps subscriptionSyncPayload. */
+        public subscriptionSyncPayload?: (Uint8Array|null);
 
         /**
          * Creates a new ClientPairingProps instance using the specified properties.
@@ -12477,6 +12693,9 @@ export namespace proto {
 
         /** ClientPayload processingQueueSize */
         processingQueueSize?: (number|null);
+
+        /** ClientPayload pairedPeripherals */
+        pairedPeripherals?: (string[]|null);
     }
 
     /** Represents a ClientPayload. */
@@ -12589,6 +12808,9 @@ export namespace proto {
 
         /** ClientPayload processingQueueSize. */
         public processingQueueSize?: (number|null);
+
+        /** ClientPayload pairedPeripherals. */
+        public pairedPeripherals: string[];
 
         /**
          * Creates a new ClientPayload instance using the specified properties.
@@ -16268,6 +16490,9 @@ export namespace proto {
 
         /** Conversation isMarketingMessageThread */
         isMarketingMessageThread?: (boolean|null);
+
+        /** Conversation isSenderNewAccount */
+        isSenderNewAccount?: (boolean|null);
     }
 
     /** Represents a Conversation. */
@@ -16443,6 +16668,9 @@ export namespace proto {
 
         /** Conversation isMarketingMessageThread. */
         public isMarketingMessageThread?: (boolean|null);
+
+        /** Conversation isSenderNewAccount. */
+        public isSenderNewAccount?: (boolean|null);
 
         /**
          * Creates a new Conversation instance using the specified properties.
@@ -16774,6 +17002,15 @@ export namespace proto {
 
             /** BusinessBroadcast importListEnabled */
             importListEnabled?: (boolean|null);
+
+            /** BusinessBroadcast companionSupportEnabled */
+            companionSupportEnabled?: (boolean|null);
+
+            /** BusinessBroadcast campaignSyncEnabled */
+            campaignSyncEnabled?: (boolean|null);
+
+            /** BusinessBroadcast insightsSyncEnabled */
+            insightsSyncEnabled?: (boolean|null);
         }
 
         /** Represents a BusinessBroadcast. */
@@ -16787,6 +17024,15 @@ export namespace proto {
 
             /** BusinessBroadcast importListEnabled. */
             public importListEnabled?: (boolean|null);
+
+            /** BusinessBroadcast companionSupportEnabled. */
+            public companionSupportEnabled?: (boolean|null);
+
+            /** BusinessBroadcast campaignSyncEnabled. */
+            public campaignSyncEnabled?: (boolean|null);
+
+            /** BusinessBroadcast insightsSyncEnabled. */
+            public insightsSyncEnabled?: (boolean|null);
 
             /**
              * Creates a new BusinessBroadcast instance using the specified properties.
@@ -17626,6 +17872,9 @@ export namespace proto {
 
             /** HistorySyncConfig supportManusHistory */
             supportManusHistory?: (boolean|null);
+
+            /** HistorySyncConfig supportHatchHistory */
+            supportHatchHistory?: (boolean|null);
         }
 
         /** Represents a HistorySyncConfig. */
@@ -17699,6 +17948,9 @@ export namespace proto {
 
             /** HistorySyncConfig supportManusHistory. */
             public supportManusHistory?: (boolean|null);
+
+            /** HistorySyncConfig supportHatchHistory. */
+            public supportHatchHistory?: (boolean|null);
 
             /**
              * Creates a new HistorySyncConfig instance using the specified properties.
@@ -19979,6 +20231,12 @@ export namespace proto {
 
             /** ClientFinish extendedCiphertext */
             extendedCiphertext?: (Uint8Array|null);
+
+            /** ClientFinish paddedBytes */
+            paddedBytes?: (Uint8Array|null);
+
+            /** ClientFinish simulateXxkemFs */
+            simulateXxkemFs?: (boolean|null);
         }
 
         /** Represents a ClientFinish. */
@@ -19998,6 +20256,12 @@ export namespace proto {
 
             /** ClientFinish extendedCiphertext. */
             public extendedCiphertext?: (Uint8Array|null);
+
+            /** ClientFinish paddedBytes. */
+            public paddedBytes?: (Uint8Array|null);
+
+            /** ClientFinish simulateXxkemFs. */
+            public simulateXxkemFs?: (boolean|null);
 
             /**
              * Creates a new ClientFinish instance using the specified properties.
@@ -20094,6 +20358,15 @@ export namespace proto {
 
             /** ClientHello extendedCiphertext */
             extendedCiphertext?: (Uint8Array|null);
+
+            /** ClientHello paddedBytes */
+            paddedBytes?: (Uint8Array|null);
+
+            /** ClientHello sendServerHelloPaddedBytes */
+            sendServerHelloPaddedBytes?: (boolean|null);
+
+            /** ClientHello simulateXxkemFs */
+            simulateXxkemFs?: (boolean|null);
         }
 
         /** Represents a ClientHello. */
@@ -20119,6 +20392,15 @@ export namespace proto {
 
             /** ClientHello extendedCiphertext. */
             public extendedCiphertext?: (Uint8Array|null);
+
+            /** ClientHello paddedBytes. */
+            public paddedBytes?: (Uint8Array|null);
+
+            /** ClientHello sendServerHelloPaddedBytes. */
+            public sendServerHelloPaddedBytes?: (boolean|null);
+
+            /** ClientHello simulateXxkemFs. */
+            public simulateXxkemFs?: (boolean|null);
 
             /**
              * Creates a new ClientHello instance using the specified properties.
@@ -20212,6 +20494,9 @@ export namespace proto {
 
             /** ServerHello extendedStatic */
             extendedStatic?: (Uint8Array|null);
+
+            /** ServerHello paddingBytes */
+            paddingBytes?: (Uint8Array|null);
         }
 
         /** Represents a ServerHello. */
@@ -20234,6 +20519,9 @@ export namespace proto {
 
             /** ServerHello extendedStatic. */
             public extendedStatic?: (Uint8Array|null);
+
+            /** ServerHello paddingBytes. */
+            public paddingBytes?: (Uint8Array|null);
 
             /**
              * Creates a new ServerHello instance using the specified properties.
@@ -23929,6 +24217,9 @@ export namespace proto {
 
         /** Message pollAddOptionMessage */
         pollAddOptionMessage?: (proto.Message.IPollAddOptionMessage|null);
+
+        /** Message eventInviteMessage */
+        eventInviteMessage?: (proto.Message.IEventInviteMessage|null);
     }
 
     /** Represents a Message. */
@@ -24242,6 +24533,9 @@ export namespace proto {
 
         /** Message pollAddOptionMessage. */
         public pollAddOptionMessage?: (proto.Message.IPollAddOptionMessage|null);
+
+        /** Message eventInviteMessage. */
+        public eventInviteMessage?: (proto.Message.IEventInviteMessage|null);
 
         /**
          * Creates a new Message instance using the specified properties.
@@ -28123,6 +28417,139 @@ export namespace proto {
             public static getTypeUrl(typeUrlPrefix?: string): string;
         }
 
+        /** Properties of an EventInviteMessage. */
+        interface IEventInviteMessage {
+
+            /** EventInviteMessage contextInfo */
+            contextInfo?: (proto.IContextInfo|null);
+
+            /** EventInviteMessage eventId */
+            eventId?: (string|null);
+
+            /** EventInviteMessage eventTitle */
+            eventTitle?: (string|null);
+
+            /** EventInviteMessage jpegThumbnail */
+            jpegThumbnail?: (Uint8Array|null);
+
+            /** EventInviteMessage startTime */
+            startTime?: (number|Long|null);
+
+            /** EventInviteMessage caption */
+            caption?: (string|null);
+
+            /** EventInviteMessage isCanceled */
+            isCanceled?: (boolean|null);
+        }
+
+        /** Represents an EventInviteMessage. */
+        class EventInviteMessage implements IEventInviteMessage {
+
+            /**
+             * Constructs a new EventInviteMessage.
+             * @param [properties] Properties to set
+             */
+            constructor(properties?: proto.Message.IEventInviteMessage);
+
+            /** EventInviteMessage contextInfo. */
+            public contextInfo?: (proto.IContextInfo|null);
+
+            /** EventInviteMessage eventId. */
+            public eventId?: (string|null);
+
+            /** EventInviteMessage eventTitle. */
+            public eventTitle?: (string|null);
+
+            /** EventInviteMessage jpegThumbnail. */
+            public jpegThumbnail?: (Uint8Array|null);
+
+            /** EventInviteMessage startTime. */
+            public startTime?: (number|Long|null);
+
+            /** EventInviteMessage caption. */
+            public caption?: (string|null);
+
+            /** EventInviteMessage isCanceled. */
+            public isCanceled?: (boolean|null);
+
+            /**
+             * Creates a new EventInviteMessage instance using the specified properties.
+             * @param [properties] Properties to set
+             * @returns EventInviteMessage instance
+             */
+            public static create(properties?: proto.Message.IEventInviteMessage): proto.Message.EventInviteMessage;
+
+            /**
+             * Encodes the specified EventInviteMessage message. Does not implicitly {@link proto.Message.EventInviteMessage.verify|verify} messages.
+             * @param message EventInviteMessage message or plain object to encode
+             * @param [writer] Writer to encode to
+             * @returns Writer
+             */
+            public static encode(message: proto.Message.IEventInviteMessage, writer?: $protobuf.Writer): $protobuf.Writer;
+
+            /**
+             * Encodes the specified EventInviteMessage message, length delimited. Does not implicitly {@link proto.Message.EventInviteMessage.verify|verify} messages.
+             * @param message EventInviteMessage message or plain object to encode
+             * @param [writer] Writer to encode to
+             * @returns Writer
+             */
+            public static encodeDelimited(message: proto.Message.IEventInviteMessage, writer?: $protobuf.Writer): $protobuf.Writer;
+
+            /**
+             * Decodes an EventInviteMessage message from the specified reader or buffer.
+             * @param reader Reader or buffer to decode from
+             * @param [length] Message length if known beforehand
+             * @returns EventInviteMessage
+             * @throws {Error} If the payload is not a reader or valid buffer
+             * @throws {$protobuf.util.ProtocolError} If required fields are missing
+             */
+            public static decode(reader: ($protobuf.Reader|Uint8Array), length?: number): proto.Message.EventInviteMessage;
+
+            /**
+             * Decodes an EventInviteMessage message from the specified reader or buffer, length delimited.
+             * @param reader Reader or buffer to decode from
+             * @returns EventInviteMessage
+             * @throws {Error} If the payload is not a reader or valid buffer
+             * @throws {$protobuf.util.ProtocolError} If required fields are missing
+             */
+            public static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): proto.Message.EventInviteMessage;
+
+            /**
+             * Verifies an EventInviteMessage message.
+             * @param message Plain object to verify
+             * @returns `null` if valid, otherwise the reason why it is not
+             */
+            public static verify(message: { [k: string]: any }): (string|null);
+
+            /**
+             * Creates an EventInviteMessage message from a plain object. Also converts values to their respective internal types.
+             * @param object Plain object
+             * @returns EventInviteMessage
+             */
+            public static fromObject(object: { [k: string]: any }): proto.Message.EventInviteMessage;
+
+            /**
+             * Creates a plain object from an EventInviteMessage message. Also converts values to other types if specified.
+             * @param message EventInviteMessage
+             * @param [options] Conversion options
+             * @returns Plain object
+             */
+            public static toObject(message: proto.Message.EventInviteMessage, options?: $protobuf.IConversionOptions): { [k: string]: any };
+
+            /**
+             * Converts this EventInviteMessage to JSON.
+             * @returns JSON object
+             */
+            public toJSON(): { [k: string]: any };
+
+            /**
+             * Gets the default type url for EventInviteMessage
+             * @param [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+             * @returns The default type url
+             */
+            public static getTypeUrl(typeUrlPrefix?: string): string;
+        }
+
         /** Properties of an EventMessage. */
         interface IEventMessage {
 
@@ -30572,6 +30999,15 @@ export namespace proto {
              * @returns The default type url
              */
             public static getTypeUrl(typeUrlPrefix?: string): string;
+        }
+
+        /** InsightDeliveryState enum. */
+        enum InsightDeliveryState {
+            SENT = 0,
+            DELIVERED = 1,
+            READ = 2,
+            REPLIED = 3,
+            QUICK_REPLIED = 4
         }
 
         /** Properties of an InteractiveMessage. */
@@ -34121,14 +34557,17 @@ export namespace proto {
             /** MessageHistoryMetadata historyReceivers */
             historyReceivers?: (string[]|null);
 
-            /** MessageHistoryMetadata oldestMessageTimestamp */
-            oldestMessageTimestamp?: (number|Long|null);
+            /** MessageHistoryMetadata oldestMessageTimestampInWindow */
+            oldestMessageTimestampInWindow?: (number|Long|null);
 
             /** MessageHistoryMetadata messageCount */
             messageCount?: (number|Long|null);
 
             /** MessageHistoryMetadata nonHistoryReceivers */
             nonHistoryReceivers?: (string[]|null);
+
+            /** MessageHistoryMetadata oldestMessageTimestampInBundle */
+            oldestMessageTimestampInBundle?: (number|Long|null);
         }
 
         /** Represents a MessageHistoryMetadata. */
@@ -34143,14 +34582,17 @@ export namespace proto {
             /** MessageHistoryMetadata historyReceivers. */
             public historyReceivers: string[];
 
-            /** MessageHistoryMetadata oldestMessageTimestamp. */
-            public oldestMessageTimestamp?: (number|Long|null);
+            /** MessageHistoryMetadata oldestMessageTimestampInWindow. */
+            public oldestMessageTimestampInWindow?: (number|Long|null);
 
             /** MessageHistoryMetadata messageCount. */
             public messageCount?: (number|Long|null);
 
             /** MessageHistoryMetadata nonHistoryReceivers. */
             public nonHistoryReceivers: string[];
+
+            /** MessageHistoryMetadata oldestMessageTimestampInBundle. */
+            public oldestMessageTimestampInBundle?: (number|Long|null);
 
             /**
              * Creates a new MessageHistoryMetadata instance using the specified properties.
@@ -34894,6 +35336,9 @@ export namespace proto {
 
             /** PaymentInviteMessage referralId */
             referralId?: (string|null);
+
+            /** PaymentInviteMessage inviteType */
+            inviteType?: (proto.Message.PaymentInviteMessage.InviteType|null);
         }
 
         /** Represents a PaymentInviteMessage. */
@@ -34916,6 +35361,9 @@ export namespace proto {
 
             /** PaymentInviteMessage referralId. */
             public referralId?: (string|null);
+
+            /** PaymentInviteMessage inviteType. */
+            public inviteType?: (proto.Message.PaymentInviteMessage.InviteType|null);
 
             /**
              * Creates a new PaymentInviteMessage instance using the specified properties.
@@ -34996,6 +35444,12 @@ export namespace proto {
         }
 
         namespace PaymentInviteMessage {
+
+            /** InviteType enum. */
+            enum InviteType {
+                DEFAULT = 0,
+                MAPPER = 1
+            }
 
             /** ServiceType enum. */
             enum ServiceType {
@@ -35450,6 +35904,12 @@ export namespace proto {
 
             /** PeerDataOperationRequestMessage companionCanonicalUserNonceFetchRequest */
             companionCanonicalUserNonceFetchRequest?: (proto.Message.PeerDataOperationRequestMessage.ICompanionCanonicalUserNonceFetchRequest|null);
+
+            /** PeerDataOperationRequestMessage bizBroadcastInsightsContactListRequest */
+            bizBroadcastInsightsContactListRequest?: (proto.Message.PeerDataOperationRequestMessage.IBizBroadcastInsightsContactListRequest|null);
+
+            /** PeerDataOperationRequestMessage bizBroadcastInsightsRefreshRequest */
+            bizBroadcastInsightsRefreshRequest?: (proto.Message.PeerDataOperationRequestMessage.IBizBroadcastInsightsRefreshRequest|null);
         }
 
         /** Represents a PeerDataOperationRequestMessage. */
@@ -35490,6 +35950,12 @@ export namespace proto {
 
             /** PeerDataOperationRequestMessage companionCanonicalUserNonceFetchRequest. */
             public companionCanonicalUserNonceFetchRequest?: (proto.Message.PeerDataOperationRequestMessage.ICompanionCanonicalUserNonceFetchRequest|null);
+
+            /** PeerDataOperationRequestMessage bizBroadcastInsightsContactListRequest. */
+            public bizBroadcastInsightsContactListRequest?: (proto.Message.PeerDataOperationRequestMessage.IBizBroadcastInsightsContactListRequest|null);
+
+            /** PeerDataOperationRequestMessage bizBroadcastInsightsRefreshRequest. */
+            public bizBroadcastInsightsRefreshRequest?: (proto.Message.PeerDataOperationRequestMessage.IBizBroadcastInsightsRefreshRequest|null);
 
             /**
              * Creates a new PeerDataOperationRequestMessage instance using the specified properties.
@@ -35570,6 +36036,200 @@ export namespace proto {
         }
 
         namespace PeerDataOperationRequestMessage {
+
+            /** Properties of a BizBroadcastInsightsContactListRequest. */
+            interface IBizBroadcastInsightsContactListRequest {
+
+                /** BizBroadcastInsightsContactListRequest campaignId */
+                campaignId?: (string|null);
+            }
+
+            /** Represents a BizBroadcastInsightsContactListRequest. */
+            class BizBroadcastInsightsContactListRequest implements IBizBroadcastInsightsContactListRequest {
+
+                /**
+                 * Constructs a new BizBroadcastInsightsContactListRequest.
+                 * @param [properties] Properties to set
+                 */
+                constructor(properties?: proto.Message.PeerDataOperationRequestMessage.IBizBroadcastInsightsContactListRequest);
+
+                /** BizBroadcastInsightsContactListRequest campaignId. */
+                public campaignId?: (string|null);
+
+                /**
+                 * Creates a new BizBroadcastInsightsContactListRequest instance using the specified properties.
+                 * @param [properties] Properties to set
+                 * @returns BizBroadcastInsightsContactListRequest instance
+                 */
+                public static create(properties?: proto.Message.PeerDataOperationRequestMessage.IBizBroadcastInsightsContactListRequest): proto.Message.PeerDataOperationRequestMessage.BizBroadcastInsightsContactListRequest;
+
+                /**
+                 * Encodes the specified BizBroadcastInsightsContactListRequest message. Does not implicitly {@link proto.Message.PeerDataOperationRequestMessage.BizBroadcastInsightsContactListRequest.verify|verify} messages.
+                 * @param message BizBroadcastInsightsContactListRequest message or plain object to encode
+                 * @param [writer] Writer to encode to
+                 * @returns Writer
+                 */
+                public static encode(message: proto.Message.PeerDataOperationRequestMessage.IBizBroadcastInsightsContactListRequest, writer?: $protobuf.Writer): $protobuf.Writer;
+
+                /**
+                 * Encodes the specified BizBroadcastInsightsContactListRequest message, length delimited. Does not implicitly {@link proto.Message.PeerDataOperationRequestMessage.BizBroadcastInsightsContactListRequest.verify|verify} messages.
+                 * @param message BizBroadcastInsightsContactListRequest message or plain object to encode
+                 * @param [writer] Writer to encode to
+                 * @returns Writer
+                 */
+                public static encodeDelimited(message: proto.Message.PeerDataOperationRequestMessage.IBizBroadcastInsightsContactListRequest, writer?: $protobuf.Writer): $protobuf.Writer;
+
+                /**
+                 * Decodes a BizBroadcastInsightsContactListRequest message from the specified reader or buffer.
+                 * @param reader Reader or buffer to decode from
+                 * @param [length] Message length if known beforehand
+                 * @returns BizBroadcastInsightsContactListRequest
+                 * @throws {Error} If the payload is not a reader or valid buffer
+                 * @throws {$protobuf.util.ProtocolError} If required fields are missing
+                 */
+                public static decode(reader: ($protobuf.Reader|Uint8Array), length?: number): proto.Message.PeerDataOperationRequestMessage.BizBroadcastInsightsContactListRequest;
+
+                /**
+                 * Decodes a BizBroadcastInsightsContactListRequest message from the specified reader or buffer, length delimited.
+                 * @param reader Reader or buffer to decode from
+                 * @returns BizBroadcastInsightsContactListRequest
+                 * @throws {Error} If the payload is not a reader or valid buffer
+                 * @throws {$protobuf.util.ProtocolError} If required fields are missing
+                 */
+                public static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): proto.Message.PeerDataOperationRequestMessage.BizBroadcastInsightsContactListRequest;
+
+                /**
+                 * Verifies a BizBroadcastInsightsContactListRequest message.
+                 * @param message Plain object to verify
+                 * @returns `null` if valid, otherwise the reason why it is not
+                 */
+                public static verify(message: { [k: string]: any }): (string|null);
+
+                /**
+                 * Creates a BizBroadcastInsightsContactListRequest message from a plain object. Also converts values to their respective internal types.
+                 * @param object Plain object
+                 * @returns BizBroadcastInsightsContactListRequest
+                 */
+                public static fromObject(object: { [k: string]: any }): proto.Message.PeerDataOperationRequestMessage.BizBroadcastInsightsContactListRequest;
+
+                /**
+                 * Creates a plain object from a BizBroadcastInsightsContactListRequest message. Also converts values to other types if specified.
+                 * @param message BizBroadcastInsightsContactListRequest
+                 * @param [options] Conversion options
+                 * @returns Plain object
+                 */
+                public static toObject(message: proto.Message.PeerDataOperationRequestMessage.BizBroadcastInsightsContactListRequest, options?: $protobuf.IConversionOptions): { [k: string]: any };
+
+                /**
+                 * Converts this BizBroadcastInsightsContactListRequest to JSON.
+                 * @returns JSON object
+                 */
+                public toJSON(): { [k: string]: any };
+
+                /**
+                 * Gets the default type url for BizBroadcastInsightsContactListRequest
+                 * @param [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+                 * @returns The default type url
+                 */
+                public static getTypeUrl(typeUrlPrefix?: string): string;
+            }
+
+            /** Properties of a BizBroadcastInsightsRefreshRequest. */
+            interface IBizBroadcastInsightsRefreshRequest {
+
+                /** BizBroadcastInsightsRefreshRequest campaignId */
+                campaignId?: (string|null);
+            }
+
+            /** Represents a BizBroadcastInsightsRefreshRequest. */
+            class BizBroadcastInsightsRefreshRequest implements IBizBroadcastInsightsRefreshRequest {
+
+                /**
+                 * Constructs a new BizBroadcastInsightsRefreshRequest.
+                 * @param [properties] Properties to set
+                 */
+                constructor(properties?: proto.Message.PeerDataOperationRequestMessage.IBizBroadcastInsightsRefreshRequest);
+
+                /** BizBroadcastInsightsRefreshRequest campaignId. */
+                public campaignId?: (string|null);
+
+                /**
+                 * Creates a new BizBroadcastInsightsRefreshRequest instance using the specified properties.
+                 * @param [properties] Properties to set
+                 * @returns BizBroadcastInsightsRefreshRequest instance
+                 */
+                public static create(properties?: proto.Message.PeerDataOperationRequestMessage.IBizBroadcastInsightsRefreshRequest): proto.Message.PeerDataOperationRequestMessage.BizBroadcastInsightsRefreshRequest;
+
+                /**
+                 * Encodes the specified BizBroadcastInsightsRefreshRequest message. Does not implicitly {@link proto.Message.PeerDataOperationRequestMessage.BizBroadcastInsightsRefreshRequest.verify|verify} messages.
+                 * @param message BizBroadcastInsightsRefreshRequest message or plain object to encode
+                 * @param [writer] Writer to encode to
+                 * @returns Writer
+                 */
+                public static encode(message: proto.Message.PeerDataOperationRequestMessage.IBizBroadcastInsightsRefreshRequest, writer?: $protobuf.Writer): $protobuf.Writer;
+
+                /**
+                 * Encodes the specified BizBroadcastInsightsRefreshRequest message, length delimited. Does not implicitly {@link proto.Message.PeerDataOperationRequestMessage.BizBroadcastInsightsRefreshRequest.verify|verify} messages.
+                 * @param message BizBroadcastInsightsRefreshRequest message or plain object to encode
+                 * @param [writer] Writer to encode to
+                 * @returns Writer
+                 */
+                public static encodeDelimited(message: proto.Message.PeerDataOperationRequestMessage.IBizBroadcastInsightsRefreshRequest, writer?: $protobuf.Writer): $protobuf.Writer;
+
+                /**
+                 * Decodes a BizBroadcastInsightsRefreshRequest message from the specified reader or buffer.
+                 * @param reader Reader or buffer to decode from
+                 * @param [length] Message length if known beforehand
+                 * @returns BizBroadcastInsightsRefreshRequest
+                 * @throws {Error} If the payload is not a reader or valid buffer
+                 * @throws {$protobuf.util.ProtocolError} If required fields are missing
+                 */
+                public static decode(reader: ($protobuf.Reader|Uint8Array), length?: number): proto.Message.PeerDataOperationRequestMessage.BizBroadcastInsightsRefreshRequest;
+
+                /**
+                 * Decodes a BizBroadcastInsightsRefreshRequest message from the specified reader or buffer, length delimited.
+                 * @param reader Reader or buffer to decode from
+                 * @returns BizBroadcastInsightsRefreshRequest
+                 * @throws {Error} If the payload is not a reader or valid buffer
+                 * @throws {$protobuf.util.ProtocolError} If required fields are missing
+                 */
+                public static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): proto.Message.PeerDataOperationRequestMessage.BizBroadcastInsightsRefreshRequest;
+
+                /**
+                 * Verifies a BizBroadcastInsightsRefreshRequest message.
+                 * @param message Plain object to verify
+                 * @returns `null` if valid, otherwise the reason why it is not
+                 */
+                public static verify(message: { [k: string]: any }): (string|null);
+
+                /**
+                 * Creates a BizBroadcastInsightsRefreshRequest message from a plain object. Also converts values to their respective internal types.
+                 * @param object Plain object
+                 * @returns BizBroadcastInsightsRefreshRequest
+                 */
+                public static fromObject(object: { [k: string]: any }): proto.Message.PeerDataOperationRequestMessage.BizBroadcastInsightsRefreshRequest;
+
+                /**
+                 * Creates a plain object from a BizBroadcastInsightsRefreshRequest message. Also converts values to other types if specified.
+                 * @param message BizBroadcastInsightsRefreshRequest
+                 * @param [options] Conversion options
+                 * @returns Plain object
+                 */
+                public static toObject(message: proto.Message.PeerDataOperationRequestMessage.BizBroadcastInsightsRefreshRequest, options?: $protobuf.IConversionOptions): { [k: string]: any };
+
+                /**
+                 * Converts this BizBroadcastInsightsRefreshRequest to JSON.
+                 * @returns JSON object
+                 */
+                public toJSON(): { [k: string]: any };
+
+                /**
+                 * Gets the default type url for BizBroadcastInsightsRefreshRequest
+                 * @param [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+                 * @returns The default type url
+                 */
+                public static getTypeUrl(typeUrlPrefix?: string): string;
+            }
 
             /** Properties of a CompanionCanonicalUserNonceFetchRequest. */
             interface ICompanionCanonicalUserNonceFetchRequest {
@@ -36696,6 +37356,9 @@ export namespace proto {
 
                 /** PeerDataOperationResult flowResponsesCsvBundle */
                 flowResponsesCsvBundle?: (proto.Message.PeerDataOperationRequestResponseMessage.PeerDataOperationResult.IFlowResponsesCsvBundle|null);
+
+                /** PeerDataOperationResult bizBroadcastInsightsContactListResponse */
+                bizBroadcastInsightsContactListResponse?: (proto.Message.PeerDataOperationRequestResponseMessage.PeerDataOperationResult.IBizBroadcastInsightsContactListResponse|null);
             }
 
             /** Represents a PeerDataOperationResult. */
@@ -36739,6 +37402,9 @@ export namespace proto {
 
                 /** PeerDataOperationResult flowResponsesCsvBundle. */
                 public flowResponsesCsvBundle?: (proto.Message.PeerDataOperationRequestResponseMessage.PeerDataOperationResult.IFlowResponsesCsvBundle|null);
+
+                /** PeerDataOperationResult bizBroadcastInsightsContactListResponse. */
+                public bizBroadcastInsightsContactListResponse?: (proto.Message.PeerDataOperationRequestResponseMessage.PeerDataOperationResult.IBizBroadcastInsightsContactListResponse|null);
 
                 /**
                  * Creates a new PeerDataOperationResult instance using the specified properties.
@@ -36819,6 +37485,218 @@ export namespace proto {
             }
 
             namespace PeerDataOperationResult {
+
+                /** Properties of a BizBroadcastInsightsContactListResponse. */
+                interface IBizBroadcastInsightsContactListResponse {
+
+                    /** BizBroadcastInsightsContactListResponse campaignId */
+                    campaignId?: (string|null);
+
+                    /** BizBroadcastInsightsContactListResponse timestampMs */
+                    timestampMs?: (number|Long|null);
+
+                    /** BizBroadcastInsightsContactListResponse contacts */
+                    contacts?: (proto.Message.PeerDataOperationRequestResponseMessage.PeerDataOperationResult.IBizBroadcastInsightsContactState[]|null);
+                }
+
+                /** Represents a BizBroadcastInsightsContactListResponse. */
+                class BizBroadcastInsightsContactListResponse implements IBizBroadcastInsightsContactListResponse {
+
+                    /**
+                     * Constructs a new BizBroadcastInsightsContactListResponse.
+                     * @param [properties] Properties to set
+                     */
+                    constructor(properties?: proto.Message.PeerDataOperationRequestResponseMessage.PeerDataOperationResult.IBizBroadcastInsightsContactListResponse);
+
+                    /** BizBroadcastInsightsContactListResponse campaignId. */
+                    public campaignId?: (string|null);
+
+                    /** BizBroadcastInsightsContactListResponse timestampMs. */
+                    public timestampMs?: (number|Long|null);
+
+                    /** BizBroadcastInsightsContactListResponse contacts. */
+                    public contacts: proto.Message.PeerDataOperationRequestResponseMessage.PeerDataOperationResult.IBizBroadcastInsightsContactState[];
+
+                    /**
+                     * Creates a new BizBroadcastInsightsContactListResponse instance using the specified properties.
+                     * @param [properties] Properties to set
+                     * @returns BizBroadcastInsightsContactListResponse instance
+                     */
+                    public static create(properties?: proto.Message.PeerDataOperationRequestResponseMessage.PeerDataOperationResult.IBizBroadcastInsightsContactListResponse): proto.Message.PeerDataOperationRequestResponseMessage.PeerDataOperationResult.BizBroadcastInsightsContactListResponse;
+
+                    /**
+                     * Encodes the specified BizBroadcastInsightsContactListResponse message. Does not implicitly {@link proto.Message.PeerDataOperationRequestResponseMessage.PeerDataOperationResult.BizBroadcastInsightsContactListResponse.verify|verify} messages.
+                     * @param message BizBroadcastInsightsContactListResponse message or plain object to encode
+                     * @param [writer] Writer to encode to
+                     * @returns Writer
+                     */
+                    public static encode(message: proto.Message.PeerDataOperationRequestResponseMessage.PeerDataOperationResult.IBizBroadcastInsightsContactListResponse, writer?: $protobuf.Writer): $protobuf.Writer;
+
+                    /**
+                     * Encodes the specified BizBroadcastInsightsContactListResponse message, length delimited. Does not implicitly {@link proto.Message.PeerDataOperationRequestResponseMessage.PeerDataOperationResult.BizBroadcastInsightsContactListResponse.verify|verify} messages.
+                     * @param message BizBroadcastInsightsContactListResponse message or plain object to encode
+                     * @param [writer] Writer to encode to
+                     * @returns Writer
+                     */
+                    public static encodeDelimited(message: proto.Message.PeerDataOperationRequestResponseMessage.PeerDataOperationResult.IBizBroadcastInsightsContactListResponse, writer?: $protobuf.Writer): $protobuf.Writer;
+
+                    /**
+                     * Decodes a BizBroadcastInsightsContactListResponse message from the specified reader or buffer.
+                     * @param reader Reader or buffer to decode from
+                     * @param [length] Message length if known beforehand
+                     * @returns BizBroadcastInsightsContactListResponse
+                     * @throws {Error} If the payload is not a reader or valid buffer
+                     * @throws {$protobuf.util.ProtocolError} If required fields are missing
+                     */
+                    public static decode(reader: ($protobuf.Reader|Uint8Array), length?: number): proto.Message.PeerDataOperationRequestResponseMessage.PeerDataOperationResult.BizBroadcastInsightsContactListResponse;
+
+                    /**
+                     * Decodes a BizBroadcastInsightsContactListResponse message from the specified reader or buffer, length delimited.
+                     * @param reader Reader or buffer to decode from
+                     * @returns BizBroadcastInsightsContactListResponse
+                     * @throws {Error} If the payload is not a reader or valid buffer
+                     * @throws {$protobuf.util.ProtocolError} If required fields are missing
+                     */
+                    public static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): proto.Message.PeerDataOperationRequestResponseMessage.PeerDataOperationResult.BizBroadcastInsightsContactListResponse;
+
+                    /**
+                     * Verifies a BizBroadcastInsightsContactListResponse message.
+                     * @param message Plain object to verify
+                     * @returns `null` if valid, otherwise the reason why it is not
+                     */
+                    public static verify(message: { [k: string]: any }): (string|null);
+
+                    /**
+                     * Creates a BizBroadcastInsightsContactListResponse message from a plain object. Also converts values to their respective internal types.
+                     * @param object Plain object
+                     * @returns BizBroadcastInsightsContactListResponse
+                     */
+                    public static fromObject(object: { [k: string]: any }): proto.Message.PeerDataOperationRequestResponseMessage.PeerDataOperationResult.BizBroadcastInsightsContactListResponse;
+
+                    /**
+                     * Creates a plain object from a BizBroadcastInsightsContactListResponse message. Also converts values to other types if specified.
+                     * @param message BizBroadcastInsightsContactListResponse
+                     * @param [options] Conversion options
+                     * @returns Plain object
+                     */
+                    public static toObject(message: proto.Message.PeerDataOperationRequestResponseMessage.PeerDataOperationResult.BizBroadcastInsightsContactListResponse, options?: $protobuf.IConversionOptions): { [k: string]: any };
+
+                    /**
+                     * Converts this BizBroadcastInsightsContactListResponse to JSON.
+                     * @returns JSON object
+                     */
+                    public toJSON(): { [k: string]: any };
+
+                    /**
+                     * Gets the default type url for BizBroadcastInsightsContactListResponse
+                     * @param [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+                     * @returns The default type url
+                     */
+                    public static getTypeUrl(typeUrlPrefix?: string): string;
+                }
+
+                /** Properties of a BizBroadcastInsightsContactState. */
+                interface IBizBroadcastInsightsContactState {
+
+                    /** BizBroadcastInsightsContactState contactJid */
+                    contactJid?: (string|null);
+
+                    /** BizBroadcastInsightsContactState state */
+                    state?: (proto.Message.InsightDeliveryState|null);
+                }
+
+                /** Represents a BizBroadcastInsightsContactState. */
+                class BizBroadcastInsightsContactState implements IBizBroadcastInsightsContactState {
+
+                    /**
+                     * Constructs a new BizBroadcastInsightsContactState.
+                     * @param [properties] Properties to set
+                     */
+                    constructor(properties?: proto.Message.PeerDataOperationRequestResponseMessage.PeerDataOperationResult.IBizBroadcastInsightsContactState);
+
+                    /** BizBroadcastInsightsContactState contactJid. */
+                    public contactJid?: (string|null);
+
+                    /** BizBroadcastInsightsContactState state. */
+                    public state?: (proto.Message.InsightDeliveryState|null);
+
+                    /**
+                     * Creates a new BizBroadcastInsightsContactState instance using the specified properties.
+                     * @param [properties] Properties to set
+                     * @returns BizBroadcastInsightsContactState instance
+                     */
+                    public static create(properties?: proto.Message.PeerDataOperationRequestResponseMessage.PeerDataOperationResult.IBizBroadcastInsightsContactState): proto.Message.PeerDataOperationRequestResponseMessage.PeerDataOperationResult.BizBroadcastInsightsContactState;
+
+                    /**
+                     * Encodes the specified BizBroadcastInsightsContactState message. Does not implicitly {@link proto.Message.PeerDataOperationRequestResponseMessage.PeerDataOperationResult.BizBroadcastInsightsContactState.verify|verify} messages.
+                     * @param message BizBroadcastInsightsContactState message or plain object to encode
+                     * @param [writer] Writer to encode to
+                     * @returns Writer
+                     */
+                    public static encode(message: proto.Message.PeerDataOperationRequestResponseMessage.PeerDataOperationResult.IBizBroadcastInsightsContactState, writer?: $protobuf.Writer): $protobuf.Writer;
+
+                    /**
+                     * Encodes the specified BizBroadcastInsightsContactState message, length delimited. Does not implicitly {@link proto.Message.PeerDataOperationRequestResponseMessage.PeerDataOperationResult.BizBroadcastInsightsContactState.verify|verify} messages.
+                     * @param message BizBroadcastInsightsContactState message or plain object to encode
+                     * @param [writer] Writer to encode to
+                     * @returns Writer
+                     */
+                    public static encodeDelimited(message: proto.Message.PeerDataOperationRequestResponseMessage.PeerDataOperationResult.IBizBroadcastInsightsContactState, writer?: $protobuf.Writer): $protobuf.Writer;
+
+                    /**
+                     * Decodes a BizBroadcastInsightsContactState message from the specified reader or buffer.
+                     * @param reader Reader or buffer to decode from
+                     * @param [length] Message length if known beforehand
+                     * @returns BizBroadcastInsightsContactState
+                     * @throws {Error} If the payload is not a reader or valid buffer
+                     * @throws {$protobuf.util.ProtocolError} If required fields are missing
+                     */
+                    public static decode(reader: ($protobuf.Reader|Uint8Array), length?: number): proto.Message.PeerDataOperationRequestResponseMessage.PeerDataOperationResult.BizBroadcastInsightsContactState;
+
+                    /**
+                     * Decodes a BizBroadcastInsightsContactState message from the specified reader or buffer, length delimited.
+                     * @param reader Reader or buffer to decode from
+                     * @returns BizBroadcastInsightsContactState
+                     * @throws {Error} If the payload is not a reader or valid buffer
+                     * @throws {$protobuf.util.ProtocolError} If required fields are missing
+                     */
+                    public static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): proto.Message.PeerDataOperationRequestResponseMessage.PeerDataOperationResult.BizBroadcastInsightsContactState;
+
+                    /**
+                     * Verifies a BizBroadcastInsightsContactState message.
+                     * @param message Plain object to verify
+                     * @returns `null` if valid, otherwise the reason why it is not
+                     */
+                    public static verify(message: { [k: string]: any }): (string|null);
+
+                    /**
+                     * Creates a BizBroadcastInsightsContactState message from a plain object. Also converts values to their respective internal types.
+                     * @param object Plain object
+                     * @returns BizBroadcastInsightsContactState
+                     */
+                    public static fromObject(object: { [k: string]: any }): proto.Message.PeerDataOperationRequestResponseMessage.PeerDataOperationResult.BizBroadcastInsightsContactState;
+
+                    /**
+                     * Creates a plain object from a BizBroadcastInsightsContactState message. Also converts values to other types if specified.
+                     * @param message BizBroadcastInsightsContactState
+                     * @param [options] Conversion options
+                     * @returns Plain object
+                     */
+                    public static toObject(message: proto.Message.PeerDataOperationRequestResponseMessage.PeerDataOperationResult.BizBroadcastInsightsContactState, options?: $protobuf.IConversionOptions): { [k: string]: any };
+
+                    /**
+                     * Converts this BizBroadcastInsightsContactState to JSON.
+                     * @returns JSON object
+                     */
+                    public toJSON(): { [k: string]: any };
+
+                    /**
+                     * Gets the default type url for BizBroadcastInsightsContactState
+                     * @param [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+                     * @returns The default type url
+                     */
+                    public static getTypeUrl(typeUrlPrefix?: string): string;
+                }
 
                 /** Properties of a CompanionCanonicalUserNonceFetchResponse. */
                 interface ICompanionCanonicalUserNonceFetchResponse {
@@ -38136,7 +39014,9 @@ export namespace proto {
             COMPANION_SYNCD_SNAPSHOT_FATAL_RECOVERY = 8,
             COMPANION_CANONICAL_USER_NONCE_FETCH = 9,
             HISTORY_SYNC_CHUNK_RETRY = 10,
-            GALAXY_FLOW_ACTION = 11
+            GALAXY_FLOW_ACTION = 11,
+            BUSINESS_BROADCAST_INSIGHTS_DELIVERED_TO = 12,
+            BUSINESS_BROADCAST_INSIGHTS_REFRESH = 13
         }
 
         /** Properties of a PinInChatMessage. */
@@ -40509,6 +41389,9 @@ export namespace proto {
 
             /** RequestWelcomeMessageMetadata welcomeTrigger */
             welcomeTrigger?: (proto.Message.RequestWelcomeMessageMetadata.WelcomeTrigger|null);
+
+            /** RequestWelcomeMessageMetadata botAgentMetadata */
+            botAgentMetadata?: (proto.IBotAgentMetadata|null);
         }
 
         /** Represents a RequestWelcomeMessageMetadata. */
@@ -40525,6 +41408,9 @@ export namespace proto {
 
             /** RequestWelcomeMessageMetadata welcomeTrigger. */
             public welcomeTrigger?: (proto.Message.RequestWelcomeMessageMetadata.WelcomeTrigger|null);
+
+            /** RequestWelcomeMessageMetadata botAgentMetadata. */
+            public botAgentMetadata?: (proto.IBotAgentMetadata|null);
 
             /**
              * Creates a new RequestWelcomeMessageMetadata instance using the specified properties.
@@ -44469,6 +45355,9 @@ export namespace proto {
 
         /** MsgOpaqueData pollHideVoterNames */
         pollHideVoterNames?: (boolean|null);
+
+        /** MsgOpaqueData pollAllowAddOption */
+        pollAllowAddOption?: (boolean|null);
     }
 
     /** Represents a MsgOpaqueData. */
@@ -44617,6 +45506,9 @@ export namespace proto {
 
         /** MsgOpaqueData pollHideVoterNames. */
         public pollHideVoterNames?: (boolean|null);
+
+        /** MsgOpaqueData pollAllowAddOption. */
+        public pollAllowAddOption?: (boolean|null);
 
         /**
          * Creates a new MsgOpaqueData instance using the specified properties.
@@ -45323,6 +46215,9 @@ export namespace proto {
         NCT_SALT_SYNC_ACTION = 80,
         BUSINESS_BROADCAST_CAMPAIGN_ACTION = 81,
         BUSINESS_BROADCAST_INSIGHTS_ACTION = 82,
+        CUSTOMER_DATA_ACTION = 83,
+        SUBSCRIPTIONS_SYNC_V2_ACTION = 84,
+        THREAD_PIN_ACTION = 85,
         SHARE_OWN_PN = 10001,
         BUSINESS_BROADCAST_ACTION = 10002,
         AI_THREAD_DELETE_ACTION = 10003
@@ -51359,7 +52254,8 @@ export namespace proto {
                 THREADS = 7,
                 APPLE_MUSIC = 8,
                 SHARECHAT = 9,
-                GOOGLE_PHOTOS = 10
+                GOOGLE_PHOTOS = 10,
+                SOUNDCLOUD = 11
             }
         }
 
@@ -52652,6 +53548,15 @@ export namespace proto {
 
         /** SyncActionValue businessBroadcastInsightsAction */
         businessBroadcastInsightsAction?: (proto.SyncActionValue.IBusinessBroadcastInsightsAction|null);
+
+        /** SyncActionValue customerDataAction */
+        customerDataAction?: (proto.SyncActionValue.ICustomerDataAction|null);
+
+        /** SyncActionValue subscriptionsSyncV2Action */
+        subscriptionsSyncV2Action?: (proto.SyncActionValue.ISubscriptionsSyncV2Action|null);
+
+        /** SyncActionValue threadPinAction */
+        threadPinAction?: (proto.SyncActionValue.IThreadPinAction|null);
     }
 
     /** Represents a SyncActionValue. */
@@ -52881,6 +53786,15 @@ export namespace proto {
 
         /** SyncActionValue businessBroadcastInsightsAction. */
         public businessBroadcastInsightsAction?: (proto.SyncActionValue.IBusinessBroadcastInsightsAction|null);
+
+        /** SyncActionValue customerDataAction. */
+        public customerDataAction?: (proto.SyncActionValue.ICustomerDataAction|null);
+
+        /** SyncActionValue subscriptionsSyncV2Action. */
+        public subscriptionsSyncV2Action?: (proto.SyncActionValue.ISubscriptionsSyncV2Action|null);
+
+        /** SyncActionValue threadPinAction. */
+        public threadPinAction?: (proto.SyncActionValue.IThreadPinAction|null);
 
         /**
          * Creates a new SyncActionValue instance using the specified properties.
@@ -55089,6 +56003,163 @@ export namespace proto {
 
             /**
              * Gets the default type url for CustomPaymentMethodsAction
+             * @param [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+             * @returns The default type url
+             */
+            public static getTypeUrl(typeUrlPrefix?: string): string;
+        }
+
+        /** Properties of a CustomerDataAction. */
+        interface ICustomerDataAction {
+
+            /** CustomerDataAction chatJid */
+            chatJid?: (string|null);
+
+            /** CustomerDataAction contactType */
+            contactType?: (number|null);
+
+            /** CustomerDataAction email */
+            email?: (string|null);
+
+            /** CustomerDataAction altPhoneNumbers */
+            altPhoneNumbers?: (string|null);
+
+            /** CustomerDataAction birthday */
+            birthday?: (number|Long|null);
+
+            /** CustomerDataAction address */
+            address?: (string|null);
+
+            /** CustomerDataAction acquisitionSource */
+            acquisitionSource?: (number|null);
+
+            /** CustomerDataAction leadStage */
+            leadStage?: (number|null);
+
+            /** CustomerDataAction lastOrder */
+            lastOrder?: (number|Long|null);
+
+            /** CustomerDataAction createdAt */
+            createdAt?: (number|Long|null);
+
+            /** CustomerDataAction modifiedAt */
+            modifiedAt?: (number|Long|null);
+        }
+
+        /** Represents a CustomerDataAction. */
+        class CustomerDataAction implements ICustomerDataAction {
+
+            /**
+             * Constructs a new CustomerDataAction.
+             * @param [properties] Properties to set
+             */
+            constructor(properties?: proto.SyncActionValue.ICustomerDataAction);
+
+            /** CustomerDataAction chatJid. */
+            public chatJid?: (string|null);
+
+            /** CustomerDataAction contactType. */
+            public contactType?: (number|null);
+
+            /** CustomerDataAction email. */
+            public email?: (string|null);
+
+            /** CustomerDataAction altPhoneNumbers. */
+            public altPhoneNumbers?: (string|null);
+
+            /** CustomerDataAction birthday. */
+            public birthday?: (number|Long|null);
+
+            /** CustomerDataAction address. */
+            public address?: (string|null);
+
+            /** CustomerDataAction acquisitionSource. */
+            public acquisitionSource?: (number|null);
+
+            /** CustomerDataAction leadStage. */
+            public leadStage?: (number|null);
+
+            /** CustomerDataAction lastOrder. */
+            public lastOrder?: (number|Long|null);
+
+            /** CustomerDataAction createdAt. */
+            public createdAt?: (number|Long|null);
+
+            /** CustomerDataAction modifiedAt. */
+            public modifiedAt?: (number|Long|null);
+
+            /**
+             * Creates a new CustomerDataAction instance using the specified properties.
+             * @param [properties] Properties to set
+             * @returns CustomerDataAction instance
+             */
+            public static create(properties?: proto.SyncActionValue.ICustomerDataAction): proto.SyncActionValue.CustomerDataAction;
+
+            /**
+             * Encodes the specified CustomerDataAction message. Does not implicitly {@link proto.SyncActionValue.CustomerDataAction.verify|verify} messages.
+             * @param message CustomerDataAction message or plain object to encode
+             * @param [writer] Writer to encode to
+             * @returns Writer
+             */
+            public static encode(message: proto.SyncActionValue.ICustomerDataAction, writer?: $protobuf.Writer): $protobuf.Writer;
+
+            /**
+             * Encodes the specified CustomerDataAction message, length delimited. Does not implicitly {@link proto.SyncActionValue.CustomerDataAction.verify|verify} messages.
+             * @param message CustomerDataAction message or plain object to encode
+             * @param [writer] Writer to encode to
+             * @returns Writer
+             */
+            public static encodeDelimited(message: proto.SyncActionValue.ICustomerDataAction, writer?: $protobuf.Writer): $protobuf.Writer;
+
+            /**
+             * Decodes a CustomerDataAction message from the specified reader or buffer.
+             * @param reader Reader or buffer to decode from
+             * @param [length] Message length if known beforehand
+             * @returns CustomerDataAction
+             * @throws {Error} If the payload is not a reader or valid buffer
+             * @throws {$protobuf.util.ProtocolError} If required fields are missing
+             */
+            public static decode(reader: ($protobuf.Reader|Uint8Array), length?: number): proto.SyncActionValue.CustomerDataAction;
+
+            /**
+             * Decodes a CustomerDataAction message from the specified reader or buffer, length delimited.
+             * @param reader Reader or buffer to decode from
+             * @returns CustomerDataAction
+             * @throws {Error} If the payload is not a reader or valid buffer
+             * @throws {$protobuf.util.ProtocolError} If required fields are missing
+             */
+            public static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): proto.SyncActionValue.CustomerDataAction;
+
+            /**
+             * Verifies a CustomerDataAction message.
+             * @param message Plain object to verify
+             * @returns `null` if valid, otherwise the reason why it is not
+             */
+            public static verify(message: { [k: string]: any }): (string|null);
+
+            /**
+             * Creates a CustomerDataAction message from a plain object. Also converts values to their respective internal types.
+             * @param object Plain object
+             * @returns CustomerDataAction
+             */
+            public static fromObject(object: { [k: string]: any }): proto.SyncActionValue.CustomerDataAction;
+
+            /**
+             * Creates a plain object from a CustomerDataAction message. Also converts values to other types if specified.
+             * @param message CustomerDataAction
+             * @param [options] Conversion options
+             * @returns Plain object
+             */
+            public static toObject(message: proto.SyncActionValue.CustomerDataAction, options?: $protobuf.IConversionOptions): { [k: string]: any };
+
+            /**
+             * Converts this CustomerDataAction to JSON.
+             * @returns JSON object
+             */
+            public toJSON(): { [k: string]: any };
+
+            /**
+             * Gets the default type url for CustomerDataAction
              * @param [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
              * @returns The default type url
              */
@@ -60423,6 +61494,366 @@ export namespace proto {
             public static getTypeUrl(typeUrlPrefix?: string): string;
         }
 
+        /** Properties of a SubscriptionsSyncV2Action. */
+        interface ISubscriptionsSyncV2Action {
+
+            /** SubscriptionsSyncV2Action subscriptions */
+            subscriptions?: (proto.SyncActionValue.SubscriptionsSyncV2Action.ISubscriptionInfo[]|null);
+
+            /** SubscriptionsSyncV2Action paidFeature */
+            paidFeature?: (proto.SyncActionValue.SubscriptionsSyncV2Action.IPaidFeature[]|null);
+        }
+
+        /** Represents a SubscriptionsSyncV2Action. */
+        class SubscriptionsSyncV2Action implements ISubscriptionsSyncV2Action {
+
+            /**
+             * Constructs a new SubscriptionsSyncV2Action.
+             * @param [properties] Properties to set
+             */
+            constructor(properties?: proto.SyncActionValue.ISubscriptionsSyncV2Action);
+
+            /** SubscriptionsSyncV2Action subscriptions. */
+            public subscriptions: proto.SyncActionValue.SubscriptionsSyncV2Action.ISubscriptionInfo[];
+
+            /** SubscriptionsSyncV2Action paidFeature. */
+            public paidFeature: proto.SyncActionValue.SubscriptionsSyncV2Action.IPaidFeature[];
+
+            /**
+             * Creates a new SubscriptionsSyncV2Action instance using the specified properties.
+             * @param [properties] Properties to set
+             * @returns SubscriptionsSyncV2Action instance
+             */
+            public static create(properties?: proto.SyncActionValue.ISubscriptionsSyncV2Action): proto.SyncActionValue.SubscriptionsSyncV2Action;
+
+            /**
+             * Encodes the specified SubscriptionsSyncV2Action message. Does not implicitly {@link proto.SyncActionValue.SubscriptionsSyncV2Action.verify|verify} messages.
+             * @param message SubscriptionsSyncV2Action message or plain object to encode
+             * @param [writer] Writer to encode to
+             * @returns Writer
+             */
+            public static encode(message: proto.SyncActionValue.ISubscriptionsSyncV2Action, writer?: $protobuf.Writer): $protobuf.Writer;
+
+            /**
+             * Encodes the specified SubscriptionsSyncV2Action message, length delimited. Does not implicitly {@link proto.SyncActionValue.SubscriptionsSyncV2Action.verify|verify} messages.
+             * @param message SubscriptionsSyncV2Action message or plain object to encode
+             * @param [writer] Writer to encode to
+             * @returns Writer
+             */
+            public static encodeDelimited(message: proto.SyncActionValue.ISubscriptionsSyncV2Action, writer?: $protobuf.Writer): $protobuf.Writer;
+
+            /**
+             * Decodes a SubscriptionsSyncV2Action message from the specified reader or buffer.
+             * @param reader Reader or buffer to decode from
+             * @param [length] Message length if known beforehand
+             * @returns SubscriptionsSyncV2Action
+             * @throws {Error} If the payload is not a reader or valid buffer
+             * @throws {$protobuf.util.ProtocolError} If required fields are missing
+             */
+            public static decode(reader: ($protobuf.Reader|Uint8Array), length?: number): proto.SyncActionValue.SubscriptionsSyncV2Action;
+
+            /**
+             * Decodes a SubscriptionsSyncV2Action message from the specified reader or buffer, length delimited.
+             * @param reader Reader or buffer to decode from
+             * @returns SubscriptionsSyncV2Action
+             * @throws {Error} If the payload is not a reader or valid buffer
+             * @throws {$protobuf.util.ProtocolError} If required fields are missing
+             */
+            public static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): proto.SyncActionValue.SubscriptionsSyncV2Action;
+
+            /**
+             * Verifies a SubscriptionsSyncV2Action message.
+             * @param message Plain object to verify
+             * @returns `null` if valid, otherwise the reason why it is not
+             */
+            public static verify(message: { [k: string]: any }): (string|null);
+
+            /**
+             * Creates a SubscriptionsSyncV2Action message from a plain object. Also converts values to their respective internal types.
+             * @param object Plain object
+             * @returns SubscriptionsSyncV2Action
+             */
+            public static fromObject(object: { [k: string]: any }): proto.SyncActionValue.SubscriptionsSyncV2Action;
+
+            /**
+             * Creates a plain object from a SubscriptionsSyncV2Action message. Also converts values to other types if specified.
+             * @param message SubscriptionsSyncV2Action
+             * @param [options] Conversion options
+             * @returns Plain object
+             */
+            public static toObject(message: proto.SyncActionValue.SubscriptionsSyncV2Action, options?: $protobuf.IConversionOptions): { [k: string]: any };
+
+            /**
+             * Converts this SubscriptionsSyncV2Action to JSON.
+             * @returns JSON object
+             */
+            public toJSON(): { [k: string]: any };
+
+            /**
+             * Gets the default type url for SubscriptionsSyncV2Action
+             * @param [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+             * @returns The default type url
+             */
+            public static getTypeUrl(typeUrlPrefix?: string): string;
+        }
+
+        namespace SubscriptionsSyncV2Action {
+
+            /** Properties of a PaidFeature. */
+            interface IPaidFeature {
+
+                /** PaidFeature name */
+                name?: (string|null);
+
+                /** PaidFeature enabled */
+                enabled?: (boolean|null);
+
+                /** PaidFeature limit */
+                limit?: (number|null);
+
+                /** PaidFeature expirationTime */
+                expirationTime?: (number|Long|null);
+            }
+
+            /** Represents a PaidFeature. */
+            class PaidFeature implements IPaidFeature {
+
+                /**
+                 * Constructs a new PaidFeature.
+                 * @param [properties] Properties to set
+                 */
+                constructor(properties?: proto.SyncActionValue.SubscriptionsSyncV2Action.IPaidFeature);
+
+                /** PaidFeature name. */
+                public name?: (string|null);
+
+                /** PaidFeature enabled. */
+                public enabled?: (boolean|null);
+
+                /** PaidFeature limit. */
+                public limit?: (number|null);
+
+                /** PaidFeature expirationTime. */
+                public expirationTime?: (number|Long|null);
+
+                /**
+                 * Creates a new PaidFeature instance using the specified properties.
+                 * @param [properties] Properties to set
+                 * @returns PaidFeature instance
+                 */
+                public static create(properties?: proto.SyncActionValue.SubscriptionsSyncV2Action.IPaidFeature): proto.SyncActionValue.SubscriptionsSyncV2Action.PaidFeature;
+
+                /**
+                 * Encodes the specified PaidFeature message. Does not implicitly {@link proto.SyncActionValue.SubscriptionsSyncV2Action.PaidFeature.verify|verify} messages.
+                 * @param message PaidFeature message or plain object to encode
+                 * @param [writer] Writer to encode to
+                 * @returns Writer
+                 */
+                public static encode(message: proto.SyncActionValue.SubscriptionsSyncV2Action.IPaidFeature, writer?: $protobuf.Writer): $protobuf.Writer;
+
+                /**
+                 * Encodes the specified PaidFeature message, length delimited. Does not implicitly {@link proto.SyncActionValue.SubscriptionsSyncV2Action.PaidFeature.verify|verify} messages.
+                 * @param message PaidFeature message or plain object to encode
+                 * @param [writer] Writer to encode to
+                 * @returns Writer
+                 */
+                public static encodeDelimited(message: proto.SyncActionValue.SubscriptionsSyncV2Action.IPaidFeature, writer?: $protobuf.Writer): $protobuf.Writer;
+
+                /**
+                 * Decodes a PaidFeature message from the specified reader or buffer.
+                 * @param reader Reader or buffer to decode from
+                 * @param [length] Message length if known beforehand
+                 * @returns PaidFeature
+                 * @throws {Error} If the payload is not a reader or valid buffer
+                 * @throws {$protobuf.util.ProtocolError} If required fields are missing
+                 */
+                public static decode(reader: ($protobuf.Reader|Uint8Array), length?: number): proto.SyncActionValue.SubscriptionsSyncV2Action.PaidFeature;
+
+                /**
+                 * Decodes a PaidFeature message from the specified reader or buffer, length delimited.
+                 * @param reader Reader or buffer to decode from
+                 * @returns PaidFeature
+                 * @throws {Error} If the payload is not a reader or valid buffer
+                 * @throws {$protobuf.util.ProtocolError} If required fields are missing
+                 */
+                public static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): proto.SyncActionValue.SubscriptionsSyncV2Action.PaidFeature;
+
+                /**
+                 * Verifies a PaidFeature message.
+                 * @param message Plain object to verify
+                 * @returns `null` if valid, otherwise the reason why it is not
+                 */
+                public static verify(message: { [k: string]: any }): (string|null);
+
+                /**
+                 * Creates a PaidFeature message from a plain object. Also converts values to their respective internal types.
+                 * @param object Plain object
+                 * @returns PaidFeature
+                 */
+                public static fromObject(object: { [k: string]: any }): proto.SyncActionValue.SubscriptionsSyncV2Action.PaidFeature;
+
+                /**
+                 * Creates a plain object from a PaidFeature message. Also converts values to other types if specified.
+                 * @param message PaidFeature
+                 * @param [options] Conversion options
+                 * @returns Plain object
+                 */
+                public static toObject(message: proto.SyncActionValue.SubscriptionsSyncV2Action.PaidFeature, options?: $protobuf.IConversionOptions): { [k: string]: any };
+
+                /**
+                 * Converts this PaidFeature to JSON.
+                 * @returns JSON object
+                 */
+                public toJSON(): { [k: string]: any };
+
+                /**
+                 * Gets the default type url for PaidFeature
+                 * @param [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+                 * @returns The default type url
+                 */
+                public static getTypeUrl(typeUrlPrefix?: string): string;
+            }
+
+            /** Properties of a SubscriptionInfo. */
+            interface ISubscriptionInfo {
+
+                /** SubscriptionInfo id */
+                id?: (string|null);
+
+                /** SubscriptionInfo tier */
+                tier?: (number|null);
+
+                /** SubscriptionInfo status */
+                status?: (string|null);
+
+                /** SubscriptionInfo startTime */
+                startTime?: (number|Long|null);
+
+                /** SubscriptionInfo endTime */
+                endTime?: (number|Long|null);
+
+                /** SubscriptionInfo isPlatformChanged */
+                isPlatformChanged?: (boolean|null);
+
+                /** SubscriptionInfo source */
+                source?: (string|null);
+
+                /** SubscriptionInfo creationTime */
+                creationTime?: (number|Long|null);
+            }
+
+            /** Represents a SubscriptionInfo. */
+            class SubscriptionInfo implements ISubscriptionInfo {
+
+                /**
+                 * Constructs a new SubscriptionInfo.
+                 * @param [properties] Properties to set
+                 */
+                constructor(properties?: proto.SyncActionValue.SubscriptionsSyncV2Action.ISubscriptionInfo);
+
+                /** SubscriptionInfo id. */
+                public id?: (string|null);
+
+                /** SubscriptionInfo tier. */
+                public tier?: (number|null);
+
+                /** SubscriptionInfo status. */
+                public status?: (string|null);
+
+                /** SubscriptionInfo startTime. */
+                public startTime?: (number|Long|null);
+
+                /** SubscriptionInfo endTime. */
+                public endTime?: (number|Long|null);
+
+                /** SubscriptionInfo isPlatformChanged. */
+                public isPlatformChanged?: (boolean|null);
+
+                /** SubscriptionInfo source. */
+                public source?: (string|null);
+
+                /** SubscriptionInfo creationTime. */
+                public creationTime?: (number|Long|null);
+
+                /**
+                 * Creates a new SubscriptionInfo instance using the specified properties.
+                 * @param [properties] Properties to set
+                 * @returns SubscriptionInfo instance
+                 */
+                public static create(properties?: proto.SyncActionValue.SubscriptionsSyncV2Action.ISubscriptionInfo): proto.SyncActionValue.SubscriptionsSyncV2Action.SubscriptionInfo;
+
+                /**
+                 * Encodes the specified SubscriptionInfo message. Does not implicitly {@link proto.SyncActionValue.SubscriptionsSyncV2Action.SubscriptionInfo.verify|verify} messages.
+                 * @param message SubscriptionInfo message or plain object to encode
+                 * @param [writer] Writer to encode to
+                 * @returns Writer
+                 */
+                public static encode(message: proto.SyncActionValue.SubscriptionsSyncV2Action.ISubscriptionInfo, writer?: $protobuf.Writer): $protobuf.Writer;
+
+                /**
+                 * Encodes the specified SubscriptionInfo message, length delimited. Does not implicitly {@link proto.SyncActionValue.SubscriptionsSyncV2Action.SubscriptionInfo.verify|verify} messages.
+                 * @param message SubscriptionInfo message or plain object to encode
+                 * @param [writer] Writer to encode to
+                 * @returns Writer
+                 */
+                public static encodeDelimited(message: proto.SyncActionValue.SubscriptionsSyncV2Action.ISubscriptionInfo, writer?: $protobuf.Writer): $protobuf.Writer;
+
+                /**
+                 * Decodes a SubscriptionInfo message from the specified reader or buffer.
+                 * @param reader Reader or buffer to decode from
+                 * @param [length] Message length if known beforehand
+                 * @returns SubscriptionInfo
+                 * @throws {Error} If the payload is not a reader or valid buffer
+                 * @throws {$protobuf.util.ProtocolError} If required fields are missing
+                 */
+                public static decode(reader: ($protobuf.Reader|Uint8Array), length?: number): proto.SyncActionValue.SubscriptionsSyncV2Action.SubscriptionInfo;
+
+                /**
+                 * Decodes a SubscriptionInfo message from the specified reader or buffer, length delimited.
+                 * @param reader Reader or buffer to decode from
+                 * @returns SubscriptionInfo
+                 * @throws {Error} If the payload is not a reader or valid buffer
+                 * @throws {$protobuf.util.ProtocolError} If required fields are missing
+                 */
+                public static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): proto.SyncActionValue.SubscriptionsSyncV2Action.SubscriptionInfo;
+
+                /**
+                 * Verifies a SubscriptionInfo message.
+                 * @param message Plain object to verify
+                 * @returns `null` if valid, otherwise the reason why it is not
+                 */
+                public static verify(message: { [k: string]: any }): (string|null);
+
+                /**
+                 * Creates a SubscriptionInfo message from a plain object. Also converts values to their respective internal types.
+                 * @param object Plain object
+                 * @returns SubscriptionInfo
+                 */
+                public static fromObject(object: { [k: string]: any }): proto.SyncActionValue.SubscriptionsSyncV2Action.SubscriptionInfo;
+
+                /**
+                 * Creates a plain object from a SubscriptionInfo message. Also converts values to other types if specified.
+                 * @param message SubscriptionInfo
+                 * @param [options] Conversion options
+                 * @returns Plain object
+                 */
+                public static toObject(message: proto.SyncActionValue.SubscriptionsSyncV2Action.SubscriptionInfo, options?: $protobuf.IConversionOptions): { [k: string]: any };
+
+                /**
+                 * Converts this SubscriptionInfo to JSON.
+                 * @returns JSON object
+                 */
+                public toJSON(): { [k: string]: any };
+
+                /**
+                 * Gets the default type url for SubscriptionInfo
+                 * @param [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+                 * @returns The default type url
+                 */
+                public static getTypeUrl(typeUrlPrefix?: string): string;
+            }
+        }
+
         /** Properties of a SyncActionMessage. */
         interface ISyncActionMessage {
 
@@ -60629,6 +62060,103 @@ export namespace proto {
 
             /**
              * Gets the default type url for SyncActionMessageRange
+             * @param [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+             * @returns The default type url
+             */
+            public static getTypeUrl(typeUrlPrefix?: string): string;
+        }
+
+        /** Properties of a ThreadPinAction. */
+        interface IThreadPinAction {
+
+            /** ThreadPinAction pinned */
+            pinned?: (boolean|null);
+        }
+
+        /** Represents a ThreadPinAction. */
+        class ThreadPinAction implements IThreadPinAction {
+
+            /**
+             * Constructs a new ThreadPinAction.
+             * @param [properties] Properties to set
+             */
+            constructor(properties?: proto.SyncActionValue.IThreadPinAction);
+
+            /** ThreadPinAction pinned. */
+            public pinned?: (boolean|null);
+
+            /**
+             * Creates a new ThreadPinAction instance using the specified properties.
+             * @param [properties] Properties to set
+             * @returns ThreadPinAction instance
+             */
+            public static create(properties?: proto.SyncActionValue.IThreadPinAction): proto.SyncActionValue.ThreadPinAction;
+
+            /**
+             * Encodes the specified ThreadPinAction message. Does not implicitly {@link proto.SyncActionValue.ThreadPinAction.verify|verify} messages.
+             * @param message ThreadPinAction message or plain object to encode
+             * @param [writer] Writer to encode to
+             * @returns Writer
+             */
+            public static encode(message: proto.SyncActionValue.IThreadPinAction, writer?: $protobuf.Writer): $protobuf.Writer;
+
+            /**
+             * Encodes the specified ThreadPinAction message, length delimited. Does not implicitly {@link proto.SyncActionValue.ThreadPinAction.verify|verify} messages.
+             * @param message ThreadPinAction message or plain object to encode
+             * @param [writer] Writer to encode to
+             * @returns Writer
+             */
+            public static encodeDelimited(message: proto.SyncActionValue.IThreadPinAction, writer?: $protobuf.Writer): $protobuf.Writer;
+
+            /**
+             * Decodes a ThreadPinAction message from the specified reader or buffer.
+             * @param reader Reader or buffer to decode from
+             * @param [length] Message length if known beforehand
+             * @returns ThreadPinAction
+             * @throws {Error} If the payload is not a reader or valid buffer
+             * @throws {$protobuf.util.ProtocolError} If required fields are missing
+             */
+            public static decode(reader: ($protobuf.Reader|Uint8Array), length?: number): proto.SyncActionValue.ThreadPinAction;
+
+            /**
+             * Decodes a ThreadPinAction message from the specified reader or buffer, length delimited.
+             * @param reader Reader or buffer to decode from
+             * @returns ThreadPinAction
+             * @throws {Error} If the payload is not a reader or valid buffer
+             * @throws {$protobuf.util.ProtocolError} If required fields are missing
+             */
+            public static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): proto.SyncActionValue.ThreadPinAction;
+
+            /**
+             * Verifies a ThreadPinAction message.
+             * @param message Plain object to verify
+             * @returns `null` if valid, otherwise the reason why it is not
+             */
+            public static verify(message: { [k: string]: any }): (string|null);
+
+            /**
+             * Creates a ThreadPinAction message from a plain object. Also converts values to their respective internal types.
+             * @param object Plain object
+             * @returns ThreadPinAction
+             */
+            public static fromObject(object: { [k: string]: any }): proto.SyncActionValue.ThreadPinAction;
+
+            /**
+             * Creates a plain object from a ThreadPinAction message. Also converts values to other types if specified.
+             * @param message ThreadPinAction
+             * @param [options] Conversion options
+             * @returns Plain object
+             */
+            public static toObject(message: proto.SyncActionValue.ThreadPinAction, options?: $protobuf.IConversionOptions): { [k: string]: any };
+
+            /**
+             * Converts this ThreadPinAction to JSON.
+             * @returns JSON object
+             */
+            public toJSON(): { [k: string]: any };
+
+            /**
+             * Gets the default type url for ThreadPinAction
              * @param [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
              * @returns The default type url
              */
@@ -62744,9 +64272,6 @@ export namespace proto {
 
         /** ThreadID threadKey */
         threadKey?: (proto.IMessageKey|null);
-
-        /** ThreadID sourceChatJid */
-        sourceChatJid?: (string|null);
     }
 
     /** Represents a ThreadID. */
@@ -62763,9 +64288,6 @@ export namespace proto {
 
         /** ThreadID threadKey. */
         public threadKey?: (proto.IMessageKey|null);
-
-        /** ThreadID sourceChatJid. */
-        public sourceChatJid?: (string|null);
 
         /**
          * Creates a new ThreadID instance using the specified properties.
