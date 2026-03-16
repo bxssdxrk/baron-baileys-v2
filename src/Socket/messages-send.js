@@ -543,7 +543,7 @@ const makeMessagesSocket = config => {
 					attrs: {
 						to: jid,
 						id: msgId,
-						type: getMessageType(message),
+						type: getTypeMessage(message),
 						...(additionalAttributes || {})
 					},
 					content: binaryNodeContent
@@ -780,7 +780,7 @@ const makeMessagesSocket = config => {
 				attrs: {
 					id: msgId,
 					to: destinationJid,
-					type: getMessageType(message),
+					type: getTypeMessage(message),
 					...(additionalAttributes || {})
 				},
 				content: binaryNodeContent
