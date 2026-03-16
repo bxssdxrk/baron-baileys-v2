@@ -152,9 +152,15 @@ function decodeMessageNode(stanza, meId, meLid) {
 		msgType = 'newsletter'
 		chatId = from
 		author = from
-		if (isMe(from) || isMeLid(from)) {
-			fromMe = true
-		}
+		// if (isMe(from) || isMeLid(from)) {
+		// 	fromMe = true
+		// }
+		
+    fromMe = (0, WABinary_1.isJidNewsletter)(from)
+      ? !!stanza.attrs?.is_sender
+      : (0, WABinary_1.isLidUser)(from)
+        ? (0, WABinary_1.areJidsSameUser)(from, meLid)
+        : (0, WABinary_1.areJidsSameUser)(from, meId);
 	} else {
 		throw new boom_1.Boom('Unknown message type', { data: stanza })
 	}
