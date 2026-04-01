@@ -163,7 +163,8 @@ const prepareWAMessageMedia = async (message, options) => {
 	const requiresDurationComputation = mediaType === 'audio' && typeof uploadData.seconds === 'undefined'
 	const requiresThumbnailComputation =
 		(mediaType === 'image' || mediaType === 'video') && typeof uploadData['jpegThumbnail'] === 'undefined'
-	const requiresWaveformProcessing = mediaType === 'audio' && uploadData.ptt === true
+
+	const requiresWaveformProcessing = mediaType === 'audio' && uploadData.ptt === true && typeof uploadData.waveform === 'undefined'
 	const requiresAudioBackground = options.backgroundColor && mediaType === 'audio' && uploadData.ptt === true
 	const requiresOriginalForSomeProcessing = requiresDurationComputation || requiresThumbnailComputation
 	const { mediaKey, encFilePath, originalFilePath, fileEncSha256, fileSha256, fileLength } = await (0,
@@ -517,8 +518,13 @@ const generateWAMessageContent = async (message, options) => {
 			}
 			if (message.mentionAll) {
 				key.contextInfo.nonJidMentions = 1
+			} else if (!key) {
+			key.contextInfo = {
+				mentionedJid: message.mentions,
+				nonJidMentions: message.mentionAll ? 1 : 0
 			}
 		}
+	}
 	}
 	if (hasOptionalProperty(message, 'edit')) {
 		m = {
@@ -586,7 +592,7 @@ const generateWAMessageFromContent = (jid, message, options) => {
 	}
 	if (
 		// if we want to send a disappearing message
-		!!options?.ephemeralExpiration &&
+		!!options.ephemeralExpiration &&
 		// and it's not a protocol message -- delete, toggle disappear message
 		key !== 'protocolMessage' &&
 		// already not converted to disappearing message
