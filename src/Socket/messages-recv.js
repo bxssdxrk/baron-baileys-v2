@@ -1131,7 +1131,7 @@ const makeMessagesRecvSocket = config => {
 						}
 						msg.participant ?? (msg.participant = node.attrs.participant)
 						msg.messageTimestamp = +node.attrs.t
-						await (0, jid_display_normalization_1.normalizeMessageForDisplayJids)(msg, signalRepository)
+						await (0, jid_display_normalization_1.normalizeMessageForDisplayJids)(msg, signalRepository, logger)
 						const fullMsg = index_js_1.proto.WebMessageInfo.fromObject(msg)
 						await upsertMessage(fullMsg, 'append')
 					}
@@ -1363,7 +1363,7 @@ const makeMessagesRecvSocket = config => {
 					}
 				}
 				;(0, Utils_1.cleanMessage)(msg, authState.creds.me.id, authState.creds.me.lid)
-				await (0, jid_display_normalization_1.normalizeMessageForDisplayJids)(msg, signalRepository)
+				await (0, jid_display_normalization_1.normalizeMessageForDisplayJids)(msg, signalRepository, logger)
 				await upsertMessage(msg, node.attrs.offline ? 'append' : 'notify')
 			})
 		} catch (error) {

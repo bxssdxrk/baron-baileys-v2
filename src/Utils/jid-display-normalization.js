@@ -6,6 +6,20 @@ exports.normalizeMentionedJidsForSend = void 0
 
 const WABinary_1 = require('../WABinary')
 
+const createLidPnDebug = logger => {
+	const enabled = process.env.LID_PN_DEBUG === '1' || process.env.LID_PN_DEBUG === 'true'
+	return (phase, payload) => {
+		if (!enabled) {
+			return
+		}
+		if (logger?.debug) {
+			logger.debug({ ...payload, phase }, 'lid->pn normalization trace')
+		} else {
+			console.log('[lid->pn]', phase, payload)
+		}
+	}
+}
+
 const fallbackPnFromLidJid = jid => {
 	const decoded = (0, WABinary_1.jidDecode)(jid)
 	const rawUser = decoded?.user || (typeof jid === 'string' ? jid.split('@')[0] : '')
@@ -61,57 +75,72 @@ const buildLidPnHints = key => {
 	return hints
 }
 
-const normalizeToPnJid = async (jid, hints, signalRepository) => {
+const normalizeToPnJid = async (jid, hints, signalRepository, debug) => {
 	if (!jid || typeof jid !== 'string') {
 		return jid
 	}
 	if (!(0, WABinary_1.isLidUser)(jid) && !(0, WABinary_1.isHostedLidUser)(jid)) {
 		return jid
 	}
+	debug?.('input', { lid: jid })
 	const hinted = hints.get(jid)
 	if (hinted) {
-		return toDisplayPnJid(hinted)
+		const normalized = toDisplayPnJid(hinted)
+		debug?.('hint-exact', { lid: jid, hinted, normalized })
+		return normalized
 	}
 	const decoded = (0, WABinary_1.jidDecode)(jid)
 	if (decoded?.user) {
 		const userHint = hints.get(`${decoded.user}@lid`)
 		if (userHint) {
-			return userHint
+			const normalized = toDisplayPnJid(userHint)
+			debug?.('hint-user', { lid: jid, userHint, normalized })
+			return normalized
 		}
 	}
 	const mapped = await signalRepository?.lidMapping?.getPNForLID?.(jid)
 	if (mapped) {
-		return toDisplayPnJid(mapped)
+		const normalized = toDisplayPnJid(mapped)
+		debug?.('mapping', { lid: jid, mapped, normalized })
+		return normalized
 	}
-	return fallbackPnFromLidJid(jid)
+	const fallback = fallbackPnFromLidJid(jid)
+	debug?.('fallback', { lid: jid, fallback })
+	return fallback
 }
 
-const normalizeMentionedJidsToPn = async (node, hints, signalRepository) => {
+const normalizeMentionedJidsToPn = async (node, hints, signalRepository, debug) => {
 	if (!node || typeof node !== 'object') {
 		return
 	}
 	if (Array.isArray(node)) {
 		for (const item of node) {
-			await normalizeMentionedJidsToPn(item, hints, signalRepository)
+			await normalizeMentionedJidsToPn(item, hints, signalRepository, debug)
 		}
 		return
 	}
 	if (Array.isArray(node.mentionedJid)) {
-		node.mentionedJid = await Promise.all(node.mentionedJid.map(jid => normalizeToPnJid(jid, hints, signalRepository)))
+		const before = [...node.mentionedJid]
+		node.mentionedJid = await Promise.all(
+			node.mentionedJid.map(jid => normalizeToPnJid(jid, hints, signalRepository, debug))
+		)
+		debug?.('mentions', { before, after: node.mentionedJid })
 	}
 	for (const value of Object.values(node)) {
 		if (value && typeof value === 'object') {
-			await normalizeMentionedJidsToPn(value, hints, signalRepository)
+			await normalizeMentionedJidsToPn(value, hints, signalRepository, debug)
 		}
 	}
 }
 
-const normalizeMentionedJidsForSend = async (mentions, groupData, signalRepository) => {
+const normalizeMentionedJidsForSend = async (mentions, groupData, signalRepository, logger) => {
 	if (!Array.isArray(mentions)) {
 		return mentions
 	}
+	const debug = createLidPnDebug(logger)
 	const hints = new Map()
 	if (groupData?.participants?.length) {
+		debug('groupData-size', { participants: groupData.participants.length })
 		for (const participant of groupData.participants) {
 			const lid = participant?.id
 			const pn = participant?.phoneNumber
@@ -124,22 +153,33 @@ const normalizeMentionedJidsForSend = async (mentions, groupData, signalReposito
 				if (lidDecoded?.user) {
 					hints.set(`${lidDecoded.user}@lid`, toDisplayPnJid(pn))
 				}
+				debug('group-hint', { lid, pn: toDisplayPnJid(pn) })
 			}
 		}
 	}
-	return Promise.all(mentions.map(jid => normalizeToPnJid(jid, hints, signalRepository)))
+	const normalized = await Promise.all(mentions.map(jid => normalizeToPnJid(jid, hints, signalRepository, debug)))
+	debug('send-mentions-result', { before: mentions, after: normalized })
+	return normalized
 }
 
-const normalizeMessageForDisplayJids = async (messageInfo, signalRepository) => {
+const normalizeMessageForDisplayJids = async (messageInfo, signalRepository, logger) => {
 	if (!messageInfo?.key) {
 		return messageInfo
 	}
+	const debug = createLidPnDebug(logger)
 	const hints = buildLidPnHints(messageInfo.key)
-	messageInfo.key.participant = await normalizeToPnJid(messageInfo.key.participant, hints, signalRepository)
-	messageInfo.key.participantAlt = await normalizeToPnJid(messageInfo.key.participantAlt, hints, signalRepository)
-	messageInfo.key.remoteJid = await normalizeToPnJid(messageInfo.key.remoteJid, hints, signalRepository)
-	messageInfo.key.remoteJidAlt = await normalizeToPnJid(messageInfo.key.remoteJidAlt, hints, signalRepository)
-	await normalizeMentionedJidsToPn(messageInfo.message, hints, signalRepository)
+	const beforeKey = { ...messageInfo.key }
+	messageInfo.key.participant = await normalizeToPnJid(messageInfo.key.participant, hints, signalRepository, debug)
+	messageInfo.key.participantAlt = await normalizeToPnJid(
+		messageInfo.key.participantAlt,
+		hints,
+		signalRepository,
+		debug
+	)
+	messageInfo.key.remoteJid = await normalizeToPnJid(messageInfo.key.remoteJid, hints, signalRepository, debug)
+	messageInfo.key.remoteJidAlt = await normalizeToPnJid(messageInfo.key.remoteJidAlt, hints, signalRepository, debug)
+	await normalizeMentionedJidsToPn(messageInfo.message, hints, signalRepository, debug)
+	debug('display-key-result', { before: beforeKey, after: messageInfo.key })
 	return messageInfo
 }
 

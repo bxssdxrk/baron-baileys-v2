@@ -1531,7 +1531,8 @@ const makeMessagesSocket = config => {
 						jid_display_normalization_1.normalizeMentionedJidsForSend)(
 							mentionedJid,
 							resolvedGroupData,
-							signalRepository
+							signalRepository,
+							logger
 						)
 					}
 				}

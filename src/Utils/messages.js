@@ -514,7 +514,8 @@ const generateWAMessageContent = async (message, options) => {
 		const normalizedMentions = await (0, jid_display_normalization_1.normalizeMentionedJidsForSend)(
 			message.mentions,
 			options.groupData,
-			options.signalRepository
+			options.signalRepository,
+			options.logger
 		)
 		const messageType = Object.keys(m)[0]
 		const key = m[messageType]
