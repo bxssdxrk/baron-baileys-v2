@@ -749,7 +749,7 @@ const makeMessagesRecvSocket = config => {
 				logger.debug({ error, groupJid: callContextGroupJid }, 'failed to fetch group metadata for call normalization')
 			}
 		}
-		if (call.chatId) {
+		if (call.chatId && !call.isGroup) {
 			call.chatId = await normalizeNotificationParticipant(call.chatId, groupData)
 		}
 		if (call.from) {
