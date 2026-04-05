@@ -164,7 +164,8 @@ const prepareWAMessageMedia = async (message, options) => {
 	const requiresThumbnailComputation =
 		(mediaType === 'image' || mediaType === 'video') && typeof uploadData['jpegThumbnail'] === 'undefined'
 
-	const requiresWaveformProcessing = mediaType === 'audio' && uploadData.ptt === true && typeof uploadData.waveform === 'undefined'
+	const requiresWaveformProcessing =
+		mediaType === 'audio' && uploadData.ptt === true && typeof uploadData.waveform === 'undefined'
 	const requiresAudioBackground = options.backgroundColor && mediaType === 'audio' && uploadData.ptt === true
 	const requiresOriginalForSomeProcessing = requiresDurationComputation || requiresThumbnailComputation
 	const { mediaKey, encFilePath, originalFilePath, fileEncSha256, fileSha256, fileLength } = await (0,
@@ -509,22 +510,23 @@ const generateWAMessageContent = async (message, options) => {
 		(hasOptionalProperty(message, 'mentions') && message.mentions?.length) ||
 		(hasOptionalProperty(message, 'mentionAll') && message.mentionAll)
 	) {
+		const normalizedMentions = normalizeMentionsToPn(message.mentions)
 		const messageType = Object.keys(m)[0]
 		const key = m[messageType]
 		if (key && 'contextInfo' in key) {
 			key.contextInfo = key.contextInfo || {}
-			if (message.mentions?.length) {
-				key.contextInfo.mentionedJid = message.mentions
+			if (normalizedMentions?.length) {
+				key.contextInfo.mentionedJid = normalizedMentions
 			}
 			if (message.mentionAll) {
 				key.contextInfo.nonJidMentions = 1
 			} else if (!key) {
-			key.contextInfo = {
-				mentionedJid: message.mentions,
-				nonJidMentions: message.mentionAll ? 1 : 0
+				key.contextInfo = {
+					mentionedJid: normalizedMentions,
+					nonJidMentions: message.mentionAll ? 1 : 0
+				}
 			}
 		}
-	}
 	}
 	if (hasOptionalProperty(message, 'edit')) {
 		m = {
@@ -950,3 +952,16 @@ const assertMediaContent = content => {
 	return mediaContent
 }
 exports.assertMediaContent = assertMediaContent
+const normalizeMentionsToPn = mentions => {
+	if (!Array.isArray(mentions)) {
+		return mentions
+	}
+	return mentions.map(jid => {
+		if ((0, WABinary_1.isLidUser)(jid) || (0, WABinary_1.isHostedLidUser)(jid)) {
+			const decoded = (0, WABinary_1.jidDecode)(jid)
+			const user = decoded?.user ? decoded.user.split(':')[0] : ''
+			return user ? `${user}@s.whatsapp.net` : jid
+		}
+		return jid
+	})
+}
