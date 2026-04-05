@@ -81,8 +81,19 @@ const mergeGroupDataHints = (hints, groupData, debug) => {
 	}
 	debug?.('groupData-size', { participants: groupData.participants.length })
 	for (const participant of groupData.participants) {
-		const lid = participant?.id || participant?.lid
-		const pn = participant?.phoneNumber
+		const lidCandidate = participant?.lid
+		const idCandidate = participant?.id
+		const pnCandidate = participant?.phoneNumber
+		const lid =
+			((0, WABinary_1.isLidUser)(lidCandidate) || (0, WABinary_1.isHostedLidUser)(lidCandidate)
+				? lidCandidate
+				: undefined) ||
+			((0, WABinary_1.isLidUser)(idCandidate) || (0, WABinary_1.isHostedLidUser)(idCandidate) ? idCandidate : undefined)
+		const pn =
+			((0, WABinary_1.isPnUser)(pnCandidate) || (0, WABinary_1.isHostedPnUser)(pnCandidate)
+				? pnCandidate
+				: undefined) ||
+			((0, WABinary_1.isPnUser)(idCandidate) || (0, WABinary_1.isHostedPnUser)(idCandidate) ? idCandidate : undefined)
 		if (!lid || !pn) {
 			continue
 		}
