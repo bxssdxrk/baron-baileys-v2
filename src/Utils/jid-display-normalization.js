@@ -75,6 +75,32 @@ const buildLidPnHints = key => {
 	return hints
 }
 
+const mergeGroupDataHints = (hints, groupData, debug) => {
+	if (!groupData?.participants?.length) {
+		return
+	}
+	debug?.('groupData-size', { participants: groupData.participants.length })
+	for (const participant of groupData.participants) {
+		const lid = participant?.id || participant?.lid
+		const pn = participant?.phoneNumber
+		if (!lid || !pn) {
+			continue
+		}
+		if (
+			((0, WABinary_1.isLidUser)(lid) || (0, WABinary_1.isHostedLidUser)(lid)) &&
+			((0, WABinary_1.isPnUser)(pn) || (0, WABinary_1.isHostedPnUser)(pn))
+		) {
+			const displayPn = toDisplayPnJid(pn)
+			hints.set(lid, displayPn)
+			const lidDecoded = (0, WABinary_1.jidDecode)(lid)
+			if (lidDecoded?.user) {
+				hints.set(`${lidDecoded.user}@lid`, displayPn)
+			}
+			debug?.('group-hint', { lid, pn: displayPn })
+		}
+	}
+}
+
 const normalizeToPnJid = async (jid, hints, signalRepository, debug) => {
 	if (!jid || typeof jid !== 'string') {
 		return jid
@@ -139,35 +165,19 @@ const normalizeMentionedJidsForSend = async (mentions, groupData, signalReposito
 	}
 	const debug = createLidPnDebug(logger)
 	const hints = new Map()
-	if (groupData?.participants?.length) {
-		debug('groupData-size', { participants: groupData.participants.length })
-		for (const participant of groupData.participants) {
-			const lid = participant?.id
-			const pn = participant?.phoneNumber
-			if (
-				((0, WABinary_1.isLidUser)(lid) || (0, WABinary_1.isHostedLidUser)(lid)) &&
-				((0, WABinary_1.isPnUser)(pn) || (0, WABinary_1.isHostedPnUser)(pn))
-			) {
-				hints.set(lid, toDisplayPnJid(pn))
-				const lidDecoded = (0, WABinary_1.jidDecode)(lid)
-				if (lidDecoded?.user) {
-					hints.set(`${lidDecoded.user}@lid`, toDisplayPnJid(pn))
-				}
-				debug('group-hint', { lid, pn: toDisplayPnJid(pn) })
-			}
-		}
-	}
+	mergeGroupDataHints(hints, groupData, debug)
 	const normalized = await Promise.all(mentions.map(jid => normalizeToPnJid(jid, hints, signalRepository, debug)))
 	debug('send-mentions-result', { before: mentions, after: normalized })
 	return normalized
 }
 
-const normalizeMessageForDisplayJids = async (messageInfo, signalRepository, logger) => {
+const normalizeMessageForDisplayJids = async (messageInfo, signalRepository, logger, groupData) => {
 	if (!messageInfo?.key) {
 		return messageInfo
 	}
 	const debug = createLidPnDebug(logger)
 	const hints = buildLidPnHints(messageInfo.key)
+	mergeGroupDataHints(hints, groupData, debug)
 	const beforeKey = { ...messageInfo.key }
 	messageInfo.key.participant = await normalizeToPnJid(messageInfo.key.participant, hints, signalRepository, debug)
 	messageInfo.key.participantAlt = await normalizeToPnJid(

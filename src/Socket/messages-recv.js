@@ -1131,7 +1131,26 @@ const makeMessagesRecvSocket = config => {
 						}
 						msg.participant ?? (msg.participant = node.attrs.participant)
 						msg.messageTimestamp = +node.attrs.t
-						await (0, jid_display_normalization_1.normalizeMessageForDisplayJids)(msg, signalRepository, logger)
+						let groupDataForNormalization
+						if ((0, WABinary_1.isJidGroup)(msg?.key?.remoteJid)) {
+							try {
+								groupDataForNormalization =
+									(config.useCachedGroupMetadata && config.cachedGroupMetadata
+										? await config.cachedGroupMetadata(msg.key.remoteJid)
+										: undefined) || (await sock.groupMetadata(msg.key.remoteJid))
+							} catch (error) {
+								logger.debug(
+									{ error, jid: msg.key.remoteJid },
+									'failed to fetch group metadata for recv jid normalization'
+								)
+							}
+						}
+						await (0, jid_display_normalization_1.normalizeMessageForDisplayJids)(
+							msg,
+							signalRepository,
+							logger,
+							groupDataForNormalization
+						)
 						const fullMsg = index_js_1.proto.WebMessageInfo.fromObject(msg)
 						await upsertMessage(fullMsg, 'append')
 					}
@@ -1363,7 +1382,23 @@ const makeMessagesRecvSocket = config => {
 					}
 				}
 				;(0, Utils_1.cleanMessage)(msg, authState.creds.me.id, authState.creds.me.lid)
-				await (0, jid_display_normalization_1.normalizeMessageForDisplayJids)(msg, signalRepository, logger)
+				let groupDataForNormalization
+				if ((0, WABinary_1.isJidGroup)(msg?.key?.remoteJid)) {
+					try {
+						groupDataForNormalization =
+							(config.useCachedGroupMetadata && config.cachedGroupMetadata
+								? await config.cachedGroupMetadata(msg.key.remoteJid)
+								: undefined) || (await sock.groupMetadata(msg.key.remoteJid))
+					} catch (error) {
+						logger.debug({ error, jid: msg.key.remoteJid }, 'failed to fetch group metadata for recv jid normalization')
+					}
+				}
+				await (0, jid_display_normalization_1.normalizeMessageForDisplayJids)(
+					msg,
+					signalRepository,
+					logger,
+					groupDataForNormalization
+				)
 				await upsertMessage(msg, node.attrs.offline ? 'append' : 'notify')
 			})
 		} catch (error) {
