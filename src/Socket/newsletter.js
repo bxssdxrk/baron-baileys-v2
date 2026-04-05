@@ -5,6 +5,7 @@ const Types_1 = require('../Types')
 const messages_media_1 = require('../Utils/messages-media')
 const WABinary_1 = require('../WABinary')
 const groups_1 = require('./groups')
+const aigroups_1 = require('./aigroups')
 const mex_1 = require('./mex')
 const parseNewsletterCreateResponse = response => {
 	const { id, thread_metadata: thread, viewer_metadata: viewer } = response
@@ -37,7 +38,7 @@ const parseNewsletterMetadata = result => {
 	return null
 }
 const makeNewsletterSocket = config => {
-	const sock = (0, groups_1.makeGroupsSocket)(config)
+	const sock = (0, aigroups_1.makeAIGroupsSocket)(config)
 	const { query, generateMessageTag } = sock
 	const executeWMexQuery = (variables, queryId, dataPath) => {
 		return (0, mex_1.executeWMexQuery)(variables, queryId, dataPath, query, generateMessageTag)

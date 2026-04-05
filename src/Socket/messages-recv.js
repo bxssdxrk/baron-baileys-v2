@@ -18,6 +18,7 @@ const offline_node_processor_1 = require('../Utils/offline-node-processor')
 const stanza_ack_1 = require('../Utils/stanza-ack')
 const WABinary_1 = require('../WABinary')
 const groups_1 = require('./groups')
+const aigroup_1 = require('./aigroups')
 const messages_send_1 = require('./messages-send')
 const makeMessagesRecvSocket = config => {
 	const { logger, retryRequestDelayMs, maxMsgRetryCount, getMessage, shouldIgnoreJid, enableAutoSessionRecreation } =
@@ -650,6 +651,61 @@ const makeMessagesRecvSocket = config => {
 				break
 		}
 	}
+	const handleAIGroupNotification = (fullNode, child) => {
+		if (!child) return
+		const actingParticipantLid = fullNode.attrs.participant
+		const actingParticipantPn = fullNode.attrs.participant_pn
+		switch (child.tag) {
+			case 'create': {
+				const metadata = (0, aigroup_1.extractAIGroupMetadata)(child)
+				ev.emit('chats.upsert', [
+					{
+						id: metadata.id,
+						name: metadata.subject,
+						conversationTimestamp: metadata.creation
+					}
+				])
+				ev.emit('groups.upsert', [
+					{
+						...metadata,
+						isAIGroup: true,
+						author: actingParticipantLid,
+						authorPn: actingParticipantPn
+					}
+				])
+				break
+			}
+			case 'promote':
+			case 'demote':
+			case 'remove':
+			case 'add':
+			case 'leave': {
+				const participants = (0, WABinary_1.getBinaryNodeChildren)(child, 'participant').map(({ attrs }) => {
+					const jid = attrs.jid
+					if (typeof jid === 'string') return { id: jid, admin: attrs.type || null }
+					if (jid?.$1) {
+						const encoded = (0, WABinary_1.jidEncode)(jid.$1.user, jid.$1.server || 's.whatsapp.net')
+						return { id: encoded, admin: attrs.type || null }
+					}
+					return null
+				}).filter(Boolean)
+				ev.emit('group-participants.update', {
+					id: (0, WABinary_1.jidNormalizedUser)(fullNode.attrs.from),
+					participants: participants.map(p => p.id),
+					action: child.tag,
+					isAIGroup: true
+				})
+				break
+			}
+			case 'subject':
+				ev.emit('groups.update', [{
+					id: (0, WABinary_1.jidNormalizedUser)(fullNode.attrs.from),
+					subject: child.attrs.subject,
+					isAIGroup: true
+				}])
+				break
+		}
+	}
 	const processNotification = async node => {
 		const result = {}
 		const [child] = (0, WABinary_1.getAllBinaryNodeChildren)(node)
@@ -665,6 +721,7 @@ const makeMessagesRecvSocket = config => {
 			case 'w:gp2':
 				// TODO: HANDLE PARTICIPANT_PN
 				handleGroupNotification(node, child, result)
+				handleAIGroupNotification(node, child, result)
 				break
 			case 'mediaretry':
 				const event = (0, Utils_1.decodeMediaRetryNode)(node)
@@ -1088,9 +1145,25 @@ const makeMessagesRecvSocket = config => {
 		const encNode = (0, WABinary_1.getBinaryNodeChild)(node, 'enc')
 		// TODO: temporary fix for crashes and issues resulting of failed msmsg decryption
 		if (encNode?.attrs.type === 'msmsg') {
-			logger.debug({ key: node.attrs.key }, 'ignored msmsg')
-			await sendMessageAck(node, Utils_1.NACK_REASONS.MissingMessageSecret)
-			return
+
+
+
+			// await sendMessageAck(node, Utils_1.NACK_REASONS.MissingMessageSecret)
+			// return
+			// Pre-populate botMessageSecrets from store so msmsg can be decrypted after restart
+			if (getMessage) {
+				const metaNode = (0, WABinary_1.getBinaryNodeChild)(node, 'meta')
+				const targetId = metaNode?.attrs?.target_id
+				if (targetId) {
+					try {
+						const targetMsg = await getMessage({ remoteJid: node.attrs.from, id: targetId, fromMe: true })
+						const secret = targetMsg?.messageContextInfo?.messageSecret
+						if (secret) {
+							(0, Utils_1.setBotMessageSecret)(targetId, secret)
+						}
+					} catch {}
+				}
+			}
 		}
 		let acked = false
 		try {
@@ -1467,6 +1540,7 @@ const makeMessagesRecvSocket = config => {
 		if (!call) {
 			return
 		}
+		nodelogger(call)
 		// missed call + group call notification message generation
 		if (call.status === 'timeout' || (call.status === 'offer' && call.isGroup)) {
 			const msg = {
