@@ -152,6 +152,20 @@ const normalizeMentionedJidsToPn = async (node, hints, signalRepository, debug) 
 		)
 		debug?.('mentions', { before, after: node.mentionedJid })
 	}
+	if (typeof node.participant === 'string') {
+		const before = node.participant
+		node.participant = await normalizeToPnJid(node.participant, hints, signalRepository, debug)
+		if (before !== node.participant) {
+			debug?.('participant-field', { before, after: node.participant })
+		}
+	}
+	if (typeof node.remoteJid === 'string') {
+		const before = node.remoteJid
+		node.remoteJid = await normalizeToPnJid(node.remoteJid, hints, signalRepository, debug)
+		if (before !== node.remoteJid) {
+			debug?.('remoteJid-field', { before, after: node.remoteJid })
+		}
+	}
 	for (const value of Object.values(node)) {
 		if (value && typeof value === 'object') {
 			await normalizeMentionedJidsToPn(value, hints, signalRepository, debug)
