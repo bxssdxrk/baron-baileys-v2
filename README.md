@@ -629,47 +629,6 @@ async function connectToWhatsApp() {
 connectToWhatsApp()
 ```
 
-### For example if you use useSingleFileAuthState and useMongoFileAuthState
-
-```ts
-import makeWASocket, { useSingleFileAuthState, useMongoFileAuthState } from 'baron-baileys-v2'
-
-// Single Auth
-const { state, saveState } = await useSingleFileAuthState('./auth_info_baileys.json')
-const sock = makeWASocket({
-        auth: state,
-        printQRInTerminal: true
-    })
-
-sock.ev.on('creds.update', saveState)
-
-// Mongo Auth
-import { MongoClient } from "mongodb"
-
-const connectAuth = async() => {
-    global.client = new MongoClient('mongoURL')
-    global.client.connect(err => {
-        if (err) {
-            console.warn("Warning: MongoDB link is invalid or cannot be connected.")
-        } else {
-            console.log('Successfully Connected To MongoDB Server')
-        }
-    })
-}
-  await client.connect()
-  const collection = client.db("@Baron").collection("sessions")
-  return collection
-}
-
-const Authentication = await connectAuth()
-const { state, saveCreds } = await useMongoFileAuthState(Authentication)
-const sock = makeWASocket({
-        auth: state,
-        printQRInTerminal: true
-    })
-
-sock.ev.on('creds.update', saveCreds)
-```
 
 > [!IMPORTANT]
 > In `messages.upsert` it's recommended to use a loop like `for (const message of event.messages)` to handle all messages in array
