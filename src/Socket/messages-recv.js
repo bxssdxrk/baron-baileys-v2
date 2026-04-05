@@ -653,6 +653,76 @@ const makeMessagesRecvSocket = config => {
 				break
 		}
 	}
+	const normalizeNotificationParticipant = async (jid, groupData) => {
+		if (!jid || typeof jid !== 'string') {
+			return jid
+		}
+		if (!(0, WABinary_1.isLidUser)(jid) && !(0, WABinary_1.isHostedLidUser)(jid)) {
+			return jid
+		}
+		const normalized = await (0, jid_display_normalization_1.normalizeMentionedJidsForSend)(
+			[jid],
+			groupData,
+			signalRepository,
+			logger
+		)
+		return normalized?.[0] || jid
+	}
+	const normalizeNotificationStubParameters = async (stubParameters, groupData) => {
+		if (!Array.isArray(stubParameters)) {
+			return stubParameters
+		}
+		const normalized = []
+		for (const entry of stubParameters) {
+			if (typeof entry !== 'string') {
+				normalized.push(entry)
+				continue
+			}
+			if ((0, WABinary_1.isLidUser)(entry) || (0, WABinary_1.isHostedLidUser)(entry)) {
+				normalized.push(await normalizeNotificationParticipant(entry, groupData))
+				continue
+			}
+			if (entry.startsWith('{') && entry.includes('"id"')) {
+				try {
+					const parsed = JSON.parse(entry)
+					if (parsed?.id) {
+						parsed.id = await normalizeNotificationParticipant(parsed.id, groupData)
+					}
+					if (parsed?.lid && !parsed?.pn) {
+						parsed.pn = await normalizeNotificationParticipant(parsed.lid, groupData)
+					}
+					normalized.push(JSON.stringify(parsed))
+					continue
+				} catch {}
+			}
+			normalized.push(entry)
+		}
+		return normalized
+	}
+	const normalizeNotificationResult = async (node, result) => {
+		const groupJid = (0, WABinary_1.jidNormalizedUser)(node?.attrs?.from)
+		if (!(0, WABinary_1.isJidGroup)(groupJid)) {
+			return
+		}
+		let groupData
+		try {
+			groupData =
+				(config.useCachedGroupMetadata && config.cachedGroupMetadata
+					? await config.cachedGroupMetadata(groupJid)
+					: undefined) || (await sock.groupMetadata(groupJid))
+		} catch (error) {
+			logger.debug({ error, groupJid }, 'failed to fetch group metadata for notification normalization')
+		}
+		if (result?.key?.participant) {
+			result.key.participant = await normalizeNotificationParticipant(result.key.participant, groupData)
+		}
+		if (result?.participant) {
+			result.participant = await normalizeNotificationParticipant(result.participant, groupData)
+		}
+		if (Array.isArray(result?.messageStubParameters)) {
+			result.messageStubParameters = await normalizeNotificationStubParameters(result.messageStubParameters, groupData)
+		}
+	}
 	const handleAIGroupNotification = (fullNode, child) => {
 		if (!child) return
 		const actingParticipantLid = fullNode.attrs.participant
@@ -728,6 +798,7 @@ const makeMessagesRecvSocket = config => {
 				// TODO: HANDLE PARTICIPANT_PN
 				handleGroupNotification(node, child, result)
 				handleAIGroupNotification(node, child, result)
+				await normalizeNotificationResult(node, result)
 				break
 			case 'mediaretry':
 				const event = (0, Utils_1.decodeMediaRetryNode)(node)
