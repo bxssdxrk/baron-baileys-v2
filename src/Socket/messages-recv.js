@@ -733,6 +733,39 @@ const makeMessagesRecvSocket = config => {
 		}
 		return normalized
 	}
+	const normalizeCallEventJids = async (call, infoChild) => {
+		if (!call) {
+			return call
+		}
+		const callContextGroupJid = call.groupJid || ((0, WABinary_1.isJidGroup)(call.chatId) ? call.chatId : undefined)
+		let groupData
+		if (callContextGroupJid) {
+			try {
+				groupData =
+					(config.useCachedGroupMetadata && config.cachedGroupMetadata
+						? await config.cachedGroupMetadata(callContextGroupJid)
+						: undefined) || (await sock.groupMetadata(callContextGroupJid))
+			} catch (error) {
+				logger.debug({ error, groupJid: callContextGroupJid }, 'failed to fetch group metadata for call normalization')
+			}
+		}
+		if (call.chatId) {
+			call.chatId = await normalizeNotificationParticipant(call.chatId, groupData)
+		}
+		if (call.from) {
+			call.from = await normalizeNotificationParticipant(call.from, groupData)
+		}
+		if (call.groupJid) {
+			call.groupJid = await normalizeNotificationParticipant(call.groupJid, groupData)
+		}
+		if (!call.callerPn && infoChild?.attrs?.caller_lid) {
+			call.callerPn = await normalizeNotificationParticipant(infoChild.attrs.caller_lid, groupData)
+		}
+		if (!call.callerPn && call.from) {
+			call.callerPn = call.from
+		}
+		return call
+	}
 	const normalizeNotificationResult = async (node, result, groupData) => {
 		const groupJid = (0, WABinary_1.jidNormalizedUser)(node?.attrs?.from)
 		if (!(0, WABinary_1.isJidGroup)(groupJid)) {
@@ -748,70 +781,7 @@ const makeMessagesRecvSocket = config => {
 			result.messageStubParameters = await normalizeNotificationStubParameters(result.messageStubParameters, groupData)
 		}
 	}
-	const handleAIGroupNotification = async (fullNode, child, groupData) => {
-		if (!child) return
-		const actingParticipantLid = fullNode.attrs.participant
-		const actingParticipantPn = fullNode.attrs.participant_pn
-		switch (child.tag) {
-			case 'create': {
-				const metadata = (0, aigroup_1.extractAIGroupMetadata)(child)
-				const normalizedAuthor = await normalizeNotificationParticipant(actingParticipantLid, groupData)
-				ev.emit('chats.upsert', [
-					{
-						id: metadata.id,
-						name: metadata.subject,
-						conversationTimestamp: metadata.creation
-					}
-				])
-				ev.emit('groups.upsert', [
-					{
-						...metadata,
-						isAIGroup: true,
-						author: normalizedAuthor,
-						authorPn: actingParticipantPn
-					}
-				])
-				break
-			}
-			case 'promote':
-			case 'demote':
-			case 'remove':
-			case 'add':
-			case 'leave': {
-				const participants = (0, WABinary_1.getBinaryNodeChildren)(child, 'participant')
-					.map(({ attrs }) => {
-						const jid = attrs.jid
-						if (typeof jid === 'string') return { id: jid, admin: attrs.type || null }
-						if (jid?.$1) {
-							const encoded = (0, WABinary_1.jidEncode)(jid.$1.user, jid.$1.server || 's.whatsapp.net')
-							return { id: encoded, admin: attrs.type || null }
-						}
-						return null
-					})
-					.filter(Boolean)
-				const normalizedParticipants = await normalizeNotificationParticipantsArray(
-					participants.map(p => p.id),
-					groupData
-				)
-				ev.emit('group-participants.update', {
-					id: (0, WABinary_1.jidNormalizedUser)(fullNode.attrs.from),
-					participants: normalizedParticipants,
-					action: child.tag,
-					isAIGroup: true
-				})
-				break
-			}
-			case 'subject':
-				ev.emit('groups.update', [
-					{
-						id: (0, WABinary_1.jidNormalizedUser)(fullNode.attrs.from),
-						subject: child.attrs.subject,
-						isAIGroup: true
-					}
-				])
-				break
-		}
-	}
+
 	const processNotification = async node => {
 		const result = {}
 		const [child] = (0, WABinary_1.getAllBinaryNodeChildren)(node)
@@ -828,7 +798,7 @@ const makeMessagesRecvSocket = config => {
 				// TODO: HANDLE PARTICIPANT_PN
 				const groupData = await getNotificationGroupData(node)
 				handleGroupNotification(node, child, result)
-				await handleAIGroupNotification(node, child, groupData)
+
 				await normalizeNotificationResult(node, result, groupData)
 				break
 			case 'mediaretry':
@@ -1548,6 +1518,7 @@ const makeMessagesRecvSocket = config => {
 			if (status === 'reject' || status === 'accept' || status === 'timeout' || status === 'terminate') {
 				await callOfferCache.del(call.id)
 			}
+			await normalizeCallEventJids(call, infoChild)
 			ev.emit('call', [call])
 		} catch (error) {
 			logger.error({ error, node: (0, WABinary_1.binaryNodeToString)(node) }, 'error in handling call')
