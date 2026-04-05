@@ -781,6 +781,10 @@ const makeSocket = config => {
 		logger.info('opened connection to WA')
 		clearTimeout(qrTimer) // will never happen in all likelyhood -- but just in case WA sends success on first try
 		ev.emit('creds.update', { me: { ...authState.creds.me, lid: node.attrs.lid } })
+		if (config.syncFullHistory && authState.creds.initialFullSyncDone !== true) {
+			logger.debug('initial full history sync completed, persisting one-time flag')
+			ev.emit('creds.update', { initialFullSyncDone: true })
+		}
 		ev.emit('connection.update', { connection: 'open' })
 		void sendUnifiedSession()
 		if (node.attrs.lid && authState.creds.me?.id) {

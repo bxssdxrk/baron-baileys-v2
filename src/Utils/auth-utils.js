@@ -285,6 +285,7 @@ const initAuthCreds = () => {
 		registrationId: (0, generics_1.generateRegistrationId)(),
 		advSecretKey: (0, crypto_1.randomBytes)(32).toString('base64'),
 		processedHistoryMessages: [],
+		initialFullSyncDone: false,
 		nextPreKeyId: 1,
 		firstUnuploadedPreKeyId: 1,
 		accountSyncCounter: 0,
