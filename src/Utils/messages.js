@@ -34,6 +34,7 @@ const crypto_2 = require('./crypto')
 const generics_1 = require('./generics')
 const messages_media_1 = require('./messages-media')
 const reporting_utils_1 = require('./reporting-utils')
+const jid_display_normalization_1 = require('./jid-display-normalization')
 const MIMETYPE_MAP = {
 	image: 'image/jpeg',
 	video: 'video/mp4',
@@ -510,7 +511,11 @@ const generateWAMessageContent = async (message, options) => {
 		(hasOptionalProperty(message, 'mentions') && message.mentions?.length) ||
 		(hasOptionalProperty(message, 'mentionAll') && message.mentionAll)
 	) {
-		const normalizedMentions = normalizeMentionsToPn(message.mentions)
+		const normalizedMentions = await (0, jid_display_normalization_1.normalizeMentionedJidsForSend)(
+			message.mentions,
+			options.groupData,
+			options.signalRepository
+		)
 		const messageType = Object.keys(m)[0]
 		const key = m[messageType]
 		if (key && 'contextInfo' in key) {
@@ -952,16 +957,3 @@ const assertMediaContent = content => {
 	return mediaContent
 }
 exports.assertMediaContent = assertMediaContent
-const normalizeMentionsToPn = mentions => {
-	if (!Array.isArray(mentions)) {
-		return mentions
-	}
-	return mentions.map(jid => {
-		if ((0, WABinary_1.isLidUser)(jid) || (0, WABinary_1.isHostedLidUser)(jid)) {
-			const decoded = (0, WABinary_1.jidDecode)(jid)
-			const user = decoded?.user ? decoded.user.split(':')[0] : ''
-			return user ? `${user}@s.whatsapp.net` : jid
-		}
-		return jid
-	})
-}

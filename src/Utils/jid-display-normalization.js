@@ -2,6 +2,7 @@
 
 Object.defineProperty(exports, '__esModule', { value: true })
 exports.normalizeMessageForDisplayJids = void 0
+exports.normalizeMentionedJidsForSend = void 0
 
 const WABinary_1 = require('../WABinary')
 
@@ -13,6 +14,25 @@ const fallbackPnFromLidJid = jid => {
 		return jid
 	}
 	return `${user}@s.whatsapp.net`
+}
+
+const toDisplayPnJid = jid => {
+	if (!jid || typeof jid !== 'string') {
+		return jid
+	}
+	const decoded = (0, WABinary_1.jidDecode)(jid)
+	if (!decoded?.user) {
+		return jid
+	}
+	if (!(0, WABinary_1.isPnUser)(jid) && !(0, WABinary_1.isHostedPnUser)(jid)) {
+		return jid
+	}
+	const user = decoded.user.split(':')[0]
+	if (!user) {
+		return jid
+	}
+	const server = decoded.server === 'hosted' ? 'hosted' : 's.whatsapp.net'
+	return `${user}@${server}`
 }
 
 const buildLidPnHints = key => {
@@ -50,7 +70,7 @@ const normalizeToPnJid = async (jid, hints, signalRepository) => {
 	}
 	const hinted = hints.get(jid)
 	if (hinted) {
-		return hinted
+		return toDisplayPnJid(hinted)
 	}
 	const decoded = (0, WABinary_1.jidDecode)(jid)
 	if (decoded?.user) {
@@ -61,7 +81,7 @@ const normalizeToPnJid = async (jid, hints, signalRepository) => {
 	}
 	const mapped = await signalRepository?.lidMapping?.getPNForLID?.(jid)
 	if (mapped) {
-		return mapped
+		return toDisplayPnJid(mapped)
 	}
 	return fallbackPnFromLidJid(jid)
 }
@@ -86,6 +106,30 @@ const normalizeMentionedJidsToPn = async (node, hints, signalRepository) => {
 	}
 }
 
+const normalizeMentionedJidsForSend = async (mentions, groupData, signalRepository) => {
+	if (!Array.isArray(mentions)) {
+		return mentions
+	}
+	const hints = new Map()
+	if (groupData?.participants?.length) {
+		for (const participant of groupData.participants) {
+			const lid = participant?.id
+			const pn = participant?.phoneNumber
+			if (
+				((0, WABinary_1.isLidUser)(lid) || (0, WABinary_1.isHostedLidUser)(lid)) &&
+				((0, WABinary_1.isPnUser)(pn) || (0, WABinary_1.isHostedPnUser)(pn))
+			) {
+				hints.set(lid, toDisplayPnJid(pn))
+				const lidDecoded = (0, WABinary_1.jidDecode)(lid)
+				if (lidDecoded?.user) {
+					hints.set(`${lidDecoded.user}@lid`, toDisplayPnJid(pn))
+				}
+			}
+		}
+	}
+	return Promise.all(mentions.map(jid => normalizeToPnJid(jid, hints, signalRepository)))
+}
+
 const normalizeMessageForDisplayJids = async (messageInfo, signalRepository) => {
 	if (!messageInfo?.key) {
 		return messageInfo
@@ -100,3 +144,4 @@ const normalizeMessageForDisplayJids = async (messageInfo, signalRepository) => 
 }
 
 exports.normalizeMessageForDisplayJids = normalizeMessageForDisplayJids
+exports.normalizeMentionedJidsForSend = normalizeMentionedJidsForSend

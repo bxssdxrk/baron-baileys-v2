@@ -1477,6 +1477,23 @@ const makeMessagesSocket = config => {
 						: disappearingMessagesInChat
 				await groupToggleEphemeral(jid, value)
 			} else {
+				let mentionGroupData
+				const hasLidMentions =
+					(0, WABinary_1.isJidGroup)(jid) &&
+					typeof content === 'object' &&
+					Array.isArray(content?.mentions) &&
+					content.mentions.some(
+						mention => (0, WABinary_1.isLidUser)(mention) || (0, WABinary_1.isHostedLidUser)(mention)
+					)
+				if (hasLidMentions) {
+					try {
+						mentionGroupData =
+							(options.useCachedGroupMetadata && cachedGroupMetadata ? await cachedGroupMetadata(jid) : undefined) ||
+							(await groupMetadata(jid))
+					} catch (error) {
+						logger.warn({ jid, error }, 'failed to fetch group metadata for mention jid normalization')
+					}
+				}
 				const fullMsg = await (0, Utils_1.generateWAMessage)(jid, content, {
 					logger,
 					userJid,
@@ -1497,6 +1514,8 @@ const makeMessagesSocket = config => {
 					mediaCache: config.mediaCache,
 					options: config.options,
 					messageId: (0, Utils_1.generateMessageIDV2)(sock.user?.id),
+					groupData: mentionGroupData,
+					signalRepository,
 					...options
 				})
 				const isEventMsg = 'event' in content && !!content.event
