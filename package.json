@@ -28,6 +28,7 @@
     "format": "prettier --write \"src/**/*.{js,json,md}\"",
     "lint": "tsc && eslint src --ext .js",
     "lint:fix": "npm run format && npm run lint -- --fix",
+    "test": "jest --runInBand",
     "preinstall": "node ./engine-requirements.js"
   },
   "dependencies": {
