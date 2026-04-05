@@ -14,6 +14,7 @@ const Utils_1 = require('../Utils')
 const link_preview_1 = require('../Utils/link-preview')
 const make_mutex_1 = require('../Utils/make-mutex')
 const reporting_utils_1 = require('../Utils/reporting-utils')
+const jid_display_normalization_1 = require('../Utils/jid-display-normalization')
 const WABinary_1 = require('../WABinary')
 const WAUSync_1 = require('../WAUSync')
 const newsletter_1 = require('./newsletter')
@@ -1518,6 +1519,22 @@ const makeMessagesSocket = config => {
 					signalRepository,
 					...options
 				})
+				if ((0, WABinary_1.isJidGroup)(jid) && fullMsg?.message) {
+					const messageContent = (0, Utils_1.normalizeMessageContent)(fullMsg.message) || fullMsg.message
+					const mentionedJid = messageContent?.extendedTextMessage?.contextInfo?.mentionedJid
+					if (Array.isArray(mentionedJid) && mentionedJid.length) {
+						const resolvedGroupData =
+							mentionGroupData ||
+							(options.useCachedGroupMetadata && cachedGroupMetadata ? await cachedGroupMetadata(jid) : undefined) ||
+							(await groupMetadata(jid))
+						messageContent.extendedTextMessage.contextInfo.mentionedJid = await (0,
+						jid_display_normalization_1.normalizeMentionedJidsForSend)(
+							mentionedJid,
+							resolvedGroupData,
+							signalRepository
+						)
+					}
+				}
 				const isEventMsg = 'event' in content && !!content.event
 				const isDeleteMsg = 'delete' in content && !!content.delete
 				const isEditMsg = 'edit' in content && !!content.edit
