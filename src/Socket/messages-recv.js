@@ -13,6 +13,7 @@ const index_js_1 = require('../../WAProto/index.js')
 const Defaults_1 = require('../Defaults')
 const Types_1 = require('../Types')
 const Utils_1 = require('../Utils')
+const jid_display_normalization_1 = require('../Utils/jid-display-normalization')
 const make_mutex_1 = require('../Utils/make-mutex')
 const offline_node_processor_1 = require('../Utils/offline-node-processor')
 const stanza_ack_1 = require('../Utils/stanza-ack')
@@ -20,6 +21,7 @@ const WABinary_1 = require('../WABinary')
 const groups_1 = require('./groups')
 const aigroup_1 = require('./aigroups')
 const messages_send_1 = require('./messages-send')
+
 const makeMessagesRecvSocket = config => {
 	const { logger, retryRequestDelayMs, maxMsgRetryCount, getMessage, shouldIgnoreJid, enableAutoSessionRecreation } =
 		config
@@ -680,15 +682,17 @@ const makeMessagesRecvSocket = config => {
 			case 'remove':
 			case 'add':
 			case 'leave': {
-				const participants = (0, WABinary_1.getBinaryNodeChildren)(child, 'participant').map(({ attrs }) => {
-					const jid = attrs.jid
-					if (typeof jid === 'string') return { id: jid, admin: attrs.type || null }
-					if (jid?.$1) {
-						const encoded = (0, WABinary_1.jidEncode)(jid.$1.user, jid.$1.server || 's.whatsapp.net')
-						return { id: encoded, admin: attrs.type || null }
-					}
-					return null
-				}).filter(Boolean)
+				const participants = (0, WABinary_1.getBinaryNodeChildren)(child, 'participant')
+					.map(({ attrs }) => {
+						const jid = attrs.jid
+						if (typeof jid === 'string') return { id: jid, admin: attrs.type || null }
+						if (jid?.$1) {
+							const encoded = (0, WABinary_1.jidEncode)(jid.$1.user, jid.$1.server || 's.whatsapp.net')
+							return { id: encoded, admin: attrs.type || null }
+						}
+						return null
+					})
+					.filter(Boolean)
 				ev.emit('group-participants.update', {
 					id: (0, WABinary_1.jidNormalizedUser)(fullNode.attrs.from),
 					participants: participants.map(p => p.id),
@@ -698,11 +702,13 @@ const makeMessagesRecvSocket = config => {
 				break
 			}
 			case 'subject':
-				ev.emit('groups.update', [{
-					id: (0, WABinary_1.jidNormalizedUser)(fullNode.attrs.from),
-					subject: child.attrs.subject,
-					isAIGroup: true
-				}])
+				ev.emit('groups.update', [
+					{
+						id: (0, WABinary_1.jidNormalizedUser)(fullNode.attrs.from),
+						subject: child.attrs.subject,
+						isAIGroup: true
+					}
+				])
 				break
 		}
 	}
@@ -1125,6 +1131,7 @@ const makeMessagesRecvSocket = config => {
 						}
 						msg.participant ?? (msg.participant = node.attrs.participant)
 						msg.messageTimestamp = +node.attrs.t
+						await (0, jid_display_normalization_1.normalizeMessageForDisplayJids)(msg, signalRepository)
 						const fullMsg = index_js_1.proto.WebMessageInfo.fromObject(msg)
 						await upsertMessage(fullMsg, 'append')
 					}
@@ -1145,9 +1152,6 @@ const makeMessagesRecvSocket = config => {
 		const encNode = (0, WABinary_1.getBinaryNodeChild)(node, 'enc')
 		// TODO: temporary fix for crashes and issues resulting of failed msmsg decryption
 		if (encNode?.attrs.type === 'msmsg') {
-
-
-
 			// await sendMessageAck(node, Utils_1.NACK_REASONS.MissingMessageSecret)
 			// return
 			// Pre-populate botMessageSecrets from store so msmsg can be decrypted after restart
@@ -1159,7 +1163,7 @@ const makeMessagesRecvSocket = config => {
 						const targetMsg = await getMessage({ remoteJid: node.attrs.from, id: targetId, fromMe: true })
 						const secret = targetMsg?.messageContextInfo?.messageSecret
 						if (secret) {
-							(0, Utils_1.setBotMessageSecret)(targetId, secret)
+							;(0, Utils_1.setBotMessageSecret)(targetId, secret)
 						}
 					} catch {}
 				}
@@ -1359,6 +1363,7 @@ const makeMessagesRecvSocket = config => {
 					}
 				}
 				;(0, Utils_1.cleanMessage)(msg, authState.creds.me.id, authState.creds.me.lid)
+				await (0, jid_display_normalization_1.normalizeMessageForDisplayJids)(msg, signalRepository)
 				await upsertMessage(msg, node.attrs.offline ? 'append' : 'notify')
 			})
 		} catch (error) {
@@ -1510,6 +1515,7 @@ const makeMessagesRecvSocket = config => {
 		await processNode('receipt', node, 'handling receipt', handleReceipt)
 	})
 	ws.on('CB:notification', async node => {
+		nodelogger(node)
 		await processNode('notification', node, 'handling notification', handleNotification)
 	})
 	ws.on('CB:ack,class:message', node => {
