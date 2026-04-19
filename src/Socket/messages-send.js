@@ -1346,7 +1346,7 @@ const makeMessagesSocket = config => {
 			return message
 		},
 
-		 sendGroupStatus = async (groupIdsOrContent = [], contentOrGroups = {}, opts = {}) => {
+		sendGroupStatus: async (groupIdsOrContent = [], contentOrGroups = {}, opts = {}) => {
         const toGroupIdArray = (input) => {
             if (Array.isArray(input)) {
                 return input;
@@ -1403,7 +1403,7 @@ const makeMessagesSocket = config => {
         });
         return groupJids;
     },
-    sendAlbumMessage = async (jid, medias, options = {}) => {
+    sendAlbumMessage: async (jid, medias, options = {}) => {
         const userJid = authState.creds.me.id;
         for (const media of medias) {
             if (!media.image && !media.video)
