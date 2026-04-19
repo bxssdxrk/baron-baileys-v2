@@ -1219,7 +1219,7 @@ const generateWAMessageContent = async (message, options) => {
 			}
 		}
 		return WAProto_1.proto.Message.fromObject(rawMsg)
-	} else {
+	} else if (Object.keys(m).length === 0) {
 		m = await (0, exports.prepareWAMessageMedia)(message, options)
 	}
 
