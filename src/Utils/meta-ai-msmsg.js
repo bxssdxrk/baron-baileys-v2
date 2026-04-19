@@ -49,7 +49,7 @@ const buildMessageIdRepresentations = messageId => {
 	const binary = MSG_ID_HEX_RE.test(messageId) ? Buffer.from(messageId, 'hex') : ascii
 	return [
 		{ label: 'msgIdAscii', value: ascii },
-		...(binary.equals(ascii) ? [] : [{ label: 'msgIdBinary', value: binary }]),
+		...(binary.equals(ascii) ? [] : [{ label: 'msgIdBinary', value: binary }])
 	]
 }
 
@@ -61,7 +61,7 @@ const pushUnique = (items, seen, item) => {
 		item.infoSource,
 		item.aadSource,
 		item.info.toString('hex'),
-		item.aad.toString('hex'),
+		item.aad.toString('hex')
 	])
 
 	if (!seen.has(key)) {
@@ -77,14 +77,14 @@ const getCandidateIds = messageKey => {
 			: { source: 'botEditTargetId', messageId: messageKey?.botEditTargetId },
 		{ source: 'targetId', messageId: messageKey?.targetId },
 		{ source: 'metaTargetId', messageId: messageKey?.metaTargetId },
-		{ source: 'stanzaId', messageId: messageKey?.stanzaId },
+		{ source: 'stanzaId', messageId: messageKey?.stanzaId }
 	]
 
 	const targetIdCandidates = Array.isArray(messageKey?.targetIdCandidates) ? messageKey.targetIdCandidates : []
 	for (let index = 0; index < targetIdCandidates.length; index += 1) {
 		orderedCandidates.push({
 			source: `targetIdCandidates[${index}]`,
-			messageId: targetIdCandidates[index],
+			messageId: targetIdCandidates[index]
 		})
 	}
 
@@ -104,7 +104,7 @@ const getCandidateIds = messageKey => {
 			grouped.set(messageId, {
 				messageId,
 				idSource: candidate.source,
-				idSources: [candidate.source],
+				idSources: [candidate.source]
 			})
 		}
 	}
@@ -117,7 +117,7 @@ const getJidCandidates = messageKey => {
 		{ source: 'meId', jid: messageKey?.meId },
 		{ source: 'conversationJid', jid: messageKey?.conversationJid },
 		{ source: 'senderJid', jid: messageKey?.senderJid },
-		{ source: 'meLidNormalized', jid: normalizeLidJid(messageKey?.meLid) },
+		{ source: 'meLidNormalized', jid: normalizeLidJid(messageKey?.meLid) }
 	]
 
 	const seen = new Set()
@@ -144,7 +144,7 @@ const buildMsmsgDecryptionStrategies = messageKey => {
 	const jidCandidates = getJidCandidates(messageKey)
 	const primaryJid = jidCandidates[0]
 	const alternateJid = jidCandidates.find(
-		candidate => candidate.source !== primaryJid?.source && candidate.jid !== botJid,
+		candidate => candidate.source !== primaryJid?.source && candidate.jid !== botJid
 	)
 	const strategies = []
 	const seen = new Set()
@@ -162,7 +162,7 @@ const buildMsmsgDecryptionStrategies = messageKey => {
 				messageId: idCandidate.messageId,
 				info: Buffer.concat([idForm.value, primaryJid.value, botJidBuffer, Buffer.alloc(0)]),
 				aad: Buffer.concat([idForm.value, Buffer.from([0]), botJidBuffer]),
-				attemptLabel: `${idCandidate.idSource}:${idForm.label}:primary`,
+				attemptLabel: `${idCandidate.idSource}:${idForm.label}:primary`
 			})
 
 			if (alternateJid) {
@@ -176,7 +176,7 @@ const buildMsmsgDecryptionStrategies = messageKey => {
 					messageId: idCandidate.messageId,
 					info: Buffer.concat([idForm.value, alternateJid.value, botJidBuffer, Buffer.alloc(0)]),
 					aad: Buffer.concat([idForm.value, Buffer.from([0]), alternateJid.value]),
-					attemptLabel: `${idCandidate.idSource}:${idForm.label}:${alternateJid.source}`,
+					attemptLabel: `${idCandidate.idSource}:${idForm.label}:${alternateJid.source}`
 				})
 			}
 		}
@@ -199,21 +199,18 @@ const decryptWithStrategy = async (messageSecret, msMsg, strategy) => {
 	const baseSecret = await hkdf(toBuffer(messageSecret), KEY_LENGTH, {
 		salt: undefined,
 		info: BOT_MESSAGE_INFO,
-		hash: 'SHA-256',
+		hash: 'SHA-256'
 	})
 	const key = await hkdf(baseSecret, KEY_LENGTH, {
 		salt: undefined,
 		info: strategy.info,
-		hash: 'SHA-256',
+		hash: 'SHA-256'
 	})
 	const payload = toBuffer(msMsg.encPayload)
 	const decipher = createDecipheriv('aes-256-gcm', key, toBuffer(msMsg.encIv))
 	decipher.setAAD(strategy.aad)
 	decipher.setAuthTag(payload.slice(-AUTH_TAG_LENGTH))
-	return Buffer.concat([
-		decipher.update(payload.slice(0, -AUTH_TAG_LENGTH)),
-		decipher.final(),
-	])
+	return Buffer.concat([decipher.update(payload.slice(0, -AUTH_TAG_LENGTH)), decipher.final()])
 }
 
 const decodeDecryptedMsmsgMessage = decrypted => {
@@ -251,7 +248,7 @@ const decryptMsmsgBotMessage = async (messageSecret, messageKey, msMsg) => {
 			idSources: strategy.idSources,
 			infoSource: strategy.infoSource,
 			aadSource: strategy.aadSource,
-			messageId: strategy.messageId,
+			messageId: strategy.messageId
 		}
 
 		try {
@@ -271,5 +268,5 @@ const decryptMsmsgBotMessage = async (messageSecret, messageKey, msMsg) => {
 module.exports = {
 	buildMsmsgDecryptionStrategies,
 	decodeDecryptedMsmsgMessage,
-	decryptMsmsgBotMessage,
+	decryptMsmsgBotMessage
 }

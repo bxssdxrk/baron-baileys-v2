@@ -1,6 +1,6 @@
 {
   "name": "baron-baileys-v2",
-  "version": "1.4.5",
+  "version": "1.4.6",
   "description": "A WebSockets library for interacting with WhatsApp Web",
   "keywords": [
     "whatsapp",

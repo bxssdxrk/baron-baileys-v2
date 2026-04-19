@@ -41,8 +41,20 @@ Then import your code using:
 import makeWASocket from 'baron-baileys-v2'
 ```
 
-## What's New (Identity + Meta AI + History Sync)
+## What's New (Identity + Meta AI + History Sync + New Message Types)
 
+- **Rich AI Response Message support**
+  - Send Meta AI-style rich responses via `richResponse` with optional syntax-highlighted code blocks.
+  - Built-in tokenizer supports JavaScript, TypeScript, and Python.
+  - Uses `botForwardedMessage` → `richResponseMessage` → `unifiedResponse` proto chain.
+- **New WA 2.3000+ message types**
+  - `statusNotification` — status add-yours / reshare / question-answer-reshare events.
+  - `statusQuestionAnswer` — user answered a status question.
+  - `questionResponse` — direct response to a question message.
+  - `statusQuoted` — quote a status with a custom type.
+  - `statusStickerInteraction` — react to a status with a sticker.
+  - `newsletterFollowerInvite` — invite a user to follow a newsletter.
+  - `messageHistoryNotice` — notify about message history metadata.
 - **JID display normalization is now built in**
   - Runtime prefers PN JIDs (`@s.whatsapp.net`) over LID JIDs (`@lid`) in display/event paths when mapping data is available.
   - This includes message identity fields, mentions (`contextInfo.mentionedJid`), quote/reply participants, and call/event payload identity fields.
@@ -116,6 +128,23 @@ import makeWASocket from 'baron-baileys-v2'
     - [Shop Message](#shop-message)
     - [Collection Message](#collection-message)
     - [Sticker Pack Message](#Sticker-Pack-Message)
+    - [Rich AI Response Message](#rich-ai-response-message)
+    - [Rich Composer Methods](#rich-composer-methods)
+      - [Send Table](#send-table)
+      - [Send List](#send-list)
+      - [Send Code Block](#send-code-block)
+      - [Send Latex](#send-latex)
+      - [Send Latex Image](#send-latex-image)
+      - [Send Latex Inline Image](#send-latex-inline-image)
+      - [Send Rich Message](#send-rich-message)
+      - [Capture & Resend Unified Response](#capture--resend-unified-response)
+    - [Status Notification Message](#status-notification-message)
+    - [Status Question Answer Message](#status-question-answer-message)
+    - [Question Response Message](#question-response-message)
+    - [Status Quoted Message](#status-quoted-message)
+    - [Status Sticker Interaction Message](#status-sticker-interaction-message)
+    - [Newsletter Follower Invite Message](#newsletter-follower-invite-message)
+    - [Message History Notice](#message-history-notice)
   - [Sending with Link Preview](#sending-messages-with-link-previews)
   - [Media Messages](#media-messages)
     - [Gif Message](#gif-message)
@@ -1989,6 +2018,301 @@ await sock.sendMessage(jid, {
 			}
 		]
 	}
+})
+```
+
+### Rich AI Response Message
+
+Send a WhatsApp AI-style rich response — the same format used by Meta AI bots — with an optional syntax-highlighted code block.
+Uses `botForwardedMessage` → `richResponseMessage` → `unifiedResponse` (raw JSON bytes in the `data` field).
+
+Token types produced by the built-in tokenizer: `KEYWORD`, `STR`, `NUMBER`, `METHOD`, `COMMENT`, `DEFAULT`.
+
+WAProto types used: `AIRichResponseMessage` (field 97), `AIRichResponseUnifiedResponse`, `ForwardedAIBotMessageInfo`, `BotMessageSharingInfo`.
+
+```js
+// Text-only
+await sock.sendMessage(jid, {
+  richResponse: {
+    text: 'aku hann universe'
+  }
+})
+
+// Text + JS code block (auto-tokenized)
+await sock.sendMessage(jid, {
+  richResponse: {
+    text: 'Here is a Hello World example:',
+    code: 'console.log("Hello World")',
+    language: 'javascript'   // default
+  }
+})
+
+// Text + code + custom bot JID
+await sock.sendMessage(jid, {
+  richResponse: {
+    text: 'Result:',
+    code: 'const x = 42\nconsole.log(x)',
+    botJid: '259786046210223@bot'
+  }
+})
+```
+
+### Rich Composer Methods
+
+These methods are available directly on the socket and send rich AI-style content using the `botForwardedMessage` proto chain.
+
+#### Send Table
+
+```js
+await sock.sendTable(
+  jid,
+  'User Stats',                        // title
+  ['Name', 'Score', 'Rank'],           // headers
+  [['Alice', '980', '#1'], ['Bob', '870', '#2']], // rows
+  quoted,                              // optional quoted message
+  { headerText: 'Top Players', footer: 'Updated daily' } // optional
+)
+```
+
+#### Send List
+
+```js
+await sock.sendList(
+  jid,
+  'Shopping List',         // title
+  ['Apples', 'Bread', 'Milk'], // items (string[] or string[][])
+  quoted,                  // optional
+  { footer: 'Remember to buy!' }
+)
+```
+
+#### Send Code Block
+
+```js
+await sock.sendCodeBlock(
+  jid,
+  'console.log("Hello World")', // code string
+  quoted,                       // optional
+  {
+    title: 'Example',
+    language: 'javascript',     // default: 'javascript'
+    footer: 'Run with Node.js'
+  }
+)
+```
+
+#### Send Latex
+
+Send a LaTeX expression as text (no image rendering).
+
+```js
+await sock.sendLatex(
+  jid,
+  quoted,
+  {
+    text: 'Quadratic formula:',
+    expressions: [
+      {
+        latexExpression: 'x = \\frac{-b \\pm \\sqrt{b^2-4ac}}{2a}',
+        url: 'https://example.com/formula.png', // pre-rendered image url
+        width: 300,
+        height: 80
+      }
+    ],
+    footer: 'Source: Wikipedia'
+  }
+)
+```
+
+#### Send Latex Image
+
+Renders LaTeX to a PNG via your own `renderLatexToPng` function and uploads it.
+
+```js
+const renderLatexToPng = async (expr) => {
+  // return { buffer: Buffer, width: number, height: number }
+}
+
+await sock.sendLatexImage(
+  jid,
+  quoted,
+  {
+    text: 'Euler\'s identity:',
+    expressions: [{ latexExpression: 'e^{i\\pi}+1=0' }]
+  },
+  renderLatexToPng,
+  waUploadToServer
+)
+```
+
+#### Send Latex Inline Image
+
+Same as above but renders each expression as an inline image block.
+
+```js
+await sock.sendLatexInlineImage(
+  jid,
+  quoted,
+  {
+    text: 'Inline formula:',
+    expressions: [{ latexExpression: '\\sqrt{2}' }]
+  },
+  renderLatexToPng,
+  waUploadToServer
+)
+```
+
+#### Send Rich Message
+
+Send a fully custom array of submessages using the rich response format.
+
+```js
+await sock.sendRichMessage(
+  jid,
+  [
+    { messageType: 2, messageText: 'Header text' },
+    { messageType: 5, codeMetadata: { codeLanguage: 'javascript', codeBlocks: [...] } }
+  ],
+  quoted
+)
+```
+
+#### Capture & Resend Unified Response
+
+Capture the `unifiedResponse` payload from a received Meta AI message and forward it.
+
+```js
+// capture from an incoming message
+const captured = sock.captureUnifiedResponse(message)
+
+// resend to another jid
+if (captured) {
+  await sock.sendUnifiedResponse(jid, quoted, captured)
+}
+```
+
+### Status Notification Message
+
+> [!NOTE]
+> Added in WA 2.3000+
+
+Sent when a status add-yours / reshare / question-answer-reshare event fires.
+
+```js
+await sock.sendMessage(jid, {
+  statusNotification: {
+    responseMessageKey: { remoteJid: jid, id: 'MSG_ID' },
+    originalMessageKey:  { remoteJid: jid, id: 'ORIG_ID' },
+    type: 1  // 1=STATUS_ADD_YOURS, 2=STATUS_RESHARE, 3=STATUS_QUESTION_ANSWER_RESHARE
+  }
+})
+// full proto key also accepted:
+// statusNotificationMessage: { ... }
+```
+
+### Status Question Answer Message
+
+> [!NOTE]
+> Added in WA 2.3000+
+
+User answered a status question.
+
+```js
+await sock.sendMessage(jid, {
+  statusQuestionAnswer: {
+    key:  { remoteJid: jid, id: 'MSG_ID' },
+    text: 'My answer'
+  }
+})
+// full proto key: statusQuestionAnswerMessage
+```
+
+### Question Response Message
+
+> [!NOTE]
+> Added in WA 2.3000+
+
+Direct response to a question message.
+
+```js
+await sock.sendMessage(jid, {
+  questionResponse: {
+    key:  { remoteJid: jid, id: 'QUESTION_MSG_ID' },
+    text: 'My response'
+  }
+})
+// full proto key: questionResponseMessage
+```
+
+### Status Quoted Message
+
+> [!NOTE]
+> Added in WA 2.3000+
+
+Quote a status with a custom type.
+
+```js
+await sock.sendMessage(jid, {
+  statusQuoted: {
+    type: 1,           // 1 = QUESTION_ANSWER
+    text: 'Quoted text',
+    thumbnail: Buffer, // optional
+    originalStatusId: { remoteJid: jid, id: 'STATUS_MSG_ID' }
+  }
+})
+// full proto key: statusQuotedMessage
+```
+
+### Status Sticker Interaction Message
+
+> [!NOTE]
+> Added in WA 2.3000+
+
+React to a status with a sticker.
+
+```js
+await sock.sendMessage(jid, {
+  statusStickerInteraction: {
+    key:       { remoteJid: jid, id: 'STATUS_MSG_ID' },
+    stickerKey: 'sticker-hash-key',
+    type: 1    // 1 = REACTION
+  }
+})
+// full proto key: statusStickerInteractionMessage
+```
+
+### Newsletter Follower Invite Message
+
+> [!NOTE]
+> Added in WA 2.3000+
+
+Invite a user to follow a newsletter.
+
+```js
+await sock.sendMessage(jid, {
+  newsletterFollowerInvite: {
+    newsletterJid:  '120363xxxxxx@newsletter',
+    newsletterName: 'My Channel',
+    jpegThumbnail:  Buffer, // optional
+    caption: 'Join my channel!'
+  }
+})
+// full proto key: newsletterFollowerInviteMessageV2
+```
+
+### Message History Notice
+
+> [!NOTE]
+> Added in WA 2.3000+
+
+Notify about message history metadata.
+
+```js
+await sock.sendMessage(jid, {
+  messageHistoryNotice: {
+    contextInfo: { ... }
+    // messageHistoryMetadata is optional
+  }
 })
 ```
 

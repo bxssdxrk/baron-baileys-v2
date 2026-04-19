@@ -34,9 +34,12 @@ const makeAIGroupsSocket = config => {
 
 		const inner = content[0]
 		const tag = inner.tag
-		const groupId = typeof attrs.from === 'string' ? attrs.from : attrs.from?.$1?.user
-			? (0, WABinary_1.jidEncode)(attrs.from.$1.user, 'g.us')
-			: undefined
+		const groupId =
+			typeof attrs.from === 'string'
+				? attrs.from
+				: attrs.from?.$1?.user
+					? (0, WABinary_1.jidEncode)(attrs.from.$1.user, 'g.us')
+					: undefined
 
 		if (!groupId) return
 
@@ -50,14 +53,16 @@ const makeAIGroupsSocket = config => {
 				ev.emit('groups.upsert', [{ id: groupId }])
 			}
 		} else if (tag === 'promote' || tag === 'demote' || tag === 'remove' || tag === 'add') {
-			const participants = (0, WABinary_1.getBinaryNodeChildren)(inner, 'participant').map(p => {
-				const jid = p.attrs.jid
-				if (typeof jid === 'string') return jid
-				if (jid?.$1) {
-					return (0, WABinary_1.jidEncode)(jid.$1.user, jid.$1.server || 's.whatsapp.net')
-				}
-				return undefined
-			}).filter(Boolean)
+			const participants = (0, WABinary_1.getBinaryNodeChildren)(inner, 'participant')
+				.map(p => {
+					const jid = p.attrs.jid
+					if (typeof jid === 'string') return jid
+					if (jid?.$1) {
+						return (0, WABinary_1.jidEncode)(jid.$1.user, jid.$1.server || 's.whatsapp.net')
+					}
+					return undefined
+				})
+				.filter(Boolean)
 
 			ev.emit('group-participants.update', {
 				id: groupId,
@@ -186,24 +191,21 @@ exports.makeAIGroupsSocket = makeAIGroupsSocket
 const extractAIGroupMetadata = result => {
 	// IQ response nests group inside create node: result → create → group
 	const createNode = (0, WABinary_1.getBinaryNodeChild)(result, 'create')
-	const group = (0, WABinary_1.getBinaryNodeChild)(createNode || result, 'group')
-		|| (0, WABinary_1.getBinaryNodeChild)(result, 'group')
+	const group =
+		(0, WABinary_1.getBinaryNodeChild)(createNode || result, 'group') ||
+		(0, WABinary_1.getBinaryNodeChild)(result, 'group')
 	const descChild = (0, WABinary_1.getBinaryNodeChild)(group, 'description')
 	let desc, descId, descOwner, descOwnerPn, descTime
 	if (descChild) {
 		desc = (0, WABinary_1.getBinaryNodeChildString)(descChild, 'body')
-		descOwner = descChild.attrs.participant
-			? (0, WABinary_1.jidNormalizedUser)(descChild.attrs.participant)
-			: undefined
+		descOwner = descChild.attrs.participant ? (0, WABinary_1.jidNormalizedUser)(descChild.attrs.participant) : undefined
 		descOwnerPn = descChild.attrs.participant_pn
 			? (0, WABinary_1.jidNormalizedUser)(descChild.attrs.participant_pn)
 			: undefined
 		descTime = +descChild.attrs.t
 		descId = descChild.attrs.id
 	}
-	const groupId = group.attrs.id.includes('@')
-		? group.attrs.id
-		: (0, WABinary_1.jidEncode)(group.attrs.id, 'g.us')
+	const groupId = group.attrs.id.includes('@') ? group.attrs.id : (0, WABinary_1.jidEncode)(group.attrs.id, 'g.us')
 	const eph = (0, WABinary_1.getBinaryNodeChild)(group, 'ephemeral')?.attrs.expiration
 	const metadata = {
 		id: groupId,
@@ -220,9 +222,8 @@ const extractAIGroupMetadata = result => {
 		descOwnerPn,
 		descTime,
 		isAIGroup: true,
-		addressingMode: group.attrs.addressing_mode === 'lid'
-			? Types_1.WAMessageAddressingMode.LID
-			: Types_1.WAMessageAddressingMode.PN,
+		addressingMode:
+			group.attrs.addressing_mode === 'lid' ? Types_1.WAMessageAddressingMode.LID : Types_1.WAMessageAddressingMode.PN,
 		participants: (0, WABinary_1.getBinaryNodeChildren)(group, 'participant').map(({ attrs }) => ({
 			id: attrs.jid,
 			phoneNumber:
