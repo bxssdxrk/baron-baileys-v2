@@ -572,6 +572,9 @@ const buildPaymentNoteMessage = async (paymentPayload, options, fallbackText = '
 const generateWAMessageContent = async (message, options) => {
 	var _a, _b
 	let m = {}
+	const hasCaptionWithoutMedia = 'caption' in message && !hasMediaPayload(message)
+	const hasCaptionContainer = ('groupStatus' in message && !!message.groupStatus) ||
+		('viewOnce' in message && !!message.viewOnce)
 	if ((0, exports.hasNonNullishProperty)(message, 'text')) {
 		const extContent = { text: message.text }
 		let urlInfo = message.linkPreview
@@ -946,6 +949,8 @@ const generateWAMessageContent = async (message, options) => {
 		m = { interactiveMessage: message.interactiveMessage }
 	} else if ('richResponse' in message) {
 		// handled in richResponse block below
+	} else if ('groupStatusMessage' in message) {
+		m = { groupStatusMessage: WAProto_1.proto.Message.GroupStatusMessage.fromObject(message.groupStatusMessage) }
 	} else if (hasCaptionWithoutMedia && !hasCaptionContainer) {
 		m.extendedTextMessage = { text: message.caption }
 	} else if (hasCaptionWithoutMedia && hasCaptionContainer) {
