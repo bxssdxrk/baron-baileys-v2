@@ -1112,7 +1112,6 @@ const makeMessagesSocket = config => {
 			return 'url'
 		}
 	}
-	const baron2 = new interactive_handler_1.Baron(waUploadToServer, relayMessage, config, sock)
 	const getButtonType = message => {
 		if (message.listMessage) {
 			return 'list'
@@ -1288,6 +1287,7 @@ const makeMessagesSocket = config => {
 		return result
 	}
 	const waUploadToServer = (0, Utils_1.getWAUploadToServer)(config, refreshMediaConn)
+	const baron2 = new interactive_handler_1.Baron(waUploadToServer, relayMessage, config, sock)
 	const waitForMsgMediaUpdate = (0, Utils_1.bindWaitForEvent)(ev, 'messages.media-update')
 	return {
 		...sock,
