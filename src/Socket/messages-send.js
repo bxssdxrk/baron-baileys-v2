@@ -1346,123 +1346,128 @@ const makeMessagesSocket = config => {
 			return message
 		},
 
-		sendGroupStatus: async (content, jid) => {
-			const userJid = WABinary_1.jidNormalizedUser(authState.creds.me.id)
-			let allUsers = new Set()
-			allUsers.add(userJid)
-
-			const uniqueUsers = Array.from(allUsers)
-			const getRandomHexColor = () =>
-				'#' +
-				Math.floor(Math.random() * 16777215)
-					.toString(16)
-					.padStart(6, '0')
-
-			const isMedia = content.image || content.video || content.audio
-			const isAudio = !!content.audio
-
-			const messageContent = { ...content }
-
-			if (isMedia && !isAudio) {
-				if (messageContent.text) {
-					messageContent.caption = messageContent.text
-
-					delete messageContent.text
-				}
-
-				delete messageContent.ptt
-				delete messageContent.font
-				delete messageContent.backgroundColor
-				delete messageContent.textColor
-			}
-
-			if (isAudio) {
-				delete messageContent.text
-				delete messageContent.caption
-				delete messageContent.font
-				delete messageContent.textColor
-			}
-
-			const font = !isMedia ? content.font || Math.floor(Math.random() * 9) : undefined
-			const textColor = !isMedia ? content.textColor || getRandomHexColor() : undefined
-			const backgroundColor = !isMedia || isAudio ? content.backgroundColor || getRandomHexColor() : undefined
-			const ptt = isAudio ? (typeof content.ptt === 'boolean' ? content.ptt : true) : undefined
-
-			let msg
-			let mediaHandle
-			try {
-				msg = await Utils_1.generateWAMessage(jid, messageContent, {
-					logger,
-					userJid,
-					getUrlInfo: text =>
-						link_preview_1.getUrlInfo(text, {
-							thumbnailWidth: linkPreviewImageThumbnailWidth,
-							fetchOpts: { timeout: 3000, ...(axiosOptions || {}) },
-							logger,
-							uploadImage: generateHighQualityLinkPreview ? waUploadToServer : undefined
-						}),
-					upload: async (encFilePath, opts) => {
-						const up = await waUploadToServer(encFilePath, { ...opts })
-						mediaHandle = up.handle
-						return up
-					},
-					mediaCache: config.mediaCache,
-					options: config.options,
-					font,
-					textColor,
-					backgroundColor,
-					ptt
-				})
-			} catch (error) {
-				logger.error(`Error generating message: ${error}`)
-				throw error
-			}
-
-			try {
-				const normalizedId = WABinary_1.jidNormalizedUser(jid)
-
-				// Funktion, um den richtigen Message-Typ zurückzugeben
-				const getMessageContent = content => {
-					if (content.image) {
-						return { imageMessage: { ...content } }
-					} else if (content.video) {
-						return { videoMessage: { ...content } }
-					} else if (content.audio) {
-						return { audioMessage: { ...content } }
-					} else if (content.text) {
-						return { extendedTextMessage: { text: content.text } }
-					} else {
-						return { extendedTextMessage: { text: '' } } // Fallback
-					}
-				}
-
-				const Message = {
-					groupStatusMessageV2: {
-						message: getMessageContent(messageContent)
-					},
-					messageContextInfo: {
-						messageSecret: crypto_1.randomBytes(32)
-					}
-				}
-
-				const statusMsg = await Utils_1.generateWAMessageFromContent(normalizedId, Message, {})
-
-				await relayMessage(normalizedId, statusMsg.message, {
-					additionalNodes: [
-						{
-							tag: 'meta',
-							attrs: { is_group_status: 'true' }
-						}
-					]
-				})
-
-				await Utils_1.delay(2000)
-			} catch (error) {
-				logger.log(`Error sending to ${id}: ${error}`)
-			}
-
-			return msg
-		},
+		 sendGroupStatus = async (groupIdsOrContent = [], contentOrGroups = {}, opts = {}) => {
+        const toGroupIdArray = (input) => {
+            if (Array.isArray(input)) {
+                return input;
+            }
+            if (typeof input === 'string') {
+                return [input];
+            }
+            return [];
+        };
+        const normalizeGroupJid = (value) => {
+            if (typeof value !== 'string') {
+                return '';
+            }
+            const trimmed = value.trim();
+            if (!trimmed) {
+                return '';
+            }
+            if (/^\d{8,}$/.test(trimmed)) {
+                return `${trimmed}@g.us`;
+            }
+            return trimmed;
+        };
+        const useNewSignature = Array.isArray(groupIdsOrContent) || typeof groupIdsOrContent === 'string';
+        const groupIds = useNewSignature
+            ? toGroupIdArray(groupIdsOrContent)
+            : toGroupIdArray(contentOrGroups);
+        const content = useNewSignature
+            ? (contentOrGroups || {})
+            : (groupIdsOrContent || {});
+        const sendOpts = opts || {};
+        const groupJids = groupIds
+            .map(normalizeGroupJid)
+            .filter(jid => (0, WABinary_1.isJidGroup)(jid));
+        const nonGroupJids = groupIds.filter(jid => !(0, WABinary_1.isJidGroup)(normalizeGroupJid(jid)));
+        if (nonGroupJids.length) {
+            logger.warn({ nonGroupJids }, 'ignoring non-group JIDs in sendGroupStatus');
+        }
+        if (!groupJids.length) {
+            return [];
+        }
+        const { allUsers } = await resolveStatusAudience(groupJids, false);
+        if (!allUsers.length) {
+            return [];
+        }
+        const msg = await generateStatusMessage({
+            ...content,
+            backgroundColor: content.backgroundColor || getRandomHexColor(),
+            font: normalizeStatusFont(content.font, logger),
+        });
+        await relayMessage(WABinary_1.STORIES_JID, msg.message, {
+            messageId: msg.key.id,
+            statusJidList: allUsers,
+            ...(sendOpts.relay || {}),
+        });
+        return groupJids;
+    },
+    sendAlbumMessage = async (jid, medias, options = {}) => {
+        const userJid = authState.creds.me.id;
+        for (const media of medias) {
+            if (!media.image && !media.video)
+                throw new TypeError(`medias[i] must have image or video property`);
+        }
+        if (medias.length < 2)
+            throw new RangeError("Minimum 2 media");
+        const time = options.delay || 500;
+        delete options.delay;
+        const album = await (0, Utils_1.generateWAMessageFromContent)(jid, {
+            albumMessage: {
+                expectedImageCount: medias.filter(media => media.image).length,
+                expectedVideoCount: medias.filter(media => media.video).length,
+                ...options
+            }
+        }, { userJid, ...options });
+        await relayMessage(jid, album.message, { messageId: album.key.id });
+        let mediaHandle;
+        let msg;
+        for (const i in medias) {
+            const media = medias[i];
+            if (media.image) {
+                msg = await (0, Utils_1.generateWAMessage)(jid, {
+                    image: media.image,
+                    ...media,
+                    ...options
+                }, {
+                    userJid,
+                    upload: async (readStream, opts) => {
+                        const up = await waUploadToServer(readStream, { ...opts, newsletter: (0, WABinary_1.isJidNewsletter)(jid) });
+                        mediaHandle = up.handle;
+                        return up;
+                    },
+                    ...options,
+                });
+            }
+            else if (media.video) {
+                msg = await (0, Utils_1.generateWAMessage)(jid, {
+                    video: media.video,
+                    ...media,
+                    ...options
+                }, {
+                    userJid,
+                    upload: async (readStream, opts) => {
+                        const up = await waUploadToServer(readStream, { ...opts, newsletter: (0, WABinary_1.isJidNewsletter)(jid) });
+                        mediaHandle = up.handle;
+                        return up;
+                    },
+                    ...options,
+                });
+            }
+            if (msg) {
+                msg.message.messageContextInfo = {
+                    messageAssociation: {
+                        associationType: 1,
+                        parentMessageKey: album.key
+                    }
+                };
+            }
+            await relayMessage(jid, msg.message, { messageId: msg.key.id });
+            await (0, Utils_1.delay)(time);
+        }
+        return album;
+    },
 
 		sendStatusMention: async (content, jids = []) => {
 			return await baron2.sendStatusWhatsApp(content, jids)

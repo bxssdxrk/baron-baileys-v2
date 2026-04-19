@@ -1226,6 +1226,9 @@ const generateWAMessageContent = async (message, options) => {
 	if (hasOptionalProperty(message, 'viewOnce') && !!message.viewOnce) {
 		m = { viewOnceMessage: { message: m } }
 	}
+	if ('groupStatus' in message && !!message.groupStatus) {
+		m = { groupStatusMessage: { message: m } }
+	}
 	if (
 		(hasOptionalProperty(message, 'mentions') && message.mentions?.length) ||
 		(hasOptionalProperty(message, 'mentionAll') && message.mentionAll)
