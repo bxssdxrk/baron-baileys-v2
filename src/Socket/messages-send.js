@@ -896,7 +896,7 @@ const makeMessagesSocket = config => {
 					attrs: {
 						v: '2',
 						type,
-						count: participant.count.toString()
+						count: (participant.count ?? 0).toString()
 					},
 					content: encryptedContent
 				})
