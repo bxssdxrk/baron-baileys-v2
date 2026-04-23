@@ -46,6 +46,11 @@ const makeMessagesRecvSocket = config => {
 		sendPeerDataOperationMessage,
 		messageRetryManager
 	} = sock
+	// Track when the socket fully opens so pending pre-connect messages are treated as history
+	let socketOpenedAt = 0
+	ev.on('connection.update', ({ connection }) => {
+		if (connection === 'open') socketOpenedAt = Math.floor(Date.now() / 1000)
+	})
 	/** this mutex ensures that each retryRequest will wait for the previous one to finish */
 	const retryMutex = (0, make_mutex_1.makeMutex)()
 	const msgRetryCache =
@@ -1471,7 +1476,9 @@ const makeMessagesRecvSocket = config => {
 					logger,
 					groupDataForNormalization
 				)
-				await upsertMessage(msg, node.attrs.offline ? 'append' : 'notify')
+				const msgTs = (0, Utils_1.toNumber)(msg.messageTimestamp)
+				const isPending = socketOpenedAt > 0 && msgTs < socketOpenedAt
+				await upsertMessage(msg, (node.attrs.offline || isPending) ? 'append' : 'notify')
 			})
 		} catch (error) {
 			logger.error({ error, node: (0, WABinary_1.binaryNodeToString)(node) }, 'error in handling message')
