@@ -48,6 +48,7 @@ const makeMessagesRecvSocket = config => {
 	} = sock
 	// Track when the socket fully opens so pending pre-connect messages are treated as history
 	const socketCreatedAt = Math.floor(Date.now() / 1000)
+	let isConnected = false
 	/** this mutex ensures that each retryRequest will wait for the previous one to finish */
 	const retryMutex = (0, make_mutex_1.makeMutex)()
 	const msgRetryCache =
@@ -1456,6 +1457,12 @@ const makeMessagesRecvSocket = config => {
 					}
 				}
 				;(0, Utils_1.cleanMessage)(msg, authState.creds.me.id, authState.creds.me.lid)
+				const msgTs = (0, Utils_1.toNumber)(msg.messageTimestamp)
+				const isPending = !isConnected || node.attrs.offline || msgTs < socketCreatedAt
+				if (isPending) {
+					await upsertMessage(msg, 'append')
+					return
+				}
 				let groupDataForNormalization
 				if ((0, WABinary_1.isJidGroup)(msg?.key?.remoteJid)) {
 					try {
@@ -1473,9 +1480,7 @@ const makeMessagesRecvSocket = config => {
 					logger,
 					groupDataForNormalization
 				)
-				const msgTs = (0, Utils_1.toNumber)(msg.messageTimestamp)
-				const isPending = msgTs < socketCreatedAt
-				await upsertMessage(msg, (node.attrs.offline || isPending) ? 'append' : 'notify')
+				await upsertMessage(msg, 'notify')
 			})
 		} catch (error) {
 			logger.error({ error, node: (0, WABinary_1.binaryNodeToString)(node) }, 'error in handling message')
@@ -1686,7 +1691,10 @@ const makeMessagesRecvSocket = config => {
 			await upsertMessage(protoMsg, call.offline ? 'append' : 'notify')
 		}
 	})
-	ev.on('connection.update', ({ isOnline }) => {
+	ev.on('connection.update', ({ isOnline, connection }) => {
+		if (connection === 'open') {
+			isConnected = true
+		}
 		if (typeof isOnline !== 'undefined') {
 			sendActiveReceipts = isOnline
 			logger.trace(`sendActiveReceipts set to "${sendActiveReceipts}"`)
