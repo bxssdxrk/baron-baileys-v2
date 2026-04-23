@@ -47,10 +47,7 @@ const makeMessagesRecvSocket = config => {
 		messageRetryManager
 	} = sock
 	// Track when the socket fully opens so pending pre-connect messages are treated as history
-	let socketOpenedAt = 0
-	ev.on('connection.update', ({ connection }) => {
-		if (connection === 'open') socketOpenedAt = Math.floor(Date.now() / 1000)
-	})
+	const socketCreatedAt = Math.floor(Date.now() / 1000)
 	/** this mutex ensures that each retryRequest will wait for the previous one to finish */
 	const retryMutex = (0, make_mutex_1.makeMutex)()
 	const msgRetryCache =
@@ -1477,7 +1474,7 @@ const makeMessagesRecvSocket = config => {
 					groupDataForNormalization
 				)
 				const msgTs = (0, Utils_1.toNumber)(msg.messageTimestamp)
-				const isPending = socketOpenedAt > 0 && msgTs < socketOpenedAt
+				const isPending = msgTs < socketCreatedAt
 				await upsertMessage(msg, (node.attrs.offline || isPending) ? 'append' : 'notify')
 			})
 		} catch (error) {
