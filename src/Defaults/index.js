@@ -42,7 +42,7 @@ const index_js_1 = require('../../WAProto/index.js')
 const libsignal_1 = require('../Signal/libsignal')
 const browser_utils_1 = require('../Utils/browser-utils')
 const logger_1 = __importDefault(require('../Utils/logger'))
-const version = [2, 3000, 1038656372]
+const version = [2, 3000, 1038088231]
 exports.VERSION = version
 exports.UNAUTHORIZED_CODES = [401, 403, 419]
 exports.DEFAULT_ORIGIN = 'https://web.whatsapp.com'
@@ -71,6 +71,7 @@ exports.WA_CERT_DETAILS = {
 	ISSUER: 'WhatsAppLongTerm1',
 	PUBLIC_KEY: Buffer.from('142375574d0a587166aae71ebe516437c4a28b73e3695c6ce1f7f9545da8ee6b', 'hex')
 }
+exports.HISTORY_SYNC_PAUSED_TIMEOUT_MS = 120000
 exports.PROCESSABLE_HISTORY_TYPES = [
 	index_js_1.proto.HistorySync.HistorySyncType.INITIAL_BOOTSTRAP,
 	index_js_1.proto.HistorySync.HistorySyncType.PUSH_NAME,

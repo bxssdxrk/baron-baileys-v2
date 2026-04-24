@@ -19,7 +19,6 @@ const tc_token_utils_1 = require('../Utils/tc-token-utils')
 const WABinary_1 = require('../WABinary')
 const WAUSync_1 = require('../WAUSync')
 const socket_js_1 = require('./socket.js')
-const MAX_SYNC_ATTEMPTS = 2
 const makeChatsSocket = config => {
 	const {
 		logger,
@@ -42,7 +41,17 @@ const makeChatsSocket = config => {
 		onUnexpectedError,
 		sendUnifiedSession
 	} = sock
+	const getLIDForPN = signalRepository.lidMapping.getLIDForPN.bind(signalRepository.lidMapping)
 	let privacySettings
+	/** Server-assigned AB props for protocol behavior. */
+	const serverProps = {
+		/** AB prop 10518: gate tctoken on 1:1 messages. Default true (safe: avoids 463). */
+		privacyTokenOn1to1: true,
+		/** AB prop 9666: gate tctoken on profile picture IQs. WA Web default: true. */
+		profilePicPrivacyToken: true,
+		/** AB prop 14303: issue tctokens to LID instead of PN. WA Web default: false. */
+		lidTrustedTokenIssueToLid: false
+	}
 	let syncState = State_1.SyncState.Connecting
 	/** this mutex ensures that messages are processed in order */
 	const messageMutex = (0, make_mutex_1.makeMutex)()
@@ -54,6 +63,15 @@ const makeChatsSocket = config => {
 	const notificationMutex = (0, make_mutex_1.makeMutex)()
 	// Timeout for AwaitingInitialSync state
 	let awaitingSyncTimeout
+	// In-memory history sync completion tracking (resets on reconnection)
+	const historySyncStatus = {
+		initialBootstrapComplete: false,
+		recentSyncComplete: false
+	}
+	let historySyncPausedTimeout
+	// Collections blocked on missing app state sync keys (mirrors WA Web's "Blocked" state).
+	// When a key arrives via APP_STATE_SYNC_KEY_SHARE, these are re-synced.
+	const blockedCollections = new Set()
 	const placeholderResendCache =
 		config.placeholderResendCache ||
 		new node_cache_1.default({
@@ -408,6 +426,7 @@ const makeChatsSocket = config => {
 			const collectionsToHandle = new Set(collections)
 			// in case something goes wrong -- ensure we don't enter a loop that cannot be exited from
 			const attemptsMap = {}
+			const forceSnapshotCollections = new Set()
 			// keep executing till all collections are done
 			// sometimes a single patch request will not return all the patches (God knows why)
 			// so we fetch till they're all done (this is determined by the "has_more_patches" flag)
@@ -425,14 +444,18 @@ const makeChatsSocket = config => {
 						state = (0, Utils_1.newLTHashState)()
 					}
 					states[name] = state
-					logger.info(`resyncing ${name} from v${state.version}`)
+					const shouldForceSnapshot = forceSnapshotCollections.has(name)
+					if (shouldForceSnapshot) {
+						forceSnapshotCollections.delete(name)
+					}
+					logger.info(`resyncing ${name} from v${state.version}${shouldForceSnapshot ? ' (forcing snapshot)' : ''}`)
 					nodes.push({
 						tag: 'collection',
 						attrs: {
 							name,
 							version: state.version.toString(),
-							// return snapshot if being synced from scratch
-							return_snapshot: (!state.version).toString()
+							// return snapshot if syncing from scratch or forcing after a failed attempt
+							return_snapshot: (shouldForceSnapshot || !state.version).toString()
 						}
 					})
 				}
@@ -494,20 +517,34 @@ const makeChatsSocket = config => {
 							collectionsToHandle.delete(name)
 						}
 					} catch (error) {
-						// if retry attempts overshoot
-						// or key not found
-						const isIrrecoverableError =
-							attemptsMap[name] >= MAX_SYNC_ATTEMPTS || error.output?.statusCode === 404 || error.name === 'TypeError'
-						logger.info(
-							{ name, error: error.stack },
-							`failed to sync state from version${isIrrecoverableError ? '' : ', removing and trying from scratch'}`
-						)
-						await authState.keys.set({ 'app-state-sync-version': { [name]: null } })
-						// increment number of retries
 						attemptsMap[name] = (attemptsMap[name] || 0) + 1
-						if (isIrrecoverableError) {
-							// stop retrying
+						const logData = {
+							name,
+							attempt: attemptsMap[name],
+							version: states[name].version,
+							statusCode: error.output?.statusCode,
+							errorType: error.name,
+							error: error.stack
+						}
+						if ((0, Utils_1.isMissingKeyError)(error) && attemptsMap[name] >= Utils_1.MAX_SYNC_ATTEMPTS) {
+							logger.warn(
+								logData,
+								`${name} blocked on missing key from v${states[name].version}, parking after ${attemptsMap[name]} attempts`
+							)
+							blockedCollections.add(name)
 							collectionsToHandle.delete(name)
+						} else if ((0, Utils_1.isMissingKeyError)(error)) {
+							logger.info(
+								logData,
+								`${name} blocked on missing key from v${states[name].version}, retrying with snapshot`
+							)
+							forceSnapshotCollections.add(name)
+						} else if ((0, Utils_1.isAppStateSyncIrrecoverable)(error, attemptsMap[name])) {
+							logger.warn(logData, `failed to sync ${name} from v${states[name].version}, giving up`)
+							collectionsToHandle.delete(name)
+						} else {
+							logger.info(logData, `failed to sync ${name} from v${states[name].version}, forcing snapshot retry`)
+							forceSnapshotCollections.add(name)
 						}
 					}
 				}
@@ -525,7 +562,25 @@ const makeChatsSocket = config => {
 	 */
 	const profilePictureUrl = async (jid, type = 'preview', timeoutMs) => {
 		const baseContent = [{ tag: 'picture', attrs: { type, query: 'url' } }]
-		const tcTokenContent = await (0, tc_token_utils_1.buildTcTokenFromJid)({ authState, jid, baseContent })
+		// WA Web only includes tctoken for user JIDs (not groups/newsletters)
+		// and never for own profile pic (Chat model for self has no tcToken).
+		// Including tctoken for own JID causes the server to never respond.
+		const normalizedJid = (0, WABinary_1.jidNormalizedUser)(jid)
+		const isUserJid = (0, WABinary_1.isPnUser)(normalizedJid) || (0, WABinary_1.isLidUser)(normalizedJid)
+		const me = authState.creds.me
+		const isSelf =
+			me &&
+			(normalizedJid === (0, WABinary_1.jidNormalizedUser)(me.id) ||
+				(me.lid && normalizedJid === (0, WABinary_1.jidNormalizedUser)(me.lid)))
+		let content = baseContent
+		if (serverProps.profilePicPrivacyToken && isUserJid && !isSelf) {
+			content = await (0, tc_token_utils_1.buildTcTokenFromJid)({
+				authState,
+				jid: normalizedJid,
+				baseContent,
+				getLIDForPN
+			})
+		}
 		jid = (0, WABinary_1.jidNormalizedUser)(jid)
 		const result = await query(
 			{
@@ -536,7 +591,7 @@ const makeChatsSocket = config => {
 					type: 'get',
 					xmlns: 'w:profile:picture'
 				},
-				content: tcTokenContent
+				content
 			},
 			timeoutMs
 		)
@@ -606,7 +661,12 @@ const makeChatsSocket = config => {
 	 * @param tcToken token for subscription, use if present
 	 */
 	const presenceSubscribe = async toJid => {
-		const tcTokenContent = await (0, tc_token_utils_1.buildTcTokenFromJid)({ authState, jid: toJid })
+		// Only include tctoken for user JIDs — groups/newsletters don't use tctokens
+		const normalizedToJid = (0, WABinary_1.jidNormalizedUser)(toJid)
+		const isUserJid = (0, WABinary_1.isPnUser)(normalizedToJid) || (0, WABinary_1.isLidUser)(normalizedToJid)
+		const tcTokenContent = isUserJid
+			? await (0, tc_token_utils_1.buildTcTokenFromJid)({ authState, jid: normalizedToJid, getLIDForPN })
+			: undefined
 		return sendNode({
 			tag: 'presence',
 			attrs: {
@@ -743,7 +803,20 @@ const makeChatsSocket = config => {
 			}
 			props = (0, WABinary_1.reduceBinaryNodeToDictionary)(propsNode, 'prop')
 		}
-		logger.debug('fetched props')
+		// Extract protocol-relevant AB props (only the ones we need)
+		const privacyTokenProp = props['10518'] ?? props['privacy_token_sending_on_all_1_on_1_messages']
+		if (privacyTokenProp !== undefined) {
+			serverProps.privacyTokenOn1to1 = privacyTokenProp === 'true' || privacyTokenProp === '1'
+		}
+		const profilePicProp = props['9666'] ?? props['profile_scraping_privacy_token_in_photo_iq']
+		if (profilePicProp !== undefined) {
+			serverProps.profilePicPrivacyToken = profilePicProp === 'true' || profilePicProp === '1'
+		}
+		const lidIssueProp = props['14303'] ?? props['lid_trusted_token_issue_to_lid']
+		if (lidIssueProp !== undefined) {
+			serverProps.lidTrustedTokenIssueToLid = lidIssueProp === 'true' || lidIssueProp === '1'
+		}
+		logger.debug({ serverProps }, 'fetched props')
 		return props
 	}
 	/**
@@ -915,6 +988,51 @@ const makeChatsSocket = config => {
 		const shouldProcessHistoryMsg = historyMsg
 			? shouldSyncHistoryMessage(historyMsg) && Defaults_1.PROCESSABLE_HISTORY_TYPES.includes(historyMsg.syncType)
 			: false
+		if (historyMsg && shouldProcessHistoryMsg) {
+			const syncType = historyMsg.syncType
+			// INITIAL_BOOTSTRAP — fire immediately, no progress check
+			if (
+				syncType === index_js_1.proto.HistorySync.HistorySyncType.INITIAL_BOOTSTRAP &&
+				!historySyncStatus.initialBootstrapComplete
+			) {
+				historySyncStatus.initialBootstrapComplete = true
+				ev.emit('messaging-history.status', {
+					syncType,
+					status: 'complete',
+					explicit: true
+				})
+			}
+			// RECENT with progress === 100 — explicit completion
+			if (
+				syncType === index_js_1.proto.HistorySync.HistorySyncType.RECENT &&
+				historyMsg.progress === 100 &&
+				!historySyncStatus.recentSyncComplete
+			) {
+				historySyncStatus.recentSyncComplete = true
+				clearTimeout(historySyncPausedTimeout)
+				historySyncPausedTimeout = undefined
+				ev.emit('messaging-history.status', {
+					syncType,
+					status: 'complete',
+					explicit: true
+				})
+			}
+			// Reset 120s paused timeout on any RECENT chunk
+			if (syncType === index_js_1.proto.HistorySync.HistorySyncType.RECENT && !historySyncStatus.recentSyncComplete) {
+				clearTimeout(historySyncPausedTimeout)
+				historySyncPausedTimeout = setTimeout(() => {
+					if (!historySyncStatus.recentSyncComplete) {
+						historySyncStatus.recentSyncComplete = true
+						ev.emit('messaging-history.status', {
+							syncType: index_js_1.proto.HistorySync.HistorySyncType.RECENT,
+							status: 'paused',
+							explicit: false
+						})
+					}
+					historySyncPausedTimeout = undefined
+				}, Defaults_1.HISTORY_SYNC_PAUSED_TIMEOUT_MS)
+			}
+		}
 		// State machine: decide on sync and flush
 		if (historyMsg && syncState === State_1.SyncState.AwaitingInitialSync) {
 			if (awaitingSyncTimeout) {
@@ -933,6 +1051,8 @@ const makeChatsSocket = config => {
 		}
 		const doAppStateSync = async () => {
 			if (syncState === State_1.SyncState.Syncing) {
+				// All collections will be synced, so clear any blocked ones
+				blockedCollections.clear()
 				logger.info('Doing app state sync')
 				await resyncAppState(Types_1.ALL_WA_PATCH_NAMES, true)
 				// Sync is complete, go online and flush everything
@@ -992,6 +1112,11 @@ const makeChatsSocket = config => {
 		}
 	})
 	ev.on('connection.update', ({ connection, receivedPendingNotifications }) => {
+		if (connection === 'close') {
+			blockedCollections.clear()
+			clearTimeout(historySyncPausedTimeout)
+			historySyncPausedTimeout = undefined
+		}
 		if (connection === 'open') {
 			if (fireInitQueries) {
 				executeInitQueries().catch(error => onUnexpectedError(error, 'init queries'))
@@ -1003,6 +1128,10 @@ const makeChatsSocket = config => {
 		if (!receivedPendingNotifications || syncState !== State_1.SyncState.Connecting) {
 			return
 		}
+		historySyncStatus.initialBootstrapComplete = false
+		historySyncStatus.recentSyncComplete = false
+		clearTimeout(historySyncPausedTimeout)
+		historySyncPausedTimeout = undefined
 		syncState = State_1.SyncState.AwaitingInitialSync
 		logger.info('Connection is now AwaitingInitialSync, buffering events')
 		ev.buffer()
@@ -1017,18 +1146,44 @@ const makeChatsSocket = config => {
 			setTimeout(() => ev.flush(), 0)
 			return
 		}
-		logger.info('History sync is enabled, awaiting notification with a 20s timeout.')
+		// On reconnection (accountSyncCounter > 0), the server does not push
+		// history sync notifications — the device already has its data.
+		// Skip the 20s wait and go online immediately.
+		if (authState.creds.accountSyncCounter > 0) {
+			logger.info('Reconnection with existing sync data, skipping history sync wait. Transitioning to Online.')
+			syncState = State_1.SyncState.Online
+			setTimeout(() => ev.flush(), 0)
+			return
+		}
+		logger.info('First connection, awaiting history sync notification with a 20s timeout.')
 		if (awaitingSyncTimeout) {
 			clearTimeout(awaitingSyncTimeout)
 		}
 		awaitingSyncTimeout = setTimeout(() => {
 			if (syncState === State_1.SyncState.AwaitingInitialSync) {
-				// TODO: investigate
 				logger.warn('Timeout in AwaitingInitialSync, forcing state to Online and flushing buffer')
 				syncState = State_1.SyncState.Online
 				ev.flush()
+				// Increment so subsequent reconnections skip the 20s wait.
+				const accountSyncCounter = (authState.creds.accountSyncCounter || 0) + 1
+				ev.emit('creds.update', { accountSyncCounter })
 			}
 		}, 20000)
+	})
+	// When an app state sync key arrives and there are collections blocked on a missing key, re-sync them.
+	ev.on('creds.update', ({ myAppStateKeyId }) => {
+		if (!myAppStateKeyId || blockedCollections.size === 0) {
+			return
+		}
+		// If we're in the middle of a full sync, doAppStateSync handles all collections
+		if (syncState === State_1.SyncState.Syncing) {
+			blockedCollections.clear()
+			return
+		}
+		const collections = [...blockedCollections]
+		blockedCollections.clear()
+		logger.info({ collections }, 'app state sync key arrived, re-syncing blocked collections')
+		resyncAppState(collections, false).catch(error => onUnexpectedError(error, 'blocked collections resync'))
 	})
 	ev.on('lid-mapping.update', async ({ lid, pn }) => {
 		try {
@@ -1039,6 +1194,7 @@ const makeChatsSocket = config => {
 	})
 	return {
 		...sock,
+		serverProps,
 		createCallLink,
 		getBotListV2,
 		messageMutex,

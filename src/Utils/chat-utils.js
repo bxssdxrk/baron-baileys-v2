@@ -94,6 +94,23 @@ const generatePatchMac = (snapshotMac, valueMacs, version, type, key) => {
 }
 const newLTHashState = () => ({ version: 0, hash: Buffer.alloc(128), indexValueMap: {} })
 exports.newLTHashState = newLTHashState
+exports.makeLtHashGenerator = makeLtHashGenerator
+const ensureLTHashStateVersion = state => {
+	if (typeof state.version !== 'number' || isNaN(state.version)) {
+		state.version = 0
+	}
+	return state
+}
+exports.ensureLTHashStateVersion = ensureLTHashStateVersion
+exports.MAX_SYNC_ATTEMPTS = 2
+const isMissingKeyError = error => {
+	return error?.data?.isMissingKey === true
+}
+exports.isMissingKeyError = isMissingKeyError
+const isAppStateSyncIrrecoverable = (error, attempts) => {
+	return attempts >= exports.MAX_SYNC_ATTEMPTS || error?.name === 'TypeError'
+}
+exports.isAppStateSyncIrrecoverable = isAppStateSyncIrrecoverable
 const encodeSyncdPatch = async (
 	{ type, index, syncAction, apiVersion, operation },
 	myAppStateKeyId,
@@ -818,6 +835,7 @@ const processSyncAction = (syncAction, ev, me, initialSyncOpts, logger) => {
 					action.lidContactAction.firstName ||
 					action.lidContactAction.username ||
 					undefined,
+				username: action.lidContactAction.username || undefined,
 				lid: id,
 				phoneNumber: undefined
 			}

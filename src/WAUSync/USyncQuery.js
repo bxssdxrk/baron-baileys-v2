@@ -95,5 +95,9 @@ class USyncQuery {
 		this.protocols.push(new USyncLIDProtocol_1.USyncLIDProtocol())
 		return this
 	}
+	withUsernameProtocol() {
+		this.protocols.push(new Protocols_1.USyncUsernameProtocol())
+		return this
+	}
 }
 exports.USyncQuery = USyncQuery

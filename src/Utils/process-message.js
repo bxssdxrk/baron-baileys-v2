@@ -10,6 +10,48 @@ const WABinary_1 = require('../WABinary')
 const crypto_1 = require('./crypto')
 const generics_1 = require('./generics')
 const history_1 = require('./history')
+const tc_token_utils_1 = require('./tc-token-utils')
+async function storeTcTokensFromHistorySync(chats, signalRepository, keyStore, logger) {
+	const getLIDForPN = signalRepository.lidMapping.getLIDForPN.bind(signalRepository.lidMapping)
+	const candidates = []
+	for (const chat of chats) {
+		const ts = chat.tcTokenTimestamp ? (0, generics_1.toNumber)(chat.tcTokenTimestamp) : 0
+		if (chat.tcToken?.length && ts > 0) {
+			const jid = (0, WABinary_1.jidNormalizedUser)(chat.id)
+			const storageJid = await (0, tc_token_utils_1.resolveTcTokenJid)(jid, getLIDForPN)
+			candidates.push({
+				storageJid,
+				token: Buffer.from(chat.tcToken),
+				ts,
+				senderTs: chat.tcTokenSenderTimestamp ? (0, generics_1.toNumber)(chat.tcTokenSenderTimestamp) : undefined
+			})
+		}
+	}
+	if (!candidates.length) return
+	const jids = candidates.map(c => c.storageJid)
+	const existing = await keyStore.get('tctoken', jids)
+	const entries = {}
+	for (const c of candidates) {
+		const existingEntry = existing[c.storageJid]
+		const existingTs = existingEntry?.timestamp ? Number(existingEntry.timestamp) : 0
+		if (existingTs > 0 && existingTs >= c.ts) continue
+		entries[c.storageJid] = {
+			...existingEntry,
+			token: c.token,
+			timestamp: String(c.ts),
+			...(c.senderTs !== undefined ? { senderTimestamp: c.senderTs } : {})
+		}
+	}
+	if (Object.keys(entries).length) {
+		logger?.debug({ count: Object.keys(entries).length }, 'storing tctokens from history sync')
+		try {
+			const indexWrite = await (0, tc_token_utils_1.buildMergedTcTokenIndexWrite)(keyStore, Object.keys(entries))
+			await keyStore.set({ tctoken: { ...entries, ...indexWrite } })
+		} catch (err) {
+			logger?.warn({ err }, 'failed to store tctokens from history sync')
+		}
+	}
+}
 const REAL_MSG_STUB_TYPES = new Set([
 	Types_1.WAMessageStubType.CALL_MISSED_GROUP_VIDEO,
 	Types_1.WAMessageStubType.CALL_MISSED_GROUP_VOICE,
@@ -208,6 +250,7 @@ const processMessage = async (
 							.storeLIDPNMappings(data.lidPnMappings)
 							.catch(err => logger?.warn({ err }, 'failed to store LID-PN mappings from history sync'))
 					}
+					await storeTcTokensFromHistorySync(data.chats, signalRepository, keyStore, logger)
 					ev.emit('messaging-history.set', {
 						...data,
 						isLatest:
@@ -416,12 +459,19 @@ const processMessage = async (
 				id: jid,
 				author: message.key.participant,
 				authorPn: message.key.participantAlt,
+				authorUsername: message.key.participantUsername,
 				participants,
 				action
 			})
 		const emitGroupUpdate = update => {
 			ev.emit('groups.update', [
-				{ id: jid, ...update, author: message.key.participant ?? undefined, authorPn: message.key.participantAlt }
+				{
+					id: jid,
+					...update,
+					author: message.key.participant ?? undefined,
+					authorPn: message.key.participantAlt,
+					authorUsername: message.key.participantUsername
+				}
 			])
 		}
 		const emitGroupRequestJoin = (participant, action, method) => {
@@ -429,6 +479,7 @@ const processMessage = async (
 				id: jid,
 				author: message.key.participant,
 				authorPn: message.key.participantAlt,
+				authorUsername: message.key.participantUsername,
 				participant: participant.lid,
 				participantPn: participant.pn,
 				action,

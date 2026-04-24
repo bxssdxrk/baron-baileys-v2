@@ -14,6 +14,7 @@ const Utils_1 = require('../Utils')
 const link_preview_1 = require('../Utils/link-preview')
 const make_mutex_1 = require('../Utils/make-mutex')
 const reporting_utils_1 = require('../Utils/reporting-utils')
+const tc_token_utils_1 = require('../Utils/tc-token-utils')
 const jid_display_normalization_1 = require('../Utils/jid-display-normalization')
 const WABinary_1 = require('../WABinary')
 const WAUSync_1 = require('../WAUSync')
@@ -44,6 +45,12 @@ const makeMessagesSocket = config => {
 		groupMetadata,
 		groupToggleEphemeral
 	} = sock
+	const getLIDForPN = signalRepository.lidMapping.getLIDForPN.bind(signalRepository.lidMapping)
+	/**
+	 * Set of tctoken storage JIDs with a fire-and-forget issuePrivacyTokens IQ in flight.
+	 * Prevents duplicate IQs from rapid back-to-back sends before senderTimestamp persists.
+	 */
+	const inFlightTcTokenIssuance = new Set()
 	const userDevicesCache =
 		config.userDevicesCache ||
 		new node_cache_1.default({
@@ -1026,10 +1033,31 @@ const makeMessagesSocket = config => {
 					stanza.content.push({ tag: 'bot', attrs: { biz_bot: '1' } })
 				}
 			}
-			const contactTcTokenData =
-				!isGroup && !isRetryResend && !isStatus ? await authState.keys.get('tctoken', [destinationJid]) : {}
-			const tcTokenBuffer = contactTcTokenData[destinationJid]?.token
-			if (tcTokenBuffer) {
+			// WA Web never attaches tctoken to peer (AppStateSync) messages — server rejects with 479
+			const isPeerMessage = additionalAttributes?.['category'] === 'peer'
+			const is1on1Send = !isGroup && !isRetryResend && !isStatus && !isNewsletter && !isPeerMessage
+			// Resolve destination to LID for tctoken storage — matches Signal session key pattern
+			const tcTokenJid = is1on1Send
+				? await (0, tc_token_utils_1.resolveTcTokenJid)(destinationJid, getLIDForPN)
+				: destinationJid
+			const contactTcTokenData = is1on1Send ? await authState.keys.get('tctoken', [tcTokenJid]) : {}
+			const existingTokenEntry = contactTcTokenData[tcTokenJid]
+			let tcTokenBuffer = existingTokenEntry?.token
+			// Treat expired tokens the same as missing — clear from cache
+			if (tcTokenBuffer?.length && (0, tc_token_utils_1.isTcTokenExpired)(existingTokenEntry?.timestamp)) {
+				logger.debug({ jid: destinationJid, timestamp: existingTokenEntry?.timestamp }, 'tctoken expired, clearing')
+				tcTokenBuffer = undefined
+				const cleared =
+					existingTokenEntry?.senderTimestamp !== undefined
+						? { token: Buffer.alloc(0), senderTimestamp: existingTokenEntry.senderTimestamp }
+						: null
+				try {
+					await authState.keys.set({ tctoken: { [tcTokenJid]: cleared } })
+				} catch (err) {
+					logger.debug({ jid: destinationJid, err: err?.message }, 'failed to persist tctoken expiry cleanup')
+				}
+			}
+			if (tcTokenBuffer?.length && sock.serverProps.privacyTokenOn1to1) {
 				stanza.content.push({
 					tag: 'tctoken',
 					attrs: {},
@@ -1041,6 +1069,57 @@ const makeMessagesSocket = config => {
 			}
 			logger.debug({ msgId }, `sending message to ${participants.length} devices`)
 			await sendNode(stanza)
+			// Fire-and-forget: issue our token to the contact AFTER message send.
+			const isProtocolMsg = !!(0, Utils_1.normalizeMessageContent)(message)?.protocolMessage
+			const isBotOrPSA =
+				destinationJid === WABinary_1.PSA_WID ||
+				(0, WABinary_1.isJidBot)(destinationJid) ||
+				(0, WABinary_1.isJidMetaAI)(destinationJid)
+			if (
+				is1on1Send &&
+				!isProtocolMsg &&
+				!isBotOrPSA &&
+				(0, tc_token_utils_1.shouldSendNewTcToken)(existingTokenEntry?.senderTimestamp) &&
+				!inFlightTcTokenIssuance.has(tcTokenJid)
+			) {
+				inFlightTcTokenIssuance.add(tcTokenJid)
+				const issueTimestamp = (0, Utils_1.unixTimestampSeconds)()
+				const getPNForLID = signalRepository.lidMapping.getPNForLID.bind(signalRepository.lidMapping)
+				;(0, tc_token_utils_1.resolveIssuanceJid)(
+					destinationJid,
+					sock.serverProps.lidTrustedTokenIssueToLid,
+					getLIDForPN,
+					getPNForLID
+				)
+					.then(issueJid => issuePrivacyTokens([issueJid], issueTimestamp))
+					.then(async result => {
+						await (0, tc_token_utils_1.storeTcTokensFromIqResult)({
+							result,
+							fallbackJid: tcTokenJid,
+							keys: authState.keys,
+							getLIDForPN
+						})
+						const currentData = await authState.keys.get('tctoken', [tcTokenJid])
+						const currentEntry = currentData[tcTokenJid]
+						const indexWrite = await (0, tc_token_utils_1.buildMergedTcTokenIndexWrite)(authState.keys, [tcTokenJid])
+						await authState.keys.set({
+							tctoken: {
+								[tcTokenJid]: {
+									token: Buffer.alloc(0),
+									...currentEntry,
+									senderTimestamp: issueTimestamp
+								},
+								...indexWrite
+							}
+						})
+					})
+					.catch(err => {
+						logger.debug({ jid: destinationJid, err: err?.message }, 'fire-and-forget tctoken issuance failed')
+					})
+					.finally(() => {
+						inFlightTcTokenIssuance.delete(tcTokenJid)
+					})
+			}
 			// Add message to retry cache if enabled
 			if (messageRetryManager && !participant) {
 				messageRetryManager.addRecentMessage(destinationJid, msgId, message)
@@ -1260,8 +1339,8 @@ const makeMessagesSocket = config => {
 			}
 		}
 	}
-	const getPrivacyTokens = async jids => {
-		const t = (0, Utils_1.unixTimestampSeconds)().toString()
+	const issuePrivacyTokens = async (jids, timestamp) => {
+		const t = (timestamp ?? (0, Utils_1.unixTimestampSeconds)()).toString()
 		const result = await query({
 			tag: 'iq',
 			attrs: {
@@ -1286,11 +1365,13 @@ const makeMessagesSocket = config => {
 		})
 		return result
 	}
+	const getPrivacyTokens = issuePrivacyTokens
 	const waUploadToServer = (0, Utils_1.getWAUploadToServer)(config, refreshMediaConn)
 	const baron2 = new interactive_handler_1.Baron(waUploadToServer, relayMessage, config, sock)
 	const waitForMsgMediaUpdate = (0, Utils_1.bindWaitForEvent)(ev, 'messages.media-update')
 	return {
 		...sock,
+		issuePrivacyTokens,
 		getPrivacyTokens,
 		assertSessions,
 		relayMessage,
@@ -1347,127 +1428,136 @@ const makeMessagesSocket = config => {
 		},
 
 		sendGroupStatus: async (groupIdsOrContent = [], contentOrGroups = {}, opts = {}) => {
-        const toGroupIdArray = (input) => {
-            if (Array.isArray(input)) {
-                return input;
-            }
-            if (typeof input === 'string') {
-                return [input];
-            }
-            return [];
-        };
-        const normalizeGroupJid = (value) => {
-            if (typeof value !== 'string') {
-                return '';
-            }
-            const trimmed = value.trim();
-            if (!trimmed) {
-                return '';
-            }
-            if (/^\d{8,}$/.test(trimmed)) {
-                return `${trimmed}@g.us`;
-            }
-            return trimmed;
-        };
-        const useNewSignature = Array.isArray(groupIdsOrContent) || typeof groupIdsOrContent === 'string';
-        const groupIds = useNewSignature
-            ? toGroupIdArray(groupIdsOrContent)
-            : toGroupIdArray(contentOrGroups);
-        const content = useNewSignature
-            ? (contentOrGroups || {})
-            : (groupIdsOrContent || {});
-        const sendOpts = opts || {};
-        const groupJids = groupIds
-            .map(normalizeGroupJid)
-            .filter(jid => (0, WABinary_1.isJidGroup)(jid));
-        const nonGroupJids = groupIds.filter(jid => !(0, WABinary_1.isJidGroup)(normalizeGroupJid(jid)));
-        if (nonGroupJids.length) {
-            logger.warn({ nonGroupJids }, 'ignoring non-group JIDs in sendGroupStatus');
-        }
-        if (!groupJids.length) {
-            return [];
-        }
-        const { allUsers } = await resolveStatusAudience(groupJids, false);
-        if (!allUsers.length) {
-            return [];
-        }
-        const msg = await generateStatusMessage({
-            ...content,
-            backgroundColor: content.backgroundColor || getRandomHexColor(),
-            font: normalizeStatusFont(content.font, logger),
-        });
-        await relayMessage(WABinary_1.STORIES_JID, msg.message, {
-            messageId: msg.key.id,
-            statusJidList: allUsers,
-            ...(sendOpts.relay || {}),
-        });
-        return groupJids;
-    },
-    sendAlbumMessage: async (jid, medias, options = {}) => {
-        const userJid = authState.creds.me.id;
-        for (const media of medias) {
-            if (!media.image && !media.video)
-                throw new TypeError(`medias[i] must have image or video property`);
-        }
-        if (medias.length < 2)
-            throw new RangeError("Minimum 2 media");
-        const time = options.delay || 500;
-        delete options.delay;
-        const album = await (0, Utils_1.generateWAMessageFromContent)(jid, {
-            albumMessage: {
-                expectedImageCount: medias.filter(media => media.image).length,
-                expectedVideoCount: medias.filter(media => media.video).length,
-                ...options
-            }
-        }, { userJid, ...options });
-        await relayMessage(jid, album.message, { messageId: album.key.id });
-        let mediaHandle;
-        let msg;
-        for (const i in medias) {
-            const media = medias[i];
-            if (media.image) {
-                msg = await (0, Utils_1.generateWAMessage)(jid, {
-                    image: media.image,
-                    ...media,
-                    ...options
-                }, {
-                    userJid,
-                    upload: async (readStream, opts) => {
-                        const up = await waUploadToServer(readStream, { ...opts, newsletter: (0, WABinary_1.isJidNewsletter)(jid) });
-                        mediaHandle = up.handle;
-                        return up;
-                    },
-                    ...options,
-                });
-            }
-            else if (media.video) {
-                msg = await (0, Utils_1.generateWAMessage)(jid, {
-                    video: media.video,
-                    ...media,
-                    ...options
-                }, {
-                    userJid,
-                    upload: async (readStream, opts) => {
-                        const up = await waUploadToServer(readStream, { ...opts, newsletter: (0, WABinary_1.isJidNewsletter)(jid) });
-                        mediaHandle = up.handle;
-                        return up;
-                    },
-                    ...options,
-                });
-            }
-            if (msg) {
-                msg.message.messageContextInfo = {
-                    messageAssociation: {
-                        associationType: 1,
-                        parentMessageKey: album.key
-                    }
-                };
-            }
-            await relayMessage(jid, msg.message, { messageId: msg.key.id });
-            await (0, Utils_1.delay)(time);
-        }
-        return album;
-    },
+			const toGroupIdArray = input => {
+				if (Array.isArray(input)) {
+					return input
+				}
+				if (typeof input === 'string') {
+					return [input]
+				}
+				return []
+			}
+			const normalizeGroupJid = value => {
+				if (typeof value !== 'string') {
+					return ''
+				}
+				const trimmed = value.trim()
+				if (!trimmed) {
+					return ''
+				}
+				if (/^\d{8,}$/.test(trimmed)) {
+					return `${trimmed}@g.us`
+				}
+				return trimmed
+			}
+			const useNewSignature = Array.isArray(groupIdsOrContent) || typeof groupIdsOrContent === 'string'
+			const groupIds = useNewSignature ? toGroupIdArray(groupIdsOrContent) : toGroupIdArray(contentOrGroups)
+			const content = useNewSignature ? contentOrGroups || {} : groupIdsOrContent || {}
+			const sendOpts = opts || {}
+			const groupJids = groupIds.map(normalizeGroupJid).filter(jid => (0, WABinary_1.isJidGroup)(jid))
+			const nonGroupJids = groupIds.filter(jid => !(0, WABinary_1.isJidGroup)(normalizeGroupJid(jid)))
+			if (nonGroupJids.length) {
+				logger.warn({ nonGroupJids }, 'ignoring non-group JIDs in sendGroupStatus')
+			}
+			if (!groupJids.length) {
+				return []
+			}
+			const { allUsers } = await resolveStatusAudience(groupJids, false)
+			if (!allUsers.length) {
+				return []
+			}
+			const msg = await generateStatusMessage({
+				...content,
+				backgroundColor: content.backgroundColor || getRandomHexColor(),
+				font: normalizeStatusFont(content.font, logger)
+			})
+			await relayMessage(WABinary_1.STORIES_JID, msg.message, {
+				messageId: msg.key.id,
+				statusJidList: allUsers,
+				...(sendOpts.relay || {})
+			})
+			return groupJids
+		},
+		sendAlbumMessage: async (jid, medias, options = {}) => {
+			const userJid = authState.creds.me.id
+			for (const media of medias) {
+				if (!media.image && !media.video) throw new TypeError(`medias[i] must have image or video property`)
+			}
+			if (medias.length < 2) throw new RangeError('Minimum 2 media')
+			const time = options.delay || 500
+			delete options.delay
+			const album = await (0, Utils_1.generateWAMessageFromContent)(
+				jid,
+				{
+					albumMessage: {
+						expectedImageCount: medias.filter(media => media.image).length,
+						expectedVideoCount: medias.filter(media => media.video).length,
+						...options
+					}
+				},
+				{ userJid, ...options }
+			)
+			await relayMessage(jid, album.message, { messageId: album.key.id })
+			let mediaHandle
+			let msg
+			for (const i in medias) {
+				const media = medias[i]
+				if (media.image) {
+					msg = await (0, Utils_1.generateWAMessage)(
+						jid,
+						{
+							image: media.image,
+							...media,
+							...options
+						},
+						{
+							userJid,
+							upload: async (readStream, opts) => {
+								const up = await waUploadToServer(readStream, {
+									...opts,
+									newsletter: (0, WABinary_1.isJidNewsletter)(jid)
+								})
+								mediaHandle = up.handle
+								return up
+							},
+							...options
+						}
+					)
+				} else if (media.video) {
+					msg = await (0, Utils_1.generateWAMessage)(
+						jid,
+						{
+							video: media.video,
+							...media,
+							...options
+						},
+						{
+							userJid,
+							upload: async (readStream, opts) => {
+								const up = await waUploadToServer(readStream, {
+									...opts,
+									newsletter: (0, WABinary_1.isJidNewsletter)(jid)
+								})
+								mediaHandle = up.handle
+								return up
+							},
+							...options
+						}
+					)
+				}
+				if (msg) {
+					msg.message.messageContextInfo = {
+						messageAssociation: {
+							associationType: 1,
+							parentMessageKey: album.key
+						}
+					}
+				}
+				await relayMessage(jid, msg.message, { messageId: msg.key.id })
+				await (0, Utils_1.delay)(time)
+			}
+			return album
+		},
 
 		sendStatusMention: async (content, jids = []) => {
 			return await baron2.sendStatusWhatsApp(content, jids)

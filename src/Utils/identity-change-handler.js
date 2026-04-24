@@ -41,6 +41,7 @@ async function handleIdentityChange(node, ctx) {
 		ctx.logger.debug({ jid: from }, 'skipping session refresh during offline processing')
 		return { action: 'skipped_offline' }
 	}
+	ctx.onBeforeSessionRefresh?.(from)
 	try {
 		await ctx.assertSessions([from], true)
 		return { action: 'session_refreshed' }

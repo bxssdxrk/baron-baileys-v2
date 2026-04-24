@@ -43,6 +43,45 @@ import makeWASocket from 'baron-baileys-v2'
 
 ## What's New (Identity + Meta AI + History Sync + New Message Types)
 
+- **TC Token (Privacy Token) system — full upstream parity**
+  - Tokens are now stored under LID instead of PN where applicable (AB prop 14303).
+  - Expiry is enforced using a rolling 28-day / 4-bucket window; expired tokens are cleared on send.
+  - Fire-and-forget token issuance after every outgoing 1:1 message, with in-flight deduplication via `inFlightTcTokenIssuance`.
+  - Token re-issuance triggers automatically when a peer's device identity changes (`reissueTcTokenAfterIdentityChange`).
+  - Privacy token notifications (`privacy_token`) are now processed via `storeTcTokensFromIqResult` with `sender_lid` support.
+  - TC tokens from history sync are stored and indexed (`storeTcTokensFromHistorySync`).
+  - A persistent `__index` key tracks all storage JIDs for daily cross-session pruning (`pruneExpiredTcTokens`).
+  - Profile picture IQs and presence subscribes are gated by server-assigned AB props (`serverProps.profilePicPrivacyToken`, `serverProps.privacyTokenOn1to1`).
+  - New exports: `readTcTokenIndex`, `buildMergedTcTokenIndexWrite`, `isTcTokenExpired`, `shouldSendNewTcToken`, `resolveTcTokenJid`, `resolveIssuanceJid`, `storeTcTokensFromIqResult`, `TC_TOKEN_INDEX_KEY`.
+- **App state sync — missing-key handling (Blocked state)**
+  - Collections blocked on a missing app state sync key are parked in `blockedCollections` instead of being retried indefinitely.
+  - When the key arrives via `APP_STATE_SYNC_KEY_SHARE`, blocked collections are re-synced automatically.
+  - New utilities: `isMissingKeyError`, `isAppStateSyncIrrecoverable`, `MAX_SYNC_ATTEMPTS`, `ensureLTHashStateVersion` (exported from `chat-utils`).
+- **Server AB props (`serverProps`) on the socket**
+  - `chats.makeChatsSocket` now fetches and exposes `serverProps` containing three live AB flags:
+    - `privacyTokenOn1to1` (prop 10518) — whether tctoken is required on all 1:1 messages
+    - `profilePicPrivacyToken` (prop 9666) — whether profile-picture IQs require a tctoken
+    - `lidTrustedTokenIssueToLid` (prop 14303) — whether tokens are issued to LID or PN
+- **History sync completion tracking**
+  - `historySyncStatus` tracks `initialBootstrapComplete` and `recentSyncComplete` in-memory.
+  - `messaging-history.status` event fires with `{ syncType, status: 'complete'|'paused', explicit }` for `INITIAL_BOOTSTRAP` and `RECENT` sync types.
+  - A 120 s paused-timeout fires a `status: 'paused'` event if progress stalls mid-RECENT sync (`HISTORY_SYNC_PAUSED_TIMEOUT_MS`).
+  - On reconnection with existing data (`accountSyncCounter > 0`), the 20 s AwaitingInitialSync wait is skipped.
+- **Username support**
+  - `USyncUsernameProtocol` — new USync protocol for username lookups.
+  - `USyncQuery.withUsernameProtocol()` and `USyncUser.withUsername()` / `withUsernameKey()` added.
+  - `USyncContactProtocol.getUserElement` supports `username`, `usernameKey`, and `lid` lookups in addition to phone.
+  - Group metadata now includes `ownerUsername`, `subjectOwnerUsername`, `descOwnerUsername`, and `username` per participant.
+  - `authorUsername` propagated through group-participant events (`group-participants.update`, `groups.update`, `group.join-request`).
+  - `participantUsername` and `remoteJidUsername` exposed on message keys.
+  - `username` field carried through history sync, sync-action, and lidContactAction contacts events.
+- **Server error codes**
+  - `SERVER_ERROR_CODES` exported from `decode-wa-message`: `MissingTcToken: '463'`, `SmaxInvalid: '479'`.
+  - ACK error handler distinguishes 463 (account restricted / missing tctoken) and 479 (stale session / SMAX_INVALID) with specific log messages and no-retry behaviour for 463.
+- **Identity change handler**
+  - `ctx.onBeforeSessionRefresh?.(from)` callback fires before `assertSessions`, enabling fire-and-forget tctoken re-issuance in parallel with the session refresh.
+- **Call latency**
+  - `relaylatency` call status now reads `latency` / `latency_ms` / `latency-ms` attributes and sets `call.latencyMs`.
 - **Rich AI Response Message support**
   - Send Meta AI-style rich responses via `richResponse` with optional syntax-highlighted code blocks.
   - Built-in tokenizer supports JavaScript, TypeScript, and Python.
@@ -69,7 +108,7 @@ import makeWASocket from 'baron-baileys-v2'
 
 # Index
 
-- [What's New (Identity + Meta AI + History Sync)](#whats-new-identity--meta-ai--history-sync)
+- [What's New](#whats-new-identity--meta-ai--history-sync--new-message-types)
 - [Connecting Account](#connecting-account)
   - [Connect with QR-CODE](#starting-socket-with-qr-code)
   - [Connect with Pairing Code](#starting-socket-with-pairing-code)

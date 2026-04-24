@@ -63,6 +63,7 @@ const processHistoryMessage = (item, logger) => {
 				contacts.push({
 					id: chat.id,
 					name: chat.displayName || chat.name || chat.username || undefined,
+					username: chat.username || undefined,
 					lid: chat.lidJid || chat.accountLid || undefined,
 					phoneNumber: chat.pnJid || undefined
 				})

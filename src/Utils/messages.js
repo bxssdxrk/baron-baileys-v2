@@ -573,8 +573,8 @@ const generateWAMessageContent = async (message, options) => {
 	var _a, _b
 	let m = {}
 	const hasCaptionWithoutMedia = 'caption' in message && !hasMediaPayload(message)
-	const hasCaptionContainer = ('groupStatus' in message && !!message.groupStatus) ||
-		('viewOnce' in message && !!message.viewOnce)
+	const hasCaptionContainer =
+		('groupStatus' in message && !!message.groupStatus) || ('viewOnce' in message && !!message.viewOnce)
 	if ((0, exports.hasNonNullishProperty)(message, 'text')) {
 		const extContent = { text: message.text }
 		let urlInfo = message.linkPreview

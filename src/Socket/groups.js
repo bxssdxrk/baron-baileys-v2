@@ -283,6 +283,7 @@ const extractGroupMetadata = result => {
 	let descId
 	let descOwner
 	let descOwnerPn
+	let descOwnerUsername
 	let descTime
 	if (descChild) {
 		desc = (0, WABinary_1.getBinaryNodeChildString)(descChild, 'body')
@@ -290,6 +291,7 @@ const extractGroupMetadata = result => {
 		descOwnerPn = descChild.attrs.participant_pn
 			? (0, WABinary_1.jidNormalizedUser)(descChild.attrs.participant_pn)
 			: undefined
+		descOwnerUsername = descChild.attrs.participant_username || undefined
 		descTime = +descChild.attrs.t
 		descId = descChild.attrs.id
 	}
@@ -304,16 +306,19 @@ const extractGroupMetadata = result => {
 		subject: group.attrs.subject,
 		subjectOwner: group.attrs.s_o,
 		subjectOwnerPn: group.attrs.s_o_pn,
+		subjectOwnerUsername: group.attrs.s_o_username,
 		subjectTime: +group.attrs.s_t,
 		size: group.attrs.size ? +group.attrs.size : (0, WABinary_1.getBinaryNodeChildren)(group, 'participant').length,
 		creation: +group.attrs.creation,
 		owner: group.attrs.creator ? (0, WABinary_1.jidNormalizedUser)(group.attrs.creator) : undefined,
 		ownerPn: group.attrs.creator_pn ? (0, WABinary_1.jidNormalizedUser)(group.attrs.creator_pn) : undefined,
+		ownerUsername: group.attrs.creator_username || undefined,
 		owner_country_code: group.attrs.creator_country_code,
 		desc,
 		descId,
 		descOwner,
 		descOwnerPn,
+		descOwnerUsername,
 		descTime,
 		linkedParent: (0, WABinary_1.getBinaryNodeChild)(group, 'linked_parent')?.attrs.jid || undefined,
 		restrict: !!(0, WABinary_1.getBinaryNodeChild)(group, 'locked'),
@@ -331,6 +336,7 @@ const extractGroupMetadata = result => {
 						? attrs.phone_number
 						: undefined,
 				lid: (0, WABinary_1.isPnUser)(attrs.jid) && (0, WABinary_1.isLidUser)(attrs.lid) ? attrs.lid : undefined,
+				username: attrs.participant_username || attrs.username || undefined,
 				admin: attrs.type || null
 			}
 		}),

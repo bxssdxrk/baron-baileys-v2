@@ -2,6 +2,7 @@
 Object.defineProperty(exports, '__esModule', { value: true })
 exports.decryptMessageNode =
 	exports.extractAddressingContext =
+	exports.SERVER_ERROR_CODES =
 	exports.NACK_REASONS =
 	exports.DECRYPTION_RETRY_CONFIG =
 	exports.MISSING_KEYS_ERROR_TEXT =
@@ -79,6 +80,16 @@ const storeMappingFromEnvelope = async (stanza, sender, repository, decryptionJi
 }
 exports.NO_MESSAGE_FOUND_ERROR_TEXT = 'Message absent from node'
 exports.MISSING_KEYS_ERROR_TEXT = 'Key used already or never filled'
+/**
+ * Server-side error codes returned in ack stanzas (server → client).
+ * Distinct from the client-side NackReason enum.
+ */
+exports.SERVER_ERROR_CODES = {
+	/** 1:1 message missing privacy token (tctoken) */
+	MissingTcToken: '463',
+	/** Stanza validation failure (SMAX_INVALID) — likely stale device session */
+	SmaxInvalid: '479'
+}
 // Retry configuration for failed decryption
 exports.DECRYPTION_RETRY_CONFIG = {
 	maxRetries: 3,
@@ -210,10 +221,14 @@ function decodeMessageNode(stanza, meId, meLid) {
 	const key = {
 		remoteJid: chatId,
 		remoteJidAlt: !(0, WABinary_1.isJidGroup)(chatId) ? addressingContext.senderAlt : undefined,
+		remoteJidUsername: !(0, WABinary_1.isJidGroup)(chatId)
+			? stanza.attrs.peer_recipient_username || stanza.attrs.recipient_username
+			: undefined,
 		fromMe,
 		id: msgId,
 		participant,
 		participantAlt: (0, WABinary_1.isJidGroup)(chatId) ? addressingContext.senderAlt : undefined,
+		participantUsername: stanza.attrs.participant ? stanza.attrs.participant_username : undefined,
 		addressingMode: addressingContext.addressingMode,
 		...(msgType === 'newsletter' && stanza.attrs.server_id ? { server_id: stanza.attrs.server_id } : {})
 	}
