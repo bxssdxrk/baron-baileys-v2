@@ -21,6 +21,10 @@ The maintainers of Baileys do not in any way condone the use of this application
 - Not running Selenium or Chromimum saves you like **half a gig** of ram :/
 - Baileys supports interacting with the multi-device & web versions of WhatsApp.
 
+## Antiban Protection ⚠ (Test Phase)
+
+Built-in anti-ban middleware is automatically applied to every socket. See [ANTIBAN.md](./ANTIBAN.md) for usage, configuration, and diagnostics.
+
 ## Install
 
 Use the stable version:
