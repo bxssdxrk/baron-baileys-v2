@@ -22,7 +22,8 @@ const makeWASocket = (config) => {
 	const sock = (0, communities_1.makeCommunitiesSocket)(newConfig)
 	// Auto-wrap with antiban if available (config.antiban = false to opt-out)
 	if (_wrapSocket && config?.antiban !== false) {
-		return _wrapSocket(sock, config?.antiban || undefined)
+		const antibanConfig = config?.antiban || 'aggressive'
+		return _wrapSocket(sock, antibanConfig)
 	}
 	return sock
 }
