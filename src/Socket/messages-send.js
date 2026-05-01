@@ -20,7 +20,7 @@ const WABinary_1 = require('../WABinary')
 const WAUSync_1 = require('../WAUSync')
 const message_composer_1 = require('../Utils/message-composer.js')
 const interactive_handler_1 = require('./interactive-handler.js')
-const newsletter_1 = require('./newsletter')
+const username_1 = require('./username')
 const makeMessagesSocket = config => {
 	const {
 		logger,
@@ -32,7 +32,7 @@ const makeMessagesSocket = config => {
 		enableRecentMessageCache,
 		maxMsgRetryCount
 	} = config
-	const sock = (0, newsletter_1.makeNewsletterSocket)(config)
+	const sock = (0, username_1.makeUsernameSocket)(config)
 	const {
 		ev,
 		authState,
@@ -1009,6 +1009,7 @@ const makeMessagesSocket = config => {
 				}
 			}
 
+			let didPushAdditional = false
 			if (!isNewsletter && buttonType) {
 				const buttonsNode = getButtonArgs(messages)
 				const filteredButtons = WABinary_1.getBinaryFilteredButtons(additionalNodes ? additionalNodes : [])
@@ -1064,7 +1065,7 @@ const makeMessagesSocket = config => {
 					content: tcTokenBuffer
 				})
 			}
-			if (additionalNodes && additionalNodes.length > 0) {
+			if (additionalNodes && additionalNodes.length > 0 && !didPushAdditional) {
 				stanza.content.push(...additionalNodes)
 			}
 			logger.debug({ msgId }, `sending message to ${participants.length} devices`)

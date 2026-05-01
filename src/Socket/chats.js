@@ -574,10 +574,12 @@ const makeChatsSocket = config => {
 	/**
 	 * fetch the profile picture of a user/group
 	 * type = "preview" for a low res picture
-	 * type = "image for the high res picture"
+	 * type = "image"   for the high res picture URL (adds query="url")
+	 * type = "avatar"  for the avatar variant (no query attr, confirmed from interop logs)
 	 */
 	const profilePictureUrl = async (jid, type = 'preview', timeoutMs) => {
-		const baseContent = [{ tag: 'picture', attrs: { type, query: 'url' } }]
+		const picAttrs = type === 'image' ? { type, query: 'url' } : { type }
+		const baseContent = [{ tag: 'picture', attrs: picAttrs }]
 		// WA Web only includes tctoken for user JIDs (not groups/newsletters)
 		// and never for own profile pic (Chat model for self has no tcToken).
 		// Including tctoken for own JID causes the server to never respond.

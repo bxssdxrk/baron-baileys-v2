@@ -45,6 +45,20 @@ Then import your code using:
 import makeWASocket from 'baron-baileys-v2'
 ```
 
+## What's New (Usernames)
+
+Full implementation of the WhatsApp username protocol, reverse-engineered from WhatsApp 2.26.17.2. See [USERNAME.md](./USERNAME.md) for full documentation and setup instructions.
+
+- **`checkUsername(username, includeSuggestions?)`** — check whether a `@username` is available before setting it. Returns `{ available, suggestions, rejectionReasons, suggestionsEligible }`. Confirmed from `C1568872p.A01()` and `C164057Wg.java` (`xwa2_username_check` data path).
+- **`setUsername(username, options?)`** — set your own username via `w:mex` `UsernameSet`. Options: `source` (`USER_INPUT` / `SUGGESTION` / `FB` / `IG`), `sessionId`, `pin`.
+- **`deleteUsername()`** — unset your username. Sends `username: null` which triggers the server-side delete path (confirmed `C1568872p.java:24`).
+- **`getMyUsername()`** — fetch your current username via `w:mex` `UsernameGet`.
+- **`setUsernamePin(pin)`** — protect your username with a PIN, or delete it by passing `null`. Uses `w:mex` operation `UsernamePinSet` (confirmed `MexUsernamePinProtocolApi.java`).
+- **`findUserByUsername(username, pin?)`** — look up a contact's JID by their `@username` via USync. Supports PIN-protected usernames. Returns `{ jid, contact }`.
+- **`fetchContactUsernames(...jids)`** — batch-fetch the username of multiple contacts by JID via USync `UsernameProtocol`.
+- **`USERNAME_QUERY_IDS`** — object holding the `w:mex` query IDs (must be filled in from a live session capture — see [USERNAME.md](./USERNAME.md#setup-query-ids)).
+- **`USERNAME_CHECK_RESULT`**, **`USERNAME_SOURCE`** — enums confirmed from APK (`EnumC141106Vn`, `C1568872p.java`).
+
 ## What's New (Interop — BirdyChat & Haiket)
 
 Full support for the WhatsApp DMA Interoperability Protocol (`w:interop`). Allows messaging with users on third-party platforms directly from a WhatsApp account. See [INTEROP.md](./INTEROP.md) for full documentation.
