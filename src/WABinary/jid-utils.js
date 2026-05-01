@@ -11,6 +11,7 @@ exports.transferDevice =
 	exports.isJidBroadcast =
 	exports.isLidUser =
 	exports.isPnUser =
+	exports.isInteropUser =
 	exports.isJidMetaAI =
 	exports.areJidsSameUser =
 	exports.jidDecode =
@@ -314,6 +315,9 @@ exports.isJidMetaAI = isJidMetaAI
 /** is the jid a PN user */
 const isPnUser = jid => jid?.endsWith('@s.whatsapp.net')
 exports.isPnUser = isPnUser
+/** is the jid an interop (BirdyChat/Haiket) user */
+const isInteropUser = jid => jid?.endsWith('@interop')
+exports.isInteropUser = isInteropUser
 /** is the jid a LID */
 const isLidUser = jid => jid?.endsWith('@lid')
 exports.isLidUser = isLidUser

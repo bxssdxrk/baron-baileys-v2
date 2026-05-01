@@ -19,6 +19,7 @@ const tc_token_utils_1 = require('../Utils/tc-token-utils')
 const WABinary_1 = require('../WABinary')
 const WAUSync_1 = require('../WAUSync')
 const socket_js_1 = require('./socket.js')
+const interop_js_1 = require('./interop.js')
 const makeChatsSocket = config => {
 	const {
 		logger,
@@ -29,7 +30,7 @@ const makeChatsSocket = config => {
 		shouldSyncHistoryMessage,
 		getMessage
 	} = config
-	const sock = (0, socket_js_1.makeSocket)(config)
+	const sock = (0, interop_js_1.makeInteropSocket)((0, socket_js_1.makeSocket)(config))
 	const {
 		ev,
 		ws,
@@ -39,7 +40,22 @@ const makeChatsSocket = config => {
 		query,
 		signalRepository,
 		onUnexpectedError,
-		sendUnifiedSession
+		sendUnifiedSession,
+		initInterop,
+		fetchIntegrators,
+		acceptInteropTOS,
+		optInIntegrators,
+		optOutIntegrators,
+		resolveInteropUser,
+		resolveInteropUsers,
+		getReachabilitySettings,
+		setReachabilitySettings,
+		blockInteropUser,
+		unblockInteropUser,
+		reportInteropSpam,
+		trustInteropContact,
+		INTEGRATOR_BIRDYCHAT,
+		INTEGRATOR_HAIKET
 	} = sock
 	const getLIDForPN = signalRepository.lidMapping.getLIDForPN.bind(signalRepository.lidMapping)
 	let privacySettings
@@ -969,7 +985,7 @@ const makeChatsSocket = config => {
 	 * help ensure parity with WA Web
 	 * */
 	const executeInitQueries = async () => {
-		await Promise.all([fetchProps(), fetchBlocklist(), fetchPrivacySettings()])
+		await Promise.all([fetchProps(), fetchBlocklist(), fetchPrivacySettings(), initInterop()])
 	}
 	const upsertMessage = ev.createBufferedFunction(async (msg, type) => {
 		ev.emit('messages.upsert', { messages: [msg], type })
@@ -1238,7 +1254,22 @@ const makeChatsSocket = config => {
 		removeMessageLabel,
 		star,
 		addOrEditQuickReply,
-		removeQuickReply
+		removeQuickReply,
+		fetchIntegrators,
+		acceptInteropTOS,
+		optInIntegrators,
+		optOutIntegrators,
+		resolveInteropUser,
+		resolveInteropUsers,
+		getReachabilitySettings,
+		setReachabilitySettings,
+		blockInteropUser,
+		unblockInteropUser,
+		reportInteropSpam,
+		trustInteropContact,
+		initInterop,
+		INTEGRATOR_BIRDYCHAT,
+		INTEGRATOR_HAIKET
 	}
 }
 exports.makeChatsSocket = makeChatsSocket

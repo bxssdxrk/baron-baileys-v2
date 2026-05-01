@@ -214,6 +214,13 @@ function decodeMessageNode(stanza, meId, meLid) {
 			: (0, WABinary_1.isLidUser)(from)
 				? (0, WABinary_1.areJidsSameUser)(from, meLid)
 				: (0, WABinary_1.areJidsSameUser)(from, meId)
+	} else if ((0, WABinary_1.isInteropUser)(from)) {
+		// Message from an interop contact (BirdyChat / Haiket).
+		// The `from` is the interop JID e.g. "12-105012705411308@interop".
+		msgType = 'chat'
+		chatId = from
+		author = from
+		fromMe = false
 	} else {
 		throw new boom_1.Boom('Unknown message type', { data: stanza })
 	}

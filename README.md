@@ -45,6 +45,24 @@ Then import your code using:
 import makeWASocket from 'baron-baileys-v2'
 ```
 
+## What's New (Interop — BirdyChat & Haiket)
+
+Full support for the WhatsApp DMA Interoperability Protocol (`w:interop`). Allows messaging with users on third-party platforms directly from a WhatsApp account. See [INTEROP.md](./INTEROP.md) for full documentation.
+
+- **Automatic init on connect** — integrators are fetched, TOS accepted, and opt-in sent in parallel with other init queries. No manual setup required.
+- **`fetchIntegrators()`** — returns all available integrators with `id`, `name`, `status` (`active` | `onboarding` | `removed`), `identifierType` (`email` | `pn` | `username`), `optedIn`, and `features`.
+- **`resolveInteropUser(externalId, integratorId)`** — look up a single user by email (BirdyChat) or phone number (Haiket). Returns their interop JID (`12-…@interop`) or an error object.
+- **`resolveInteropUsers([...])`** — batch lookup of up to 256 users in a single IQ request.
+- **`optInIntegrators(ids)` / `optOutIntegrators(ids)`** — opt in or out of specific integrators.
+- **`getReachabilitySettings()` / `setReachabilitySettings(users, enabled)`** — interop presence/reachability subscription mechanism (replaces XMPP presence for interop contacts).
+- **`blockInteropUser(jid)` / `unblockInteropUser(jid)`** — block/unblock via the dedicated `w:interop` blocklist (separate from the regular WA blocklist).
+- **`reportInteropSpam(jid)`** — report an interop contact as spam.
+- **`trustInteropContact(jid)`** — mark an interop JID as `trusted_contact` in privacy tokens (called automatically after the first send in WA).
+- **`isInteropUser(jid)`** — new JID utility exported from `WABinary`, returns `true` for `@interop` JIDs.
+- **Incoming message support** — `decodeMessageNode` now correctly handles messages received from interop JIDs (`@interop`) as `chat` type, routed through the normal `messages.upsert` event.
+- **`profilePictureUrl`** — works out of the box for interop JIDs (no TC token attached, matching the WA protocol).
+- **Constants** `INTEGRATOR_BIRDYCHAT` (12) and `INTEGRATOR_HAIKET` (13) exported directly from the socket.
+
 ## What's New (Identity + Meta AI + History Sync + New Message Types)
 
 - **TC Token (Privacy Token) system — full upstream parity**
