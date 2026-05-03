@@ -819,7 +819,8 @@ const makeMessagesSocket = config => {
 						device: 0,
 						jid: (0, WABinary_1.jidEncode)(user, targetUserServer, 0) // rajeh, todo: this entire logic is convoluted and weird.
 					})
-					if (user !== ownUser) {
+					// Interop contacts don't receive a copy to own devices — native WA sends only one flat <enc>
+					if (user !== ownUser && !isInterop) {
 						const ownUserServer = isLid ? 'lid' : 's.whatsapp.net'
 						const ownUserForAddressing =
 							isLid && meLid ? (0, WABinary_1.jidDecode)(meLid).user : (0, WABinary_1.jidDecode)(meId).user
@@ -917,9 +918,10 @@ const makeMessagesSocket = config => {
 						binaryNodeContent.push(peerNode) // push only enc
 					}
 				} else if (isInterop) {
-					// For interop, only send to the first participant (the recipient)
-					// and don't wrap in <participants> node, matching APK behavior
-					const encNode = participants[0]?.content?.[0]
+					// Flat <enc> directly on <message> — no <participants> wrapper (native WA behavior).
+					// Find the enc for the actual interop recipient, not own-device DSM copy.
+					const recipientNode = participants.find(p => (0, WABinary_1.isInteropUser)(p?.attrs?.jid))
+					const encNode = (recipientNode ?? participants[0])?.content?.[0]
 					if (encNode) {
 						binaryNodeContent.push(encNode)
 					}

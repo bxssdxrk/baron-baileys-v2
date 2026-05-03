@@ -53,7 +53,12 @@ const setBotMessageSecret = (id, secret, chatJid) => {
 }
 exports.setBotMessageSecret = setBotMessageSecret
 const getDecryptionJid = async (sender, repository) => {
-	if ((0, WABinary_1.isLidUser)(sender) || (0, WABinary_1.isHostedLidUser)(sender)) {
+	if (
+		(0, WABinary_1.isLidUser)(sender) ||
+		(0, WABinary_1.isHostedLidUser)(sender) ||
+		(0, WABinary_1.isInteropUser)(sender)
+	) {
+		// LID and interop JIDs are session keys themselves — no PN mapping lookup needed
 		return sender
 	}
 	const mapped = await repository.lidMapping.getLIDForPN(sender)
@@ -215,10 +220,9 @@ function decodeMessageNode(stanza, meId, meLid) {
 				? (0, WABinary_1.areJidsSameUser)(from, meLid)
 				: (0, WABinary_1.areJidsSameUser)(from, meId)
 	} else if ((0, WABinary_1.isInteropUser)(from)) {
-		// Message from an interop contact (BirdyChat / Haiket).
-		// The `from` is the interop JID e.g. "12-105012705411308@interop".
-		// We treat it as 'peer' to bypass standard MD fan-out/retry logic in some places.
-		msgType = 'peer'
+		// Message from an interop contact (Facebook Messenger / Instagram via WA bridge).
+		// Treat as regular 1:1 chat — same Signal decrypt path as @s.whatsapp.net / @lid.
+		msgType = 'chat'
 		chatId = from
 		author = from
 		fromMe = false
