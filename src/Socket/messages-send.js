@@ -498,6 +498,7 @@ const makeMessagesSocket = config => {
 		const isStatus = jid === statusJid
 		const isLid = server === 'lid'
 		const isNewsletter = server === 'newsletter'
+		const isInterop = (0, WABinary_1.isInteropUser)(jid)
 		const isGroupOrStatus = isGroup || isStatus
 		const finalJid = jid
 		msgId = msgId || (0, Utils_1.generateMessageIDV2)(meId)
@@ -811,7 +812,7 @@ const makeMessagesSocket = config => {
 						: patchedForReporting
 				}
 				if (!isRetryResend) {
-					const targetUserServer = isLid ? 'lid' : 's.whatsapp.net'
+					const targetUserServer = isLid ? 'lid' : (isInterop ? 'interop' : 's.whatsapp.net')
 					devices.push({
 						user,
 						device: 0,
@@ -827,7 +828,7 @@ const makeMessagesSocket = config => {
 							jid: (0, WABinary_1.jidEncode)(ownUserForAddressing, ownUserServer, 0)
 						})
 					}
-					if (additionalAttributes?.['category'] !== 'peer') {
+					if (additionalAttributes?.['category'] !== 'peer' && !isInterop) {
 						// Clear placeholders and enumerate actual devices
 						devices.length = 0
 						// Use conversation-appropriate sender identity
@@ -913,6 +914,13 @@ const makeMessagesSocket = config => {
 					const peerNode = participants[0]?.content?.[0]
 					if (peerNode) {
 						binaryNodeContent.push(peerNode) // push only enc
+					}
+				} else if (isInterop) {
+					// For interop, only send to the first participant (the recipient)
+					// and don't wrap in <participants> node, matching APK behavior
+					const encNode = participants[0]?.content?.[0]
+					if (encNode) {
+						binaryNodeContent.push(encNode)
 					}
 				} else {
 					binaryNodeContent.push({
@@ -1124,6 +1132,11 @@ const makeMessagesSocket = config => {
 			// Add message to retry cache if enabled
 			if (messageRetryManager && !participant) {
 				messageRetryManager.addRecentMessage(destinationJid, msgId, message)
+			}
+			if (isInterop && !isRetryResend) {
+				await trustInteropContact(destinationJid).catch(err => {
+					logger.debug({ err, jid: destinationJid }, 'failed to trust interop contact')
+				})
 			}
 		}, meId)
 		return msgId

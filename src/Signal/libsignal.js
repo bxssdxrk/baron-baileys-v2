@@ -365,7 +365,7 @@ function signalStorage({ creds, keys }, lidMapping) {
 			const [deviceId, device] = id.split('.')
 			const [user, domainType_] = deviceId.split('_')
 			const domainType = parseInt(domainType_ || '0')
-			if (domainType === WABinary_1.WAJIDDomains.LID || domainType === WABinary_1.WAJIDDomains.HOSTED_LID) return id
+			if (domainType === WABinary_1.WAJIDDomains.LID || domainType === WABinary_1.WAJIDDomains.HOSTED_LID || user.includes('-')) return id
 			const pnJid = `${user}${device !== '0' ? `:${device}` : ''}@${domainType === WABinary_1.WAJIDDomains.HOSTED ? 'hosted' : 's.whatsapp.net'}`
 			const lidForPN = await lidMapping.getLIDForPN(pnJid)
 			if (lidForPN) {

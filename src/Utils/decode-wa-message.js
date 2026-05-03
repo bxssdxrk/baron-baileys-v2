@@ -217,7 +217,8 @@ function decodeMessageNode(stanza, meId, meLid) {
 	} else if ((0, WABinary_1.isInteropUser)(from)) {
 		// Message from an interop contact (BirdyChat / Haiket).
 		// The `from` is the interop JID e.g. "12-105012705411308@interop".
-		msgType = 'chat'
+		// We treat it as 'peer' to bypass standard MD fan-out/retry logic in some places.
+		msgType = 'peer'
 		chatId = from
 		author = from
 		fromMe = false

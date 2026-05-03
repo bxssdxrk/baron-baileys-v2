@@ -604,7 +604,11 @@ const generateWAMessageContent = async (message, options) => {
 		if (options.font) {
 			extContent.font = options.font
 		}
-		m.extendedTextMessage = extContent
+		if (options.jid && (0, WABinary_1.isInteropUser)(options.jid) && !options.backgroundColor && !options.font && !urlInfo) {
+			m.conversation = message.text
+		} else {
+			m.extendedTextMessage = extContent
+		}
 	} else if ((0, exports.hasNonNullishProperty)(message, 'contacts')) {
 		const contactLen = message.contacts.contacts.length
 		if (!contactLen) {
@@ -1280,7 +1284,7 @@ const generateWAMessageContent = async (message, options) => {
 			key.contextInfo = message.contextInfo
 		}
 	}
-	if ((0, reporting_utils_1.shouldIncludeReportingToken)(m)) {
+	if ((0, reporting_utils_1.shouldIncludeReportingToken)(m) && !(0, WABinary_1.isInteropUser)(options.jid)) {
 		m.messageContextInfo = m.messageContextInfo || {}
 		if (!m.messageContextInfo.messageSecret) {
 			m.messageContextInfo.messageSecret = (0, crypto_1.randomBytes)(32)
