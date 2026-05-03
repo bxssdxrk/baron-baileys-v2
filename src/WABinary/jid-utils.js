@@ -275,7 +275,8 @@ const getBotJid = jid => {
 exports.getBotJid = getBotJid
 
 const jidEncode = (user, server, device, agent) => {
-	return `${user || ''}${!!agent ? `_${agent}` : ''}${!!device ? `:${device}` : ''}@${server}`
+	const isInterop = server === 'interop'
+	return `${user || ''}${!!agent ? `_${agent}` : ''}${!!device || (device === 0 && !isInterop) ? `:${device}` : ''}@${server}`
 }
 exports.jidEncode = jidEncode
 const jidDecode = jid => {
