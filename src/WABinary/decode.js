@@ -205,6 +205,17 @@ const decodeDecompressedBinaryNode = (buffer, opts, indexRef = { index: 0 }) => 
 		}
 		return `${integrator}-${user}:${device}@${server}`
 	}
+	const readInteropJidTuple = () => {
+		const user = readString(readByte())
+		const device = readInt(2)
+		const integrator = readInt(2)
+		const domain = readByte()
+		if (domain !== 0) {
+			throw new Error(`invalid domain for INTEROP_JID_TUPLE: ${domain}`)
+		}
+		const devicePart = device !== 0 ? `:${device}` : ''
+		return `${integrator}-${user}${devicePart}@interop`
+	}
 	const readString = tag => {
 		if (tag >= 1 && tag < SINGLE_BYTE_TOKENS.length) {
 			return SINGLE_BYTE_TOKENS[tag] || ''
@@ -227,6 +238,8 @@ const decodeDecompressedBinaryNode = (buffer, opts, indexRef = { index: 0 }) => 
 				return readJidPair()
 			case TAGS.FB_JID:
 				return readFbJid()
+			case TAGS.INTEROP_JID_TUPLE:
+				return readInteropJidTuple()
 			case TAGS.INTEROP_JID:
 				return readInteropJid()
 			case TAGS.AD_JID:
