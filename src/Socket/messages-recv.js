@@ -1312,7 +1312,22 @@ const makeMessagesRecvSocket = config => {
 		}
 	}
 	const handleMessage = async node => {
+		const isInteropNode = (0, WABinary_1.isInteropUser)(node.attrs.from)
+		if (isInteropNode) {
+			logger.info(
+				{
+					from: node.attrs.from,
+					id: node.attrs.id,
+					type: node.attrs.type,
+					sts: node.attrs.sts,
+					display_name: node.attrs.display_name,
+					encType: (0, WABinary_1.getBinaryNodeChild)(node, 'enc')?.attrs?.type
+				},
+				'[interop] node arrived'
+			)
+		}
 		if (shouldIgnoreJid(node.attrs.from) && node.attrs.from !== WABinary_1.S_WHATSAPP_NET) {
+			if (isInteropNode) logger.warn({ from: node.attrs.from }, '[interop] node dropped by shouldIgnoreJid')
 			logger.debug({ key: node.attrs.key }, 'ignored message')
 			await sendMessageAck(node, Utils_1.NACK_REASONS.UnhandledError)
 			return
@@ -1353,6 +1368,12 @@ const makeMessagesRecvSocket = config => {
 				signalRepository,
 				logger
 			)
+			if (isInteropNode) {
+				logger.info(
+					{ remoteJid: msg.key.remoteJid, id: msg.key.id, fromMe: msg.key.fromMe, pushName: msg.pushName },
+					'[interop] decodeMessageNode OK'
+				)
+			}
 			const alt = msg.key.participantAlt || msg.key.remoteJidAlt
 			// store new mappings we didn't have before
 			if (!!alt) {
@@ -1370,12 +1391,27 @@ const makeMessagesRecvSocket = config => {
 			}
 			await messageMutex.mutex(async () => {
 				await decrypt()
+				if (isInteropNode) {
+					const stubType = msg.messageStubType
+					const stubText = msg.messageStubParameters?.[0]
+					logger.info(
+						{
+							id: msg.key.id,
+							hasMessage: !!msg.message,
+							messageKeys: msg.message ? Object.keys(msg.message) : [],
+							stubType,
+							stubText
+						},
+						'[interop] decrypt() done'
+					)
+				}
 				if (msg.key?.remoteJid && msg.key?.id && msg.message && messageRetryManager) {
 					messageRetryManager.addRecentMessage(msg.key.remoteJid, msg.key.id, msg.message)
 				}
 				// message failed to decrypt
 				if (msg.messageStubType === index_js_1.proto.WebMessageInfo.StubType.CIPHERTEXT && msg.category !== 'peer') {
 					if (msg?.messageStubParameters?.[0] === Utils_1.MISSING_KEYS_ERROR_TEXT) {
+						if (isInteropNode) logger.warn({ id: msg.key.id }, '[interop] decrypt failed: MISSING_KEYS')
 						acked = true
 						return sendMessageAck(node, Utils_1.NACK_REASONS.ParsingError)
 					}
@@ -1519,7 +1555,9 @@ const makeMessagesRecvSocket = config => {
 							type = 'inactive'
 						}
 						acked = true
-						await sendReceipt(msg.key.remoteJid, participant, [msg.key.id], type)
+						// Pass sts from the original stanza for interop contacts (BirdyChat/Haiket)
+						const interopSts = (0, WABinary_1.isInteropUser)(msg.key.remoteJid) ? node.attrs.sts : undefined
+						await sendReceipt(msg.key.remoteJid, participant, [msg.key.id], type, interopSts)
 						// send ack for history message
 						const isAnyHistoryMsg = (0, Utils_1.getHistoryMsg)(msg.message)
 						if (isAnyHistoryMsg) {
@@ -1535,6 +1573,19 @@ const makeMessagesRecvSocket = config => {
 				;(0, Utils_1.cleanMessage)(msg, authState.creds.me.id, authState.creds.me.lid)
 				const msgTs = (0, Utils_1.toNumber)(msg.messageTimestamp)
 				const isPending = !isConnected || node.attrs.offline || msgTs < socketCreatedAt
+				if (isInteropNode) {
+					logger.info(
+						{
+							id: msg.key.id,
+							isPending,
+							isConnected,
+							offline: node.attrs.offline,
+							msgTs,
+							socketCreatedAt
+						},
+						isPending ? '[interop] upsert as append (pending/offline)' : '[interop] upsert as notify'
+					)
+				}
 				if (isPending) {
 					await upsertMessage(msg, 'append')
 					return
@@ -1559,6 +1610,12 @@ const makeMessagesRecvSocket = config => {
 				await upsertMessage(msg, 'notify')
 			})
 		} catch (error) {
+			if (isInteropNode) {
+				logger.error(
+					{ error: error?.message, stack: error?.stack, from: node.attrs.from, id: node.attrs.id },
+					'[interop] unhandled error in handleMessage'
+				)
+			}
 			logger.error({ error, node: (0, WABinary_1.binaryNodeToString)(node) }, 'error in handling message')
 			if (!acked) {
 				await sendMessageAck(node, Utils_1.NACK_REASONS.UnhandledError).catch(ackErr =>

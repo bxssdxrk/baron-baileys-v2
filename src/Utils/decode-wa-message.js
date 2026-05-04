@@ -229,7 +229,8 @@ function decodeMessageNode(stanza, meId, meLid) {
 	} else {
 		throw new boom_1.Boom('Unknown message type', { data: stanza })
 	}
-	const pushname = stanza?.attrs?.notify
+	// Interop stanzas (BirdyChat/Haiket) use display_name instead of notify
+	const pushname = stanza?.attrs?.notify ?? stanza?.attrs?.display_name
 	const key = {
 		remoteJid: chatId,
 		remoteJidAlt: !(0, WABinary_1.isJidGroup)(chatId) ? addressingContext.senderAlt : undefined,

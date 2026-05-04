@@ -103,10 +103,11 @@ const makeMessagesSocket = config => {
 	 * generic send receipt function
 	 * used for receipts of phone call, read, delivery etc.
 	 * */
-	const sendReceipt = async (jid, participant, messageIds, type) => {
+	const sendReceipt = async (jid, participant, messageIds, type, sts) => {
 		if (!messageIds || messageIds.length === 0) {
 			throw new boom_1.Boom('missing ids in receipt')
 		}
+		const isInterop = (0, WABinary_1.isInteropUser)(jid)
 		const node = {
 			tag: 'receipt',
 			attrs: {
@@ -120,6 +121,10 @@ const makeMessagesSocket = config => {
 		if (type === 'sender' && ((0, WABinary_1.isPnUser)(jid) || (0, WABinary_1.isLidUser)(jid))) {
 			node.attrs.recipient = jid
 			node.attrs.to = participant
+		} else if (isInterop && !type) {
+			// Delivery receipt to interop contact: WA sends to device-qualified JID (user:0@interop)
+			const { user } = (0, WABinary_1.jidDecode)(jid)
+			node.attrs.to = `${user}:0@interop`
 		} else {
 			node.attrs.to = jid
 			if (participant) {
@@ -128,6 +133,10 @@ const makeMessagesSocket = config => {
 		}
 		if (type) {
 			node.attrs.type = type
+		}
+		// Interop bridge requires sts (microsecond stanza timestamp) from the original message
+		if (isInterop && sts) {
+			node.attrs.sts = sts
 		}
 		const remainingMessageIds = messageIds.slice(1)
 		if (remainingMessageIds.length) {
@@ -148,8 +157,8 @@ const makeMessagesSocket = config => {
 	/** Correctly bulk send receipts to multiple chats, participants */
 	const sendReceipts = async (keys, type) => {
 		const recps = (0, Utils_1.aggregateMessageKeysNotFromMe)(keys)
-		for (const { jid, participant, messageIds } of recps) {
-			await sendReceipt(jid, participant, messageIds, type)
+		for (const { jid, participant, messageIds, sts } of recps) {
+			await sendReceipt(jid, participant, messageIds, type, sts)
 		}
 	}
 	/** Bulk read messages. Keys can be from different chats & participants */

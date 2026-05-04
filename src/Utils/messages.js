@@ -1621,15 +1621,20 @@ function getAggregateResponsesInEventMessage({ eventResponses }, meId) {
 /** Given a list of message keys, aggregates them by chat & sender. Useful for sending read receipts in bulk */
 const aggregateMessageKeysNotFromMe = keys => {
 	const keyMap = {}
-	for (const { remoteJid, id, participant, fromMe } of keys) {
+	for (const { remoteJid, id, participant, fromMe, sts } of keys) {
 		if (!fromMe) {
 			const uqKey = `${remoteJid}:${participant || ''}`
 			if (!keyMap[uqKey]) {
 				keyMap[uqKey] = {
 					jid: remoteJid,
 					participant: participant,
-					messageIds: []
+					messageIds: [],
+					// sts is per-message; kept only for single-message interop receipts
+					sts: sts
 				}
+			} else if (keyMap[uqKey].sts !== sts) {
+				// Multiple messages with different sts — can't aggregate a single sts
+				keyMap[uqKey].sts = undefined
 			}
 			keyMap[uqKey].messageIds.push(id)
 		}
