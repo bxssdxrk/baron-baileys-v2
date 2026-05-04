@@ -113,6 +113,7 @@ const makeNoiseHandler = ({
 			pendingOnFrame = null
 		}
 	}
+	let _frameCount = 0
 	const processData = async onFrame => {
 		let size
 		while (true) {
@@ -122,16 +123,21 @@ const makeNoiseHandler = ({
 			const rawFrame = inBytes.subarray(3, size + 3)
 			inBytes = inBytes.subarray(size + 3)
 			let frame = rawFrame
+			_frameCount++
 			if (transport) {
 				const result = transport.decrypt(rawFrame)
 				try {
 					frame = await (0, WABinary_1.decodeBinaryNode)(result)
 				} catch (decodeErr) {
-					console.log(
-						{ err: decodeErr?.message, frameSize: size },
-						'failed to decode binary node — dropping frame (token table outdated?)'
-					)
+					console.log('[noise] decode error:', decodeErr?.message, 'frameSize:', size)
 					continue
+				}
+			}
+			// Log every decoded frame tag + from/to so we can see if interop frames arrive
+			if (frame && frame.tag && frame.attrs) {
+				const from = frame.attrs.from || frame.attrs.to || ''
+				if (from.includes('interop')) {
+					console.log('[noise] INTEROP FRAME:', frame.tag, JSON.stringify(frame.attrs))
 				}
 			}
 			if (logger.level === 'trace') {
