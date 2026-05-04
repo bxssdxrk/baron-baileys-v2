@@ -24,7 +24,7 @@ const TOS_RESULT_ACCEPTED = '160'
 const INTEROP_BATCH_MAX = 256
 
 const makeInteropSocket = sock => {
-	const { query, logger } = sock
+	const { query, logger, signalRepository } = sock
 
 	/**
 	 * Fetch all available interop integrators from the server.
@@ -336,6 +336,18 @@ const makeInteropSocket = sock => {
 		return integrators
 	}
 
+	/**
+	 * Reset the Signal session with an interop contact and force a fresh pkmsg handshake.
+	 * Call this when incoming messages from an interop contact are not arriving or
+	 * failing to decrypt — it clears the stale session so the next sendMessage
+	 * generates a new pre-key message and re-establishes both directions.
+	 */
+	const resetInteropSession = async jid => {
+		await signalRepository.deleteSession([jid])
+		logger.info({ jid }, '[interop] session reset — next send will use pkmsg')
+		console.log('[interop] session reset for', jid, '— next sendMessage will use pkmsg (NEW SESSION)')
+	}
+
 	return {
 		...sock,
 		fetchIntegrators,
@@ -351,6 +363,7 @@ const makeInteropSocket = sock => {
 		reportInteropSpam,
 		trustInteropContact,
 		initInterop,
+		resetInteropSession,
 		INTEGRATOR_BIRDYCHAT,
 		INTEGRATOR_HAIKET
 	}
