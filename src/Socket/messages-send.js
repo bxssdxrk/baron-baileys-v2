@@ -361,16 +361,25 @@ const makeMessagesSocket = config => {
 			jidsRequiringFetch.push(jid)
 		}
 		if (jidsRequiringFetch.length) {
-			// LID if mapped, otherwise original
+			// LID if mapped, otherwise original; interop JIDs pass through as-is
 			const wireJids = [
 				...jidsRequiringFetch.filter(jid => !!(0, WABinary_1.isLidUser)(jid) || !!(0, WABinary_1.isHostedLidUser)(jid)),
 				...(
 					(await signalRepository.lidMapping.getLIDsForPNs(
 						jidsRequiringFetch.filter(jid => !!(0, WABinary_1.isPnUser)(jid) || !!(0, WABinary_1.isHostedPnUser)(jid))
 					)) || []
-				).map(a => a.lid)
+				).map(a => a.lid),
+				...jidsRequiringFetch.filter(jid => (0, WABinary_1.isInteropUser)(jid))
 			]
+			const interopFetches = wireJids.filter(j => (0, WABinary_1.isInteropUser)(j))
+			if (interopFetches.length) {
+				logger.info({ interopFetches }, '[interop] fetching pre-key bundle for interop device(s)')
+			}
 			logger.debug({ jidsRequiringFetch, wireJids }, 'fetching sessions')
+			if (!wireJids.length) {
+				logger.debug({ jidsRequiringFetch }, 'assertSessions: no wire JIDs to fetch (all unsupported domain)')
+				return didFetchNewSession
+			}
 			const result = await query({
 				tag: 'iq',
 				attrs: {
