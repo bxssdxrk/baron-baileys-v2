@@ -373,6 +373,7 @@ const makeMessagesSocket = config => {
 			]
 			const interopFetches = wireJids.filter(j => (0, WABinary_1.isInteropUser)(j))
 			if (interopFetches.length) {
+				console.log('[interop] fetching pre-key bundle:', interopFetches)
 				logger.info({ interopFetches }, '[interop] fetching pre-key bundle for interop device(s)')
 			}
 			logger.debug({ jidsRequiringFetch, wireJids }, 'fetching sessions')
@@ -466,6 +467,9 @@ const makeMessagesSocket = config => {
 				const mutexKey = jid
 				const node = await encryptionMutex.mutex(mutexKey, async () => {
 					const { type, ciphertext } = await signalRepository.encryptMessage({ jid, data: bytes })
+					if ((0, WABinary_1.isInteropUser)(jid)) {
+						console.log('[interop] encrypted for', jid, '→ type:', type, type === 'pkmsg' ? '(NEW SESSION)' : '(existing session)')
+					}
 					if (type === 'pkmsg') {
 						shouldIncludeDeviceIdentity = true
 					}
