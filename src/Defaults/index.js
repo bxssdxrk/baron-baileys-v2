@@ -102,6 +102,7 @@ exports.DEFAULT_CONNECTION_CONFIG = {
 		return syncType !== index_js_1.proto.HistorySync.HistorySyncType.FULL
 	},
 	shouldIgnoreJid: () => false,
+	masqueradeAsPrimary: false,
 	linkPreviewImageThumbnailWidth: 192,
 	transactionOpts: { maxCommitRetries: 10, delayBetweenTriesMs: 3000 },
 	generateHighQualityLinkPreview: false,

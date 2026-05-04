@@ -53,12 +53,16 @@ const getClientPayload = config => {
 }
 const generateLoginNode = (userJid, config) => {
 	const { user, device } = (0, WABinary_1.jidDecode)(userJid)
+	// masqueradeAsPrimary: connect as device 0 so the WA server (and interop bridges)
+	// route primary-device traffic — including interop messages — to this session.
+	// Trade-off: the real phone (device 0 on TCP) may be kicked or see a conflict.
+	const effectiveDevice = config.masqueradeAsPrimary ? 0 : device
 	const payload = {
 		...getClientPayload(config),
-		passive: true,
-		pull: true,
+		passive: !config.masqueradeAsPrimary,
+		pull: !config.masqueradeAsPrimary,
 		username: +user,
-		device: device,
+		device: effectiveDevice,
 		// TODO: investigate (hard set as false atm)
 		lidDbMigrated: false
 	}

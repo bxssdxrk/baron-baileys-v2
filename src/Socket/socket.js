@@ -768,7 +768,10 @@ const makeSocket = config => {
 		try {
 			updateServerTimeOffset(node)
 			await uploadPreKeysToServerIfRequired()
-			await sendPassiveIq('active')
+			// passive→active handshake only for companion (passive) sessions
+			if (!config.masqueradeAsPrimary) {
+				await sendPassiveIq('active')
+			}
 			// After successful login, validate our key-bundle against server
 			try {
 				await digestKeyBundle()
