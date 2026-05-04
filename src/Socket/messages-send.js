@@ -400,6 +400,14 @@ const makeMessagesSocket = config => {
 					}
 				]
 			})
+			if (interopFetches.length) {
+				const { getBinaryNodeChild, getBinaryNodeChildren } = require('../WABinary')
+				const listNode = getBinaryNodeChild(result, 'list')
+				const userNodes = listNode ? getBinaryNodeChildren(listNode, 'user') : []
+				console.log('[interop] pre-key IQ response: userNodes =', userNodes.length,
+					userNodes.map(n => ({ jid: n.attrs?.jid, hasKey: !!getBinaryNodeChild(n, 'key'), hasError: !!getBinaryNodeChild(n, 'error'), errorAttrs: getBinaryNodeChild(n, 'error')?.attrs }))
+				)
+			}
 			await (0, Utils_1.parseAndInjectE2ESessions)(result, signalRepository)
 			didFetchNewSession = true
 			// Cache fetched sessions using wire JIDs
@@ -465,7 +473,10 @@ const makeMessagesSocket = config => {
 				}
 				const bytes = (0, Utils_1.encodeWAMessage)(msgToEncrypt)
 				const mutexKey = jid
-				const node = await encryptionMutex.mutex(mutexKey, async () => {
+				if ((0, WABinary_1.isInteropUser)(jid)) {
+						console.log('[interop] calling encryptMessage for', jid)
+					}
+					const node = await encryptionMutex.mutex(mutexKey, async () => {
 					const { type, ciphertext } = await signalRepository.encryptMessage({ jid, data: bytes })
 					if ((0, WABinary_1.isInteropUser)(jid)) {
 						console.log('[interop] encrypted for', jid, '→ type:', type, type === 'pkmsg' ? '(NEW SESSION)' : '(existing session)')
@@ -487,6 +498,9 @@ const makeMessagesSocket = config => {
 				})
 				return node
 			} catch (err) {
+				if ((0, WABinary_1.isInteropUser)(jid)) {
+					console.log('[interop] ENCRYPT FAILED for', jid, '→', err?.message, err?.stack?.split('\n')[1])
+				}
 				logger.error({ jid, err }, 'Failed to encrypt for recipient')
 				return null
 			}
