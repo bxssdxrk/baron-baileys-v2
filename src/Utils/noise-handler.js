@@ -119,11 +119,20 @@ const makeNoiseHandler = ({
 			if (inBytes.length < 3) return
 			size = (inBytes[0] << 16) | (inBytes[1] << 8) | inBytes[2]
 			if (inBytes.length < size + 3) return
-			let frame = inBytes.subarray(3, size + 3)
+			const rawFrame = inBytes.subarray(3, size + 3)
 			inBytes = inBytes.subarray(size + 3)
+			let frame = rawFrame
 			if (transport) {
-				const result = transport.decrypt(frame)
-				frame = await (0, WABinary_1.decodeBinaryNode)(result)
+				const result = transport.decrypt(rawFrame)
+				try {
+					frame = await (0, WABinary_1.decodeBinaryNode)(result)
+				} catch (decodeErr) {
+					console.log(
+						{ err: decodeErr?.message, frameSize: size },
+						'failed to decode binary node — dropping frame (token table outdated?)'
+					)
+					continue
+				}
 			}
 			if (logger.level === 'trace') {
 				logger.trace({ msg: frame?.attrs?.id }, 'recv frame')
