@@ -1872,7 +1872,7 @@ const makeMessagesSocket = config => {
 				typeof content === 'object' &&
 				'disappearingMessagesInChat' in content &&
 				typeof content['disappearingMessagesInChat'] !== 'undefined' &&
-				isJidGroup(jid)
+				(0, WABinary_1.isJidGroup)(jid)
 			) {
 				const { disappearingMessagesInChat } = content
 				const value =
@@ -1977,7 +1977,7 @@ const makeMessagesSocket = config => {
 				const additionalAttributes = {}
 				const additionalNodes = []
 				if (isDeleteMsg) {
-					if (isJidGroup(content.delete?.remoteJid) && !content.delete?.fromMe) {
+					if ((0, WABinary_1.isJidGroup)(content.delete?.remoteJid) && !content.delete?.fromMe) {
 						additionalAttributes.edit = '8'
 					} else {
 						additionalAttributes.edit = '7'
