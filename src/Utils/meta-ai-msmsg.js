@@ -1,7 +1,6 @@
 'use strict'
 
-const { createDecipheriv } = require('crypto')
-const hkdf = require('baron-util-js-hkdf')
+const rb = require('whatsapp-rust-bridge')
 const { proto } = require('../../WAProto')
 
 const BOT_MESSAGE_INFO = 'Bot Message'
@@ -195,22 +194,13 @@ const assertRequired = (value, label) => {
 	}
 }
 
-const decryptWithStrategy = async (messageSecret, msMsg, strategy) => {
-	const baseSecret = await hkdf(toBuffer(messageSecret), KEY_LENGTH, {
-		salt: undefined,
-		info: BOT_MESSAGE_INFO,
-		hash: 'SHA-256'
-	})
-	const key = await hkdf(baseSecret, KEY_LENGTH, {
-		salt: undefined,
-		info: strategy.info,
-		hash: 'SHA-256'
-	})
+const decryptWithStrategy = (messageSecret, msMsg, strategy) => {
+	const baseSecret = Buffer.from(rb.hkdf(toBuffer(messageSecret), KEY_LENGTH, { info: BOT_MESSAGE_INFO }))
+	const key = Buffer.from(rb.hkdf(baseSecret, KEY_LENGTH, { info: strategy.info }))
 	const payload = toBuffer(msMsg.encPayload)
-	const decipher = createDecipheriv('aes-256-gcm', key, toBuffer(msMsg.encIv))
-	decipher.setAAD(strategy.aad)
-	decipher.setAuthTag(payload.slice(-AUTH_TAG_LENGTH))
-	return Buffer.concat([decipher.update(payload.slice(0, -AUTH_TAG_LENGTH)), decipher.final()])
+	// ciphertext = payload without last 16 bytes (auth tag) + auth tag appended → standard GCM layout
+	const ciphertextWithTag = Buffer.concat([payload.slice(0, -AUTH_TAG_LENGTH), payload.slice(-AUTH_TAG_LENGTH)])
+	return Buffer.from(rb.aesDecryptGCM(ciphertextWithTag, key, toBuffer(msMsg.encIv), strategy.aad))
 }
 
 const decodeDecryptedMsmsgMessage = decrypted => {

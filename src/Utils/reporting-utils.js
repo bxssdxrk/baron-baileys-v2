@@ -1,7 +1,7 @@
 'use strict'
 Object.defineProperty(exports, '__esModule', { value: true })
 exports.getMessageReportingToken = exports.shouldIncludeReportingToken = void 0
-const crypto_1 = require('crypto')
+const rb = require('whatsapp-rust-bridge')
 const crypto_2 = require('./crypto')
 const reportingFields = [
 	{ f: 1 },
@@ -246,7 +246,7 @@ const getMessageReportingToken = async (msgProtobuf, message, key) => {
 	if (!content || content.length === 0) {
 		return null
 	}
-	const reportingToken = (0, crypto_1.createHmac)('sha256', reportingSecret).update(content).digest().subarray(0, 16)
+	const reportingToken = Buffer.from(rb.hmacSign(content, reportingSecret)).subarray(0, 16)
 	return {
 		tag: 'reporting',
 		attrs: {},

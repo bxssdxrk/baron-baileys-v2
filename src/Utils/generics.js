@@ -33,6 +33,7 @@ exports.bytesToCrockford = bytesToCrockford
 exports.encodeNewsletterMessage = encodeNewsletterMessage
 const boom_1 = require('@hapi/boom')
 const crypto_1 = require('crypto')
+const rb = require('whatsapp-rust-bridge')
 const DEFAULTS_1 = require('../Defaults')
 const index_js_1 = require('../../WAProto/index.js')
 const baileysVersion = DEFAULTS_1.VERSION
@@ -197,7 +198,7 @@ const generateMessageIDV2 = userId => {
 	}
 	const random = (0, crypto_1.randomBytes)(16)
 	random.copy(data, 28)
-	const hash = (0, crypto_1.createHash)('sha256').update(data).digest()
+	const hash = Buffer.from(rb.sha256(data))
 	return '3EB0' + hash.toString('hex').toUpperCase().substring(0, 18)
 }
 exports.generateMessageIDV2 = generateMessageIDV2

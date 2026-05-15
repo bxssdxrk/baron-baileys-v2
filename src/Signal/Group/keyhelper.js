@@ -55,7 +55,7 @@ exports.generateSenderKey = generateSenderKey
 exports.generateSenderKeyId = generateSenderKeyId
 exports.generateSenderSigningKey = generateSenderSigningKey
 const nodeCrypto = __importStar(require('crypto'))
-const curve_1 = require('libsignal/src/curve')
+const rb = require('whatsapp-rust-bridge')
 function generateSenderKey() {
 	return nodeCrypto.randomBytes(32)
 }
@@ -64,7 +64,7 @@ function generateSenderKeyId() {
 }
 function generateSenderSigningKey(key) {
 	if (!key) {
-		key = (0, curve_1.generateKeyPair)()
+		key = rb.generateKeyPair()
 	}
 	return {
 		public: Buffer.from(key.pubKey),

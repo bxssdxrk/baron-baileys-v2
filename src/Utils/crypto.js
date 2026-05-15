@@ -1,55 +1,4 @@
 'use strict'
-var __createBinding =
-	(this && this.__createBinding) ||
-	(Object.create
-		? function (o, m, k, k2) {
-				if (k2 === undefined) k2 = k
-				var desc = Object.getOwnPropertyDescriptor(m, k)
-				if (!desc || ('get' in desc ? !m.__esModule : desc.writable || desc.configurable)) {
-					desc = {
-						enumerable: true,
-						get: function () {
-							return m[k]
-						}
-					}
-				}
-				Object.defineProperty(o, k2, desc)
-			}
-		: function (o, m, k, k2) {
-				if (k2 === undefined) k2 = k
-				o[k2] = m[k]
-			})
-var __setModuleDefault =
-	(this && this.__setModuleDefault) ||
-	(Object.create
-		? function (o, v) {
-				Object.defineProperty(o, 'default', { enumerable: true, value: v })
-			}
-		: function (o, v) {
-				o['default'] = v
-			})
-var __importStar =
-	(this && this.__importStar) ||
-	(function () {
-		var ownKeys = function (o) {
-			ownKeys =
-				Object.getOwnPropertyNames ||
-				function (o) {
-					var ar = []
-					for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k
-					return ar
-				}
-			return ownKeys(o)
-		}
-		return function (mod) {
-			if (mod && mod.__esModule) return mod
-			var result = {}
-			if (mod != null)
-				for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== 'default') __createBinding(result, mod, k[i])
-			__setModuleDefault(result, mod)
-			return result
-		}
-	})()
 Object.defineProperty(exports, '__esModule', { value: true })
 exports.signedKeyPair = exports.Curve = exports.generateSignalPubKey = exports.hkdf = exports.md5 = void 0
 exports.aesEncryptGCM = aesEncryptGCM
@@ -63,135 +12,108 @@ exports.aesEncrypWithIV = aesEncrypWithIV
 exports.hmacSign = hmacSign
 exports.sha256 = sha256
 exports.derivePairingCodeKey = derivePairingCodeKey
-const crypto_1 = require('crypto')
-const curve = __importStar(require('libsignal/src/curve'))
-const Defaults_1 = require('../Defaults')
-var whatsapp_rust_bridge_1 = require('whatsapp-rust-bridge')
-Object.defineProperty(exports, 'md5', {
-	enumerable: true,
-	get: function () {
-		return whatsapp_rust_bridge_1.md5
-	}
-})
-Object.defineProperty(exports, 'hkdf', {
-	enumerable: true,
-	get: function () {
-		return whatsapp_rust_bridge_1.hkdf
-	}
-})
-// insure browser & node compatibility
 const { subtle } = globalThis.crypto
-/** prefix version byte to the pub keys, required for some curve crypto functions */
+const Defaults_1 = require('../Defaults')
+const rb = require('whatsapp-rust-bridge')
+
+// ── Re-exports from Rust ─────────────────────────────────────────────────────
+Object.defineProperty(exports, 'md5', { enumerable: true, get: () => rb.md5 })
+Object.defineProperty(exports, 'hkdf', { enumerable: true, get: () => rb.hkdf })
+
+// ── Signal pub key helper ─────────────────────────────────────────────────────
 const generateSignalPubKey = pubKey =>
 	pubKey.length === 33 ? pubKey : Buffer.concat([Defaults_1.KEY_BUNDLE_TYPE, pubKey])
 exports.generateSignalPubKey = generateSignalPubKey
+
+// ── Curve — fully delegated to Rust bridge ────────────────────────────────────
 exports.Curve = {
 	generateKeyPair: () => {
-		const { pubKey, privKey } = curve.generateKeyPair()
+		const pair = rb.generateKeyPair()
 		return {
-			private: Buffer.from(privKey),
-			// remove version byte
-			public: Buffer.from(pubKey.slice(1))
+			private: Buffer.from(pair.privKey),
+			public: Buffer.from(pair.pubKey).subarray(1) // strip 0x05 prefix
 		}
 	},
-	sharedKey: (privateKey, publicKey) => {
-		const shared = curve.calculateAgreement((0, exports.generateSignalPubKey)(publicKey), privateKey)
-		return Buffer.from(shared)
-	},
-	sign: (privateKey, buf) => curve.calculateSignature(privateKey, buf),
+	sharedKey: (privateKey, publicKey) =>
+		Buffer.from(rb.calculateAgreement(generateSignalPubKey(publicKey), privateKey)),
+	sign: (privateKey, buf) => rb.calculateSignature(privateKey, buf),
 	verify: (pubKey, message, signature) => {
 		try {
-			curve.verifySignature((0, exports.generateSignalPubKey)(pubKey), message, signature)
-			return true
-		} catch (error) {
+			return rb.verifySignature(generateSignalPubKey(pubKey), message, signature)
+		} catch {
 			return false
 		}
 	}
 }
+
 const signedKeyPair = (identityKeyPair, keyId) => {
 	const preKey = exports.Curve.generateKeyPair()
-	const pubKey = (0, exports.generateSignalPubKey)(preKey.public)
+	const pubKey = generateSignalPubKey(preKey.public)
 	const signature = exports.Curve.sign(identityKeyPair.private, pubKey)
 	return { keyPair: preKey, signature, keyId }
 }
 exports.signedKeyPair = signedKeyPair
-const GCM_TAG_LENGTH = 128 >> 3
-/**
- * encrypt AES 256 GCM;
- * where the tag tag is suffixed to the ciphertext
- * */
+
+// ── AES-256-GCM ───────────────────────────────────────────────────────────────
 function aesEncryptGCM(plaintext, key, iv, additionalData) {
-	const cipher = (0, crypto_1.createCipheriv)('aes-256-gcm', key, iv)
-	cipher.setAAD(additionalData)
-	return Buffer.concat([cipher.update(plaintext), cipher.final(), cipher.getAuthTag()])
+	return Buffer.from(rb.aesEncryptGCM(plaintext, key, iv, additionalData))
 }
-/**
- * decrypt AES 256 GCM;
- * where the auth tag is suffixed to the ciphertext
- * */
+
 function aesDecryptGCM(ciphertext, key, iv, additionalData) {
-	const decipher = (0, crypto_1.createDecipheriv)('aes-256-gcm', key, iv)
-	// decrypt additional adata
-	const enc = ciphertext.slice(0, ciphertext.length - GCM_TAG_LENGTH)
-	const tag = ciphertext.slice(ciphertext.length - GCM_TAG_LENGTH)
-	// set additional data
-	decipher.setAAD(additionalData)
-	decipher.setAuthTag(tag)
-	return Buffer.concat([decipher.update(enc), decipher.final()])
+	return Buffer.from(rb.aesDecryptGCM(ciphertext, key, iv, additionalData))
 }
+
+// ── AES-256-CTR ───────────────────────────────────────────────────────────────
 function aesEncryptCTR(plaintext, key, iv) {
-	const cipher = (0, crypto_1.createCipheriv)('aes-256-ctr', key, iv)
-	return Buffer.concat([cipher.update(plaintext), cipher.final()])
+	return Buffer.from(rb.aesEncryptCTR(plaintext, key, iv))
 }
+
 function aesDecryptCTR(ciphertext, key, iv) {
-	const decipher = (0, crypto_1.createDecipheriv)('aes-256-ctr', key, iv)
-	return Buffer.concat([decipher.update(ciphertext), decipher.final()])
+	return Buffer.from(rb.aesDecryptCTR(ciphertext, key, iv))
 }
-/** decrypt AES 256 CBC; where the IV is prefixed to the buffer */
+
+// ── AES-256-CBC ───────────────────────────────────────────────────────────────
 function aesDecrypt(buffer, key) {
-	return aesDecryptWithIV(buffer.subarray(16), key, buffer.subarray(0, 16))
+	return Buffer.from(rb.aesDecrypt(buffer, key))
 }
-/** decrypt AES 256 CBC */
+
 function aesDecryptWithIV(buffer, key, IV) {
-	const aes = (0, crypto_1.createDecipheriv)('aes-256-cbc', key, IV)
-	return Buffer.concat([aes.update(buffer), aes.final()])
+	return Buffer.from(rb.aesDecryptWithIV(buffer, key, IV))
 }
-// encrypt AES 256 CBC; where a random IV is prefixed to the buffer
+
 function aesEncrypt(buffer, key) {
-	const IV = (0, crypto_1.randomBytes)(16)
-	const aes = (0, crypto_1.createCipheriv)('aes-256-cbc', key, IV)
-	return Buffer.concat([IV, aes.update(buffer), aes.final()]) // prefix IV to the buffer
+	return Buffer.from(rb.aesEncrypt(buffer, key))
 }
-// encrypt AES 256 CBC with a given IV
+
 function aesEncrypWithIV(buffer, key, IV) {
-	const aes = (0, crypto_1.createCipheriv)('aes-256-cbc', key, IV)
-	return Buffer.concat([aes.update(buffer), aes.final()]) // prefix IV to the buffer
+	return Buffer.from(rb.aesEncrypWithIV(buffer, key, IV))
 }
-// sign HMAC using SHA 256
+
+// ── HMAC-SHA256 ───────────────────────────────────────────────────────────────
 function hmacSign(buffer, key, variant = 'sha256') {
-	return (0, crypto_1.createHmac)(variant, key).update(buffer).digest()
+	if (variant !== 'sha256') {
+		// fallback for non-SHA256 variants (rare edge case)
+		const { createHmac } = require('crypto')
+		return createHmac(variant, key).update(buffer).digest()
+	}
+	return Buffer.from(rb.hmacSign(buffer, key))
 }
+
+// ── SHA-256 ───────────────────────────────────────────────────────────────────
 function sha256(buffer) {
-	return (0, crypto_1.createHash)('sha256').update(buffer).digest()
+	return Buffer.from(rb.sha256(buffer))
 }
+
+// ── PBKDF2 pairing code key ───────────────────────────────────────────────────
 async function derivePairingCodeKey(pairingCode, salt) {
-	// Convert inputs to formats Web Crypto API can work with
 	const encoder = new TextEncoder()
 	const pairingCodeBuffer = encoder.encode(pairingCode)
 	const saltBuffer = new Uint8Array(salt instanceof Uint8Array ? salt : new Uint8Array(salt))
-	// Import the pairing code as key material
 	const keyMaterial = await subtle.importKey('raw', pairingCodeBuffer, { name: 'PBKDF2' }, false, ['deriveBits'])
-	// Derive bits using PBKDF2 with the same parameters
-	// 2 << 16 = 131,072 iterations
 	const derivedBits = await subtle.deriveBits(
-		{
-			name: 'PBKDF2',
-			salt: saltBuffer,
-			iterations: 2 << 16,
-			hash: 'SHA-256'
-		},
+		{ name: 'PBKDF2', salt: saltBuffer, iterations: 2 << 16, hash: 'SHA-256' },
 		keyMaterial,
-		32 * 8 // 32 bytes * 8 = 256 bits
+		256
 	)
 	return Buffer.from(derivedBits)
 }

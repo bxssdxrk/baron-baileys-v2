@@ -1,7 +1,7 @@
 'use strict'
 Object.defineProperty(exports, '__esModule', { value: true })
 exports.SenderKeyMessage = void 0
-const curve_1 = require('libsignal/src/curve')
+const rb = require('whatsapp-rust-bridge')
 const index_js_1 = require('../../../WAProto/index.js')
 const ciphertext_message_1 = require('./ciphertext-message')
 class SenderKeyMessage extends ciphertext_message_1.CiphertextMessage {
@@ -53,11 +53,11 @@ class SenderKeyMessage extends ciphertext_message_1.CiphertextMessage {
 	verifySignature(signatureKey) {
 		const part1 = this.serialized.slice(0, this.serialized.length - this.SIGNATURE_LENGTH)
 		const part2 = this.serialized.slice(-1 * this.SIGNATURE_LENGTH)
-		const res = (0, curve_1.verifySignature)(signatureKey, part1, part2)
+		const res = rb.verifySignature(signatureKey, part1, part2)
 		if (!res) throw new Error('Invalid signature!')
 	}
 	getSignature(signatureKey, serialized) {
-		return Buffer.from((0, curve_1.calculateSignature)(signatureKey, serialized))
+		return Buffer.from(rb.calculateSignature(signatureKey, serialized))
 	}
 	serialize() {
 		return this.serialized

@@ -1,7 +1,7 @@
 'use strict'
 Object.defineProperty(exports, '__esModule', { value: true })
 exports.GroupCipher = void 0
-const crypto_1 = require('libsignal/src/crypto')
+const rb = require('whatsapp-rust-bridge')
 const sender_key_message_1 = require('./sender-key-message')
 class GroupCipher {
 	constructor(senderKeyStore, senderKeyName) {
@@ -73,14 +73,14 @@ class GroupCipher {
 	}
 	async getPlainText(iv, key, ciphertext) {
 		try {
-			return (0, crypto_1.decrypt)(key, ciphertext, iv)
+			return Buffer.from(rb.aesDecryptWithIV(ciphertext, key, iv))
 		} catch (e) {
 			throw new Error('InvalidMessageException')
 		}
 	}
 	async getCipherText(iv, key, plaintext) {
 		try {
-			return (0, crypto_1.encrypt)(key, plaintext, iv)
+			return Buffer.from(rb.aesEncrypWithIV(plaintext, key, iv))
 		} catch (e) {
 			throw new Error('InvalidMessageException')
 		}

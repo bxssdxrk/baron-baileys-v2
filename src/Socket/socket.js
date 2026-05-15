@@ -14,6 +14,7 @@ const WABinary_1 = require('../WABinary')
 const BinaryInfo_js_1 = require('../WAM/BinaryInfo.js')
 const WAUSync_1 = require('../WAUSync/')
 const Client_1 = require('./Client')
+const mex_1 = require('./mex')
 /**
  * Connects to WA servers and performs:
  * - simple queries (no retry mechanism, wait for connection establishment)
@@ -922,6 +923,34 @@ const makeSocket = config => {
 			logger.debug({ error }, 'failed to send unified_session telemetry')
 		}
 	}
+	const fetchAccountReachoutTimelock = async () => {
+		const queryResult = await (0, mex_1.executeWMexQuery)(
+			{},
+			Types_1.QueryIds.REACHOUT_TIMELOCK,
+			Types_1.XWAPaths.xwa2_fetch_account_reachout_timelock,
+			query,
+			generateMessageTag
+		)
+		const result = {
+			isActive: !!queryResult?.is_active,
+			timeEnforcementEnds:
+				queryResult?.time_enforcement_ends && queryResult?.time_enforcement_ends !== '0'
+					? new Date(parseInt(queryResult.time_enforcement_ends, 10) * 1000)
+					: undefined,
+			enforcementType: queryResult?.enforcement_type ?? Types_1.ReachoutTimelockEnforcementType.DEFAULT
+		}
+		ev.emit('connection.update', { reachoutTimeLock: result })
+		return result
+	}
+	const fetchNewChatMessageCap = async () => {
+		return (0, mex_1.executeWMexQuery)(
+			{ input: { type: 'INDIVIDUAL_NEW_CHAT_MSG' } },
+			Types_1.QueryIds.MESSAGE_CAPPING_INFO,
+			Types_1.XWAPaths.xwa2_message_capping_info,
+			query,
+			generateMessageTag
+		)
+	}
 	return {
 		type: 'md',
 		ws,
@@ -952,7 +981,9 @@ const makeSocket = config => {
 		waitForConnectionUpdate: (0, Utils_1.bindWaitForConnectionUpdate)(ev),
 		sendWAMBuffer,
 		executeUSyncQuery,
-		onWhatsApp
+		onWhatsApp,
+		fetchAccountReachoutTimelock,
+		fetchNewChatMessageCap
 	}
 }
 exports.makeSocket = makeSocket

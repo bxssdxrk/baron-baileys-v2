@@ -5,5 +5,5 @@ test
 docs
 fixtures
 *.txt
-test\fixtures\meta-ai-msmsg-fixtures.js
-test\meta-ai-msmsg-test.js
+test\**
+.claude
