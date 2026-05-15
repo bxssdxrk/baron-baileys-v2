@@ -376,11 +376,14 @@ function signalStorage({ creds, keys }, lidMapping) {
 		loadSession: async id => {
 			try {
 				const wireJid = await resolveLIDSignalAddress(id)
-				const { [wireJid]: sess } = await keys.get('session', [wireJid])
+				// Fetch under both mapped key and raw key to handle LID-mapping race condition
+				const keysToFetch = wireJid !== id ? [wireJid, id] : [id]
+				const fetched = await keys.get('session', keysToFetch)
+				const sess = fetched[wireJid] || fetched[id]
 				if (!sess) return null
 				// Detect old libsignal-node JSON format ({ _sessions: ... }) — treat as no session
 				// so WhatsApp automatically re-negotiates with a fresh PreKey exchange
-				if (sess && typeof sess === 'object' && !Buffer.isBuffer(sess) && !ArrayBuffer.isView(sess) && sess._sessions) {
+				if (typeof sess === 'object' && !Buffer.isBuffer(sess) && !ArrayBuffer.isView(sess) && sess._sessions) {
 					return null
 				}
 				return rb.SessionRecord.deserialize(sess)
@@ -389,8 +392,8 @@ function signalStorage({ creds, keys }, lidMapping) {
 			}
 		},
 		storeSession: async (id, session) => {
-			const wireJid = await resolveLIDSignalAddress(id)
-			await keys.set({ session: { [wireJid]: session.serialize() } })
+			// Store under raw ID so it's always findable regardless of LID mapping state
+			await keys.set({ session: { [id]: session.serialize() } })
 		},
 		isTrustedIdentity: () => {
 			return true // TOFU - Trust on First Use (same as WhatsApp Web)
