@@ -377,13 +377,16 @@ function signalStorage({ creds, keys }, lidMapping) {
 			try {
 				const wireJid = await resolveLIDSignalAddress(id)
 				const { [wireJid]: sess } = await keys.get('session', [wireJid])
-				if (sess) {
-					return rb.SessionRecord.deserialize(sess)
+				if (!sess) return null
+				// Detect old libsignal-node JSON format ({ _sessions: ... }) — treat as no session
+				// so WhatsApp automatically re-negotiates with a fresh PreKey exchange
+				if (sess && typeof sess === 'object' && !Buffer.isBuffer(sess) && !ArrayBuffer.isView(sess) && sess._sessions) {
+					return null
 				}
+				return rb.SessionRecord.deserialize(sess)
 			} catch (e) {
 				return null
 			}
-			return null
 		},
 		storeSession: async (id, session) => {
 			const wireJid = await resolveLIDSignalAddress(id)
