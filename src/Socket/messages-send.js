@@ -21,6 +21,7 @@ const WAUSync_1 = require('../WAUSync')
 const message_composer_1 = require('../Utils/message-composer.js')
 const interactive_handler_1 = require('./interactive-handler.js')
 const username_1 = require('./username')
+const { setBotMessageSecret } = require('../Utils/decode-wa-message')
 const makeMessagesSocket = config => {
 	const {
 		logger,
@@ -1117,6 +1118,11 @@ const makeMessagesSocket = config => {
 			}
 			logger.debug({ msgId }, `sending message to ${participants.length} devices`)
 			await sendNode(stanza)
+			// Register messageSecret immediately at send time so msmsg replies can be
+			// decrypted even if they arrive before our own message echo comes back.
+			if (message.messageContextInfo?.messageSecret) {
+				setBotMessageSecret(msgId, message.messageContextInfo.messageSecret, destinationJid)
+			}
 			// Fire-and-forget: issue our token to the contact AFTER message send.
 			const isProtocolMsg = !!(0, Utils_1.normalizeMessageContent)(message)?.protocolMessage
 			const isBotOrPSA =
