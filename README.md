@@ -21,6 +21,29 @@ The maintainers of Baileys do not in any way condone the use of this application
 - Not running Selenium or Chromimum saves you like **half a gig** of ram :/
 - Baileys supports interacting with the multi-device & web versions of WhatsApp.
 
+## Performance — Rust WASM Core ⚡
+
+All cryptographic and binary encoding operations run in a **compiled Rust/WebAssembly module** ([whatsapp-rust-bridge](https://github.com/7ucg/whatsapp-rust-bridge)), giving significantly faster throughput compared to pure-JS alternatives — especially under high message volume.
+
+**What runs in Rust:**
+
+| Operation | Was | Now |
+|-----------|-----|-----|
+| AES-256-GCM / CBC / CTR | `node:crypto` | Rust WASM |
+| HMAC-SHA256 / SHA256 / MD5 | `node:crypto` | Rust WASM |
+| HKDF key derivation | `baron-util-js-hkdf` | Rust WASM |
+| Curve25519 (ECDH, sign, verify) | `libsignal-node` JS | Rust WASM |
+| Signal SessionCipher / Builder / Record | `libsignal-node` JS | Rust WASM |
+| WABinary encode (`encodeBinaryNode`) | Pure JS | Rust WASM |
+| LT-Hash (app state integrity) | Pure JS | Rust WASM |
+| Group cipher (encrypt / decrypt) | Pure JS crypto | Rust WASM |
+
+**Dependencies removed:** `libsignal-node`, `baron-util-js-hkdf` — replaced entirely by the Rust bridge.
+
+**No configuration needed.** The WASM module is bundled and initialized automatically on startup. Works seamlessly with the built-in Antiban middleware.
+
+> **Server deployment:** No Rust toolchain required — the compiled `.wasm` binary ships with the package.
+
 ## Antiban Protection ⚠ (Test Phase)
 
 Built-in anti-ban middleware is automatically applied to every socket. See [ANTIBAN.md](./ANTIBAN.md) for usage, configuration, and diagnostics.
