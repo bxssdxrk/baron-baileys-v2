@@ -2272,7 +2272,10 @@ await sock.sendRichMessage(
     { messageType: 5, codeMetadata: { codeLanguage: 'javascript', codeBlocks: [...] } }
   ],
   quoted, // optional
-  options: { mentions: [...] } // optional
+  options: {
+  	botJid: '123@bot' // optional
+  	mentions: [...] // optional
+  }
 )
 ```
 
