@@ -221,12 +221,13 @@ const tokenizeCode = (codeStr, language = 'javascript') => {
 	return blocks
 }
 
-const buildRichContextInfo = quoted => {
+const buildRichContextInfo = (quoted, options) => {
 	const ctxInfo = {
 		forwardingScore: 1,
 		isForwarded: true,
 		forwardedAiBotMessageInfo: { botJid: '867051314767696@bot' },
-		forwardOrigin: 4
+		forwardOrigin: 4,
+		...(options.mentions ? { mentionedJid: options.mentions } : {})
 	}
 	if (quoted?.key) {
 		ctxInfo.stanzaId = quoted.key.id
@@ -449,8 +450,8 @@ const generateUnifiedResponseContent = (quoted, captured) => {
 	}
 }
 
-const generateRichMessageContent = (submessages, quoted) => {
-	const ctxInfo = buildRichContextInfo(quoted)
+const generateRichMessageContent = (submessages, quoted, options) => {
+	const ctxInfo = buildRichContextInfo(quoted, options)
 	return {
 		message: buildBotForwardedMessage(submessages, ctxInfo),
 		messageId: generateMessageIDV2()
