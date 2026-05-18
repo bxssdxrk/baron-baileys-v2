@@ -1668,7 +1668,7 @@ const makeMessagesSocket = config => {
 			return { message, messageId }
 		},
 		sendRichMessage: async (jid, submessages, quoted, options = {}) => {
-			const { message, messageId } = message_composer_1.generateRichMessageContent(submessages, quoted)
+			const { message, messageId } = message_composer_1.generateRichMessageContent(submessages, quoted, options)
 			await relayMessage(jid, message, { messageId })
 			return { message, messageId }
 		},
