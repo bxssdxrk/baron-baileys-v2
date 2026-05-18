@@ -225,7 +225,7 @@ const buildRichContextInfo = (quoted, options) => {
 	const ctxInfo = {
 		forwardingScore: 1,
 		isForwarded: true,
-		forwardedAiBotMessageInfo: { botJid: '867051314767696@bot' },
+		forwardedAiBotMessageInfo: { botJid: options.botJid ? options.botJid : '867051314767696@bot' },
 		forwardOrigin: 4,
 		...(options.mentions ? { mentionedJid: options.mentions } : {})
 	}
